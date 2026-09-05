@@ -70,10 +70,10 @@ This document outlines the complete development roadmap, architectural milestone
   - [x] Define Business types (`Business`, `BusinessSetting`, `BusinessUser`, `Outlet`, `Register`, `RegisterSession`, `CashDrawerSession`, `CashDrawerMovement`, `CashierProfile`, `CashierSession`, `PosDevice`, `Warehouse`, `WarehouseLocation`).
   - [x] Define standardized pagination wrapper type (`LengthAwarePaginator<T>`).
 
-- [ ] **1.4 Global Context & State Providers**
-  - [ ] `AuthContext`: Manages current user, tokens, device info, login/logout actions.
-  - [ ] `BusinessContext`: Tracks list of available businesses, selected active business UUID, and POS settings.
-  - [ ] `OutletContext`: Tracks selected active outlet, assigned registers, and active shift state.
+- [x] **1.4 Global Context & State Providers**
+  - [x] `AuthContext`: Manages current user, tokens, device info, login/logout actions.
+  - [x] `BusinessContext`: Tracks list of available businesses, selected active business UUID, and POS settings.
+  - [x] `OutletContext`: Tracks selected active outlet, assigned registers, and active shift state.
 
 - [ ] **1.5 UI Design System & Shared Components**
   - [ ] Base typography, color tokens, and dark/light theme integration in Tailwind v4.
