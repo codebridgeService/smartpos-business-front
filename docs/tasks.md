@@ -87,21 +87,21 @@ This document outlines the complete development roadmap, architectural milestone
 
 ## 🔐 Phase 2: Identity, Authentication & Account Security
 
-- [ ] **2.1 Authentication Pages & Flows**
-  - [ ] **Login Screen (`/auth/login`)**:
-    - [ ] Credentials input (`login` = username/email/phone, `password`).
-    - [ ] Automatic device identification (`device_uuid`, `device_name`, `device_type`, `platform`).
-    - [ ] Store `access_token`, `refresh_token`, and user payload.
-    - [ ] Handling for blocked device or inactive account errors.
-  - [ ] **Register Screen (`/auth/register`)**:
-    - [ ] Fields: Name, username, email, phone, password, password confirmation.
-    - [ ] Validation and immediate authentication on success.
-  - [ ] **Password Recovery Flow (`/auth/forgot-password`)**:
-    - [ ] Step 1: Send OTP to email (`POST /auth/forgot-password/send-code`).
-    - [ ] Step 2: 6-digit OTP verification screen (`POST /auth/verify-reset-code`) with attempt counter feedback.
-    - [ ] Step 3: New password submission with `otp_uuid` (`POST /auth/reset-password`).
-  - [ ] **Logout**:
-    - [ ] Call `POST /auth/logout` with `refresh_token`, purge tokens, and redirect to login.
+- [x] **2.1 Authentication Pages & Flows**
+  - [x] **Login Screen (`/auth/login`)**:
+    - [x] Credentials input (`login` = username/email/phone, `password`).
+    - [x] Automatic device identification (`device_uuid`, `device_name`, `device_type`, `platform`).
+    - [x] Store `access_token`, `refresh_token`, and user payload.
+    - [x] Handling for blocked device or inactive account errors.
+  - [x] **Register Screen (`/auth/register`)**:
+    - [x] Fields: Name, username, email, phone, password, password confirmation.
+    - [x] Validation and immediate authentication on success.
+  - [x] **Password Recovery Flow (`/auth/forgot-password`)**:
+    - [x] Step 1: Send OTP to email (`POST /auth/forgot-password/send-code`).
+    - [x] Step 2: 6-digit OTP verification screen (`POST /auth/verify-reset-code`) with attempt counter feedback.
+    - [x] Step 3: New password submission with `otp_uuid` (`POST /auth/reset-password`).
+  - [x] **Logout**:
+    - [x] Call `POST /auth/logout` with `refresh_token`, purge tokens, and redirect to login.
 
 - [ ] **2.2 User Profile & Account Settings (`/settings/profile`)**
   - [ ] View current user profile (`GET /auth/me`).
