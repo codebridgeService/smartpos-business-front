@@ -59,11 +59,11 @@ This document outlines the complete development roadmap, architectural milestone
   - [x] Configure `next.config.ts` for external image domains (remote avatar and logo URLs).
   - [x] Set up client device UUID persistence helper (generate and store persistent device UUID in `localStorage`).
 
-- [ ] **1.2 HTTP Client & Interceptor Layer**
-  - [ ] Implement a unified API fetch wrapper (`lib/api/client.ts`) with request/response interceptors.
-  - [ ] Inject `Authorization: Bearer <access_token>` on protected routes.
-  - [ ] Add automatic token refresh queue handling on `401 Unauthorized` using `POST /auth/refresh`.
-  - [ ] Handle standard API error responses (`ValidationException`, `ModelNotFoundException`, `AuthenticationException`).
+- [x] **1.2 HTTP Client & Interceptor Layer**
+  - [x] Implement a unified API fetch wrapper (`lib/api/client.ts`) with request/response interceptors.
+  - [x] Inject `Authorization: Bearer <access_token>` on protected routes.
+  - [x] Add automatic token refresh queue handling on `401 Unauthorized` using `POST /auth/refresh`.
+  - [x] Handle standard API error responses (`ValidationException`, `ModelNotFoundException`, `AuthenticationException`).
 
 - [ ] **1.3 TypeScript Schema Definitions**
   - [ ] Define Identity types (`User`, `Role`, `Permission`, `UserDevice`, `UserSession`, `LoginAttempt`).
