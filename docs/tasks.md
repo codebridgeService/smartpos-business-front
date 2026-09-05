@@ -75,13 +75,13 @@ This document outlines the complete development roadmap, architectural milestone
   - [x] `BusinessContext`: Tracks list of available businesses, selected active business UUID, and POS settings.
   - [x] `OutletContext`: Tracks selected active outlet, assigned registers, and active shift state.
 
-- [ ] **1.5 UI Design System & Shared Components**
-  - [ ] Base typography, color tokens, and dark/light theme integration in Tailwind v4.
-  - [ ] Form elements: TextInput, PasswordInput, SearchInput, Select, Checkbox, ToggleSwitch.
-  - [ ] Feedback components: Toast notifications, Alert banners, Loading skeletons, Empty states.
-  - [ ] Layout components: Modal dialogs, Slide-over drawers, Confirmation dialogs, Dropdown menus.
-  - [ ] Data presentation: Data tables with pagination, sortable columns, and search filters.
-  - [ ] App shells: Auth shell (centered auth cards) and Admin/POS dashboard shell (collapsible sidebar, tenant/outlet selector header).
+- [x] **1.5 UI Design System & Shared Components**
+  - [x] Base typography, color tokens, and dark/light theme integration in Tailwind v4.
+  - [x] Form elements: TextInput, PasswordInput, SearchInput, Select, Checkbox, ToggleSwitch.
+  - [x] Feedback components: Toast notifications, Alert banners, Loading skeletons, Empty states.
+  - [x] Layout components: Modal dialogs, Slide-over drawers, Confirmation dialogs, Dropdown menus.
+  - [x] Data presentation: Data tables with pagination, sortable columns, and search filters.
+  - [x] App shells: Auth shell (centered auth cards) and Admin/POS dashboard shell (collapsible sidebar, tenant/outlet selector header).
 
 ---
 
