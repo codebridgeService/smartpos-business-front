@@ -65,10 +65,10 @@ This document outlines the complete development roadmap, architectural milestone
   - [x] Add automatic token refresh queue handling on `401 Unauthorized` using `POST /auth/refresh`.
   - [x] Handle standard API error responses (`ValidationException`, `ModelNotFoundException`, `AuthenticationException`).
 
-- [ ] **1.3 TypeScript Schema Definitions**
-  - [ ] Define Identity types (`User`, `Role`, `Permission`, `UserDevice`, `UserSession`, `LoginAttempt`).
-  - [ ] Define Business types (`Business`, `BusinessSetting`, `BusinessUser`, `Outlet`, `Register`, `RegisterSession`, `CashDrawerSession`, `CashDrawerMovement`, `CashierProfile`, `CashierSession`, `PosDevice`, `Warehouse`, `WarehouseLocation`).
-  - [ ] Define standardized pagination wrapper type (`LengthAwarePaginator<T>`).
+- [x] **1.3 TypeScript Schema Definitions**
+  - [x] Define Identity types (`User`, `Role`, `Permission`, `UserDevice`, `UserSession`, `LoginAttempt`).
+  - [x] Define Business types (`Business`, `BusinessSetting`, `BusinessUser`, `Outlet`, `Register`, `RegisterSession`, `CashDrawerSession`, `CashDrawerMovement`, `CashierProfile`, `CashierSession`, `PosDevice`, `Warehouse`, `WarehouseLocation`).
+  - [x] Define standardized pagination wrapper type (`LengthAwarePaginator<T>`).
 
 - [ ] **1.4 Global Context & State Providers**
   - [ ] `AuthContext`: Manages current user, tokens, device info, login/logout actions.
