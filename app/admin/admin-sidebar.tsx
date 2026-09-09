@@ -42,6 +42,7 @@ import {
   CircleDollarSign,
   Nut,
   LogOut,
+  GitCommit,
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { useOutlet } from "@/context/outlet-context";
@@ -399,6 +400,13 @@ export function AdminSidebar({
           label: "Announcements",
           href: "/admin/announcements",
           icon: <Megaphone className="h-4.5 w-4.5 shrink-0" />,
+        },
+        {
+          label: "Change Log",
+          href: "/admin/system/changelogs",
+          icon: <GitCommit className="h-4.5 w-4.5 shrink-0 text-orange-500" />,
+          badge: "v1.2.1",
+          badgeVariant: "orange",
         },
       ],
     },
