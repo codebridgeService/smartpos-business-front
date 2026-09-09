@@ -43,7 +43,7 @@ export interface User {
   created_at: string | null;
   updated_at: string | null;
   deleted_at: string | null;
-  avatar_url: string;
+  avatar_url: string | null;
   roles?: Role[];
   permissions?: Permission[];
 }
@@ -66,29 +66,46 @@ export interface UserDevice {
 }
 
 export interface UserSession {
-  id: number;
+  id?: number;
   uuid: string;
-  user_id: number;
-  user_device_id: number | null;
+  user_id?: number;
+  user_device_id?: number | null;
+  is_current?: boolean;
+  status?: "active" | "expired" | "revoked";
   ip_address: string | null;
   user_agent: string | null;
   last_activity_at: string | null;
   expires_at: string;
   revoked_at: string | null;
   created_at: string | null;
-  updated_at: string | null;
+  updated_at?: string | null;
+  device?: UserDevice | null;
+}
+
+export interface RevokeSessionResponse {
+  message: string;
+  session_uuid?: string;
+  was_current_session?: boolean;
+}
+
+export interface RevokeAllSessionsResponse {
+  message: string;
+  revoked_count?: number;
 }
 
 export interface LoginAttempt {
   id: number;
   uuid?: string;
   user_id?: number | null;
-  login: string;
+  identifier?: string;
+  login?: string;
   ip_address: string | null;
   user_agent: string | null;
-  is_successful: boolean;
+  status?: string;
+  is_successful?: boolean;
   failure_reason?: string | null;
-  created_at: string;
+  attempted_at?: string;
+  created_at?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -207,6 +224,14 @@ export interface UpdateUserRequest {
   status?: UserStatus;
 }
 
+export interface AvatarUploadResponse {
+  message: string;
+  data: {
+    avatar: string | null;
+    avatar_url: string | null;
+  };
+}
+
 export interface StoreRoleRequest {
   name: string;
   code: string;
@@ -226,6 +251,10 @@ export interface ProvisionRolesRequest {
 export interface SyncRolePermissionsRequest {
   all?: boolean;
   permission_uuids?: string[];
+}
+
+export interface AssignUserRoleRequest {
+  role_uuid: string;
 }
 
 export interface StorePermissionBatchItem {

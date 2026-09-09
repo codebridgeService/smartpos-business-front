@@ -9,3 +9,5 @@ export * from "./alert";
 export * from "./modal";
 export * from "./toast";
 export * from "./data-table";
+export * from "./skeleton";
+export * from "./theme-toggle";

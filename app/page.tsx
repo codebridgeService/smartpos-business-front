@@ -1,11 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 import { useBusiness } from "@/context/business-context";
 import { useOutlet } from "@/context/outlet-context";
 import { DashboardShell } from "@/components/layout";
+import { isOwner, isAdmin, hasRole } from "@/lib/utils/roles";
 import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent, Badge } from "@/components/ui";
 import {
   Store,
@@ -23,11 +25,25 @@ import {
 } from "lucide-react";
 
 export default function HomePage() {
+  const router = useRouter();
   const { user, isAuthenticated, isLoading } = useAuth();
   const { activeBusiness, settings } = useBusiness();
   const { activeOutlet } = useOutlet();
 
-  if (isLoading) {
+  // Redirect authenticated users immediately to their respective home portal
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user) {
+      if (isOwner(user)) {
+        router.replace("/owner");
+      } else if (isAdmin(user)) {
+        router.replace("/admin/dashboard");
+      } else if (hasRole(user, ["cashier", "pos"])) {
+        router.replace("/pos");
+      }
+    }
+  }, [isLoading, isAuthenticated, user, router]);
+
+  if (isLoading || (isAuthenticated && user)) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950">
         <div className="flex flex-col items-center gap-4">
