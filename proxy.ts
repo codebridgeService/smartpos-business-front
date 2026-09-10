@@ -90,6 +90,10 @@ export function proxy(request: NextRequest) {
 
   // Case A: User is already authenticated and visits login/register or root '/' -> redirect to their role's portal
   if ((isAuthRoute || pathname === "/") && isAuthenticated) {
+    const redirectParam = request.nextUrl.searchParams.get("redirect");
+    if (redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("/auth/")) {
+      return NextResponse.redirect(new URL(redirectParam, request.url));
+    }
     const hasOwnerRole = userRoles.some((role) => OWNER_ROLES.includes(role));
     if (hasOwnerRole) {
       const ownerUrl = new URL("/owner", request.url);
@@ -107,7 +111,8 @@ export function proxy(request: NextRequest) {
   // Case B: User is unauthenticated and attempts to visit protected route -> redirect to login with return URL
   if (isProtectedRoute && !isAuthenticated) {
     const loginUrl = new URL("/auth/login", request.url);
-    loginUrl.searchParams.set("redirect", pathname);
+    const destination = pathname + (request.nextUrl.search || "");
+    loginUrl.searchParams.set("redirect", destination);
     return NextResponse.redirect(loginUrl);
   }
 

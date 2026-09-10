@@ -157,6 +157,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null);
       setSession(null);
       setDevice(null);
+      if (typeof window !== "undefined") {
+        const currentPath = window.location.pathname;
+        if (!currentPath.startsWith("/auth/")) {
+          const redirect = encodeURIComponent(currentPath + window.location.search);
+          window.location.href = `/auth/login?redirect=${redirect}`;
+        }
+      }
     });
 
     return unsubscribe;

@@ -112,6 +112,14 @@ export function PermissionMatrixModal({
     });
   }, [allPermissions, selectedModule, searchQuery]);
 
+  const hasUnsavedChanges = useMemo(() => {
+    if (selectedUuids.size !== initialUuids.size) return true;
+    for (const id of selectedUuids) {
+      if (!initialUuids.has(id)) return true;
+    }
+    return false;
+  }, [selectedUuids, initialUuids]);
+
   if (!role) return null;
 
   const handleToggle = (uuid: string) => {
@@ -178,14 +186,6 @@ export function PermissionMatrixModal({
       setIsSaving(false);
     }
   };
-
-  const hasUnsavedChanges = useMemo(() => {
-    if (selectedUuids.size !== initialUuids.size) return true;
-    for (const id of selectedUuids) {
-      if (!initialUuids.has(id)) return true;
-    }
-    return false;
-  }, [selectedUuids, initialUuids]);
 
   return (
     <Modal
