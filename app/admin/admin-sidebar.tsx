@@ -46,6 +46,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { useOutlet } from "@/context/outlet-context";
+import { useTheme } from "@/context/theme-context";
 import { isAdmin } from "@/lib/utils/roles";
 
 export interface AdminNavItem {
@@ -91,10 +92,11 @@ export function AdminSidebar({
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
 
   const toggleDropdown = (label: string) => {
-    setOpenDropdowns((prev) => ({
-      ...prev,
-      [label]: !(prev[label] ?? false),
-    }));
+    setOpenDropdowns((prev) => {
+      const isCurrentlyOpen = Boolean(prev[label]);
+      // If currently open, close it. Otherwise open ONLY this item and close all other dropdowns
+      return isCurrentlyOpen ? {} : { [label]: true };
+    });
   };
 
   const isUserAdmin = isAdmin(user);
@@ -115,6 +117,16 @@ export function AdminSidebar({
           href: "/admin/dashboard",
           icon: <LayoutGrid className="h-4.5 w-4.5 shrink-0" />,
           children: [
+            {
+              label: "Admin Dashboard",
+              href: "/admin/dashboard",
+              icon: <LayoutGrid className="h-3.5 w-3.5 shrink-0" />,
+            },
+            {
+              label: "Admin Dashboard 2",
+              href: "/admin/dashboard?view=v2",
+              icon: <LayoutGrid className="h-3.5 w-3.5 shrink-0" />,
+            },
             {
               label: "Sales Dashboard",
               href: "/admin/dashboard?view=sales",
@@ -246,6 +258,11 @@ export function AdminSidebar({
           href: "#",
           icon: <UserCheck className="h-4.5 w-4.5 shrink-0" />,
           children: [
+            {
+              label: "Users Management",
+              href: "/admin/users",
+              icon: <Users className="h-3.5 w-3.5 shrink-0" />,
+            },
             {
               label: "Roles & RBAC",
               href: "/admin/roles",
@@ -498,13 +515,19 @@ export function AdminSidebar({
         : pathname;
     setActiveKey(fullCurrentPath);
 
-    sections.forEach((sec) => {
-      sec.items.forEach((item) => {
+    let matchedGroup: string | null = null;
+    for (const sec of sections) {
+      for (const item of sec.items) {
         if (item.children?.some((child) => child.href === fullCurrentPath || child.href === pathname)) {
-          setOpenDropdowns((prev) => ({ ...prev, [item.label]: true }));
+          matchedGroup = item.label;
+          break;
         }
-      });
-    });
+      }
+      if (matchedGroup) break;
+    }
+    if (matchedGroup) {
+      setOpenDropdowns({ [matchedGroup]: true });
+    }
   }, [pathname]);
 
   const handleGroupClick = (item: AdminNavItem) => {
@@ -524,39 +547,131 @@ export function AdminSidebar({
     }
   };
 
+  const { getSidebarPreset, themeColor } = useTheme();
+  const sidebarPreset = getSidebarPreset();
+  const isDarkSidebar = sidebarPreset.isDark;
+
+  const accentThemeMap: Record<string, {
+    activeLight: string;
+    activeDark: string;
+    icon: string;
+    chevronLight: string;
+    chevronDark: string;
+  }> = {
+    orange: {
+      activeLight: "bg-[#FFF6EE] dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 font-medium shadow-xs",
+      activeDark: "bg-orange-500 text-white font-medium shadow-md shadow-orange-500/25",
+      icon: "text-orange-500 dark:text-orange-400",
+      chevronLight: "bg-[#FFEADA] dark:bg-orange-900/50 text-orange-500",
+      chevronDark: "bg-white/20 text-white",
+    },
+    teal: {
+      activeLight: "bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 font-medium shadow-xs",
+      activeDark: "bg-teal-600 text-white font-medium shadow-md shadow-teal-600/25",
+      icon: "text-teal-600 dark:text-teal-400",
+      chevronLight: "bg-teal-100 dark:bg-teal-900/50 text-teal-600",
+      chevronDark: "bg-white/20 text-white",
+    },
+    rose: {
+      activeLight: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 font-medium shadow-xs",
+      activeDark: "bg-rose-600 text-white font-medium shadow-md shadow-rose-600/25",
+      icon: "text-rose-600 dark:text-rose-400",
+      chevronLight: "bg-rose-100 dark:bg-rose-900/50 text-rose-600",
+      chevronDark: "bg-white/20 text-white",
+    },
+    purple: {
+      activeLight: "bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 font-medium shadow-xs",
+      activeDark: "bg-purple-600 text-white font-medium shadow-md shadow-purple-600/25",
+      icon: "text-purple-600 dark:text-purple-400",
+      chevronLight: "bg-purple-100 dark:bg-purple-900/50 text-purple-600",
+      chevronDark: "bg-white/20 text-white",
+    },
+    blue: {
+      activeLight: "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-medium shadow-xs",
+      activeDark: "bg-blue-600 text-white font-medium shadow-md shadow-blue-600/25",
+      icon: "text-blue-600 dark:text-blue-400",
+      chevronLight: "bg-blue-100 dark:bg-blue-900/50 text-blue-600",
+      chevronDark: "bg-white/20 text-white",
+    },
+    emerald: {
+      activeLight: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-medium shadow-xs",
+      activeDark: "bg-emerald-600 text-white font-medium shadow-md shadow-emerald-600/25",
+      icon: "text-emerald-600 dark:text-emerald-400",
+      chevronLight: "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600",
+      chevronDark: "bg-white/20 text-white",
+    },
+    amber: {
+      activeLight: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 font-medium shadow-xs",
+      activeDark: "bg-amber-600 text-white font-medium shadow-md shadow-amber-600/25",
+      icon: "text-amber-600 dark:text-amber-400",
+      chevronLight: "bg-amber-100 dark:bg-amber-900/50 text-amber-600",
+      chevronDark: "bg-white/20 text-white",
+    },
+  };
+
+  const currentAccent = accentThemeMap[themeColor] || accentThemeMap.orange;
+  const activeStyle = isDarkSidebar ? currentAccent.activeDark : currentAccent.activeLight;
+  const inactiveStyle = isDarkSidebar
+    ? "text-white/80 hover:bg-white/10 hover:text-white font-normal"
+    : "text-slate-700 dark:text-zinc-300 font-normal hover:bg-slate-100/60 dark:hover:bg-zinc-800/40 hover:text-slate-900 dark:hover:text-zinc-100";
+  const inactiveIcon = isDarkSidebar ? "text-white/70 group-hover:text-white" : "text-slate-400 dark:text-zinc-500 group-hover:text-slate-700 dark:group-hover:text-zinc-200";
+  const activeIcon = isDarkSidebar ? "text-white" : currentAccent.icon;
+  const chevronActive = isDarkSidebar ? currentAccent.chevronDark : currentAccent.chevronLight;
+  const chevronInactive = isDarkSidebar ? "bg-white/10 text-white/70 group-hover:text-white" : "bg-slate-100 dark:bg-zinc-800 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-zinc-200";
+
   // Helper for badge styling
-  const renderBadge = (badge: string, variant?: string, isActive?: boolean) => (
-    <span
-      className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md ${isActive
-        ? "bg-orange-500/15 text-orange-600 dark:text-orange-300"
-        : variant === "warning"
-          ? "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300"
-          : variant === "success"
-            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
-            : variant === "orange"
-              ? "bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300"
-              : variant === "danger"
-                ? "bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300"
-                : "bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-300"
+  const renderBadge = (badge: string, variant?: string, isActive?: boolean) => {
+    if (isDarkSidebar) {
+      return (
+        <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md ${
+          isActive ? "bg-white/25 text-white" : "bg-white/15 text-white"
+        }`}>
+          {badge}
+        </span>
+      );
+    }
+    return (
+      <span
+        className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md ${
+          isActive
+            ? "bg-orange-500/15 text-orange-600 dark:text-orange-300"
+            : variant === "warning"
+              ? "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300"
+              : variant === "success"
+                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
+                : variant === "orange"
+                  ? "bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300"
+                  : variant === "danger"
+                    ? "bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300"
+                    : "bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-300"
         }`}
-    >
-      {badge}
-    </span>
-  );
+      >
+        {badge}
+      </span>
+    );
+  };
 
   return (
     <div className={`flex flex-col h-full select-none ${className}`}>
       {/* Navigation Sections starting directly at top matching Dreams POS design */}
-      <div className="flex-1 overflow-y-auto pr-0.5 py-1 space-y-1">
+      <div className="flex-1 overflow-y-auto no-scrollbar pr-0.5 py-1 space-y-1">
         {sections.map((section, sIdx) => {
           return (
             <div key={sIdx} className="space-y-0.5">
               {/* Section Header */}
-              {!isCollapsed ? (
-                <div className="px-3 pt-3 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
+              <div
+                className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                  isCollapsed
+                    ? "max-h-0 opacity-0 py-0"
+                    : "max-h-8 opacity-100 px-3 pt-3 pb-1.5"
+                }`}
+              >
+                <div className={`text-[11px] font-bold uppercase tracking-wider whitespace-nowrap ${
+                  isDarkSidebar ? "text-white/50" : "text-slate-400 dark:text-zinc-500"
+                }`}>
                   {section.title}
                 </div>
-              ) : null}
+              </div>
 
               {/* Section Items */}
               <div className="space-y-0.5">
@@ -575,9 +690,6 @@ export function AdminSidebar({
                     (item.label === "Financial Settings" && (activeKey.includes("tab=payment-gateways") || activeKey.includes("tab=bank-accounts") || activeKey.includes("tab=tax-rates") || activeKey.includes("tab=currencies"))) ||
                     (item.label === "Other Settings" && (activeKey.includes("tab=storage-settings") || activeKey.includes("tab=ban-ip") || activeKey.includes("tab=clear-cache") || activeKey.includes("tab=other")));
 
-                  // Top-level item is active if:
-                  // 1) It has no children, and matches activeKey/pathname
-                  // 2) OR it has children, matches pathname/item.href, or dropdown is closed and child/group is active
                   const isTopLevelActive = hasChildren
                     ? ((activeKey || pathname) === item.href || (!isOpen && (isAnyChildActive || isSettingsGroupActive)))
                     : (activeKey || pathname) === item.href ||
@@ -587,101 +699,94 @@ export function AdminSidebar({
                       item.href !== "#logout" &&
                       pathname.startsWith(item.href + "/"));
 
-                  if (isCollapsed) {
-                    // Collapsed View (Icon Only with Hover Tooltip)
-                    return (
-                      <div key={item.label} className="relative group flex justify-center py-1">
-                        {item.isAction ? (
-                          <button
-                            type="button"
-                            onClick={() => handleActionClick(item)}
-                            className="h-10 w-10 flex items-center justify-center rounded-xl text-slate-500 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all cursor-pointer"
-                          >
-                            {item.icon}
-                          </button>
-                        ) : (
-                          <Link
-                            href={item.href}
-                            onClick={() => {
-                              if (!hasChildren) {
-                                setActiveKey(item.href);
-                              }
-                              if (onItemClick) onItemClick();
-                            }}
-                            className={`h-10 w-10 flex items-center justify-center rounded-xl transition-all ${isTopLevelActive || isAnyChildActive
-                              ? "bg-orange-50/80 dark:bg-orange-950/40 text-orange-500 dark:text-orange-400 border border-orange-300/50 dark:border-orange-500/20 font-medium"
-                              : "text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100/70 dark:hover:bg-zinc-800/60"
-                              }`}
-                          >
-                            {item.icon}
-                          </Link>
-                        )}
-
-                        {/* Floating Tooltip */}
-                        <div className="absolute left-full ml-3.5 top-1/2 -translate-y-1/2 px-2.5 py-1.5 bg-slate-900 dark:bg-zinc-800 text-white text-xs font-normal rounded-lg shadow-xl whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 flex items-center gap-2">
-                          <span>{item.label}</span>
-                          {item.badge && renderBadge(item.badge, item.badgeVariant, false)}
-                        </div>
-                      </div>
-                    );
-                  }
-
-                  // Expanded View
                   return (
-                    <div key={item.label} className="space-y-0.5">
+                    <div key={item.label} className="space-y-0.5 relative group">
                       {item.isAction ? (
                         <button
                           type="button"
                           onClick={() => handleActionClick(item)}
-                          className="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] text-slate-700 dark:text-zinc-300 font-normal hover:bg-slate-100/60 dark:hover:bg-zinc-800/40 hover:text-slate-900 dark:hover:text-zinc-100 transition-all text-left cursor-pointer"
+                          className={`group flex items-center rounded-2xl text-[14px] transition-all duration-300 ease-in-out text-left cursor-pointer ${
+                            inactiveStyle
+                          } ${
+                            isCollapsed
+                              ? "w-11 h-11 mx-auto justify-center p-0"
+                              : "w-full px-3.5 py-2.5 justify-between"
+                          }`}
                         >
-                          <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <span className="text-slate-400 dark:text-zinc-500 group-hover:text-slate-700 dark:group-hover:text-zinc-200 transition-colors">
+                          <div className={`flex items-center transition-all duration-300 ${
+                            isCollapsed ? "justify-center w-full gap-0" : "gap-3 flex-1 min-w-0"
+                          }`}>
+                            <span className={`shrink-0 flex items-center justify-center w-5 h-5 transition-colors ${
+                              inactiveIcon
+                            }`}>
                               {item.icon}
                             </span>
-                            <span className="truncate">{item.label}</span>
+                            <div
+                              className={`flex items-center justify-between min-w-0 transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap ${
+                                isCollapsed
+                                  ? "max-w-0 w-0 opacity-0 -translate-x-2 pointer-events-none"
+                                  : "max-w-[200px] flex-1 opacity-100 translate-x-0"
+                              }`}
+                            >
+                              <span className="truncate">{item.label}</span>
+                            </div>
                           </div>
                         </button>
                       ) : hasChildren ? (
                         <button
                           type="button"
                           onClick={() => handleGroupClick(item)}
-                          className={`w-full group flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] transition-all text-left cursor-pointer ${isTopLevelActive
-                            ? "bg-[#FFF6EE] dark:bg-orange-950/40 text-orange-500 dark:text-orange-400 font-medium shadow-xs"
-                            : isOpen
-                              ? "text-slate-900 dark:text-zinc-100 font-medium hover:bg-slate-100/60 dark:hover:bg-zinc-800/40"
-                              : "text-slate-700 dark:text-zinc-300 font-normal hover:bg-slate-100/60 dark:hover:bg-zinc-800/40 hover:text-slate-900 dark:hover:text-zinc-100"
-                            }`}
+                          className={`group flex items-center rounded-2xl text-[14px] transition-all duration-300 ease-in-out text-left cursor-pointer ${
+                            isTopLevelActive
+                              ? activeStyle
+                              : isOpen && !isCollapsed
+                                ? isDarkSidebar ? "bg-white/10 text-white font-medium" : "text-slate-900 dark:text-zinc-100 font-medium hover:bg-slate-100/60 dark:hover:bg-zinc-800/40"
+                                : inactiveStyle
+                          } ${
+                            isCollapsed
+                              ? "w-11 h-11 mx-auto justify-center p-0"
+                              : "w-full px-3.5 py-2.5 justify-between"
+                          }`}
                         >
-                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className={`flex items-center transition-all duration-300 ${
+                            isCollapsed ? "justify-center w-full gap-0" : "gap-3 flex-1 min-w-0"
+                          }`}>
                             <span
-                              className={`transition-colors ${isTopLevelActive || isAnyChildActive
-                                ? "text-orange-500 dark:text-orange-400"
-                                : "text-slate-400 dark:text-zinc-500 group-hover:text-slate-700 dark:group-hover:text-zinc-200"
-                                }`}
+                              className={`transition-colors shrink-0 flex items-center justify-center w-5 h-5 ${
+                                isTopLevelActive || isAnyChildActive
+                                  ? activeIcon
+                                  : inactiveIcon
+                              }`}
                             >
                               {item.icon}
                             </span>
-                            <span className="truncate">{item.label}</span>
-                          </div>
-
-                          <div className="flex items-center gap-2 shrink-0">
-                            {item.badge && renderBadge(item.badge, item.badgeVariant, isTopLevelActive)}
-
-                            <span
-                              className={`h-6 w-6 rounded-full flex items-center justify-center transition-colors ${isTopLevelActive
-                                ? "bg-[#FFEADA] dark:bg-orange-900/50 text-orange-500 dark:text-orange-400"
-                                : isOpen
-                                  ? "bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300"
-                                  : "bg-slate-100 dark:bg-zinc-800 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-zinc-200"
-                                }`}
+                            <div
+                              className={`flex items-center justify-between min-w-0 transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap ${
+                                isCollapsed
+                                  ? "max-w-0 w-0 opacity-0 -translate-x-2 pointer-events-none"
+                                  : "max-w-[200px] flex-1 opacity-100 translate-x-0"
+                              }`}
                             >
-                              {isOpen ? (
-                                <ChevronDown className="h-3.5 w-3.5" />
-                              ) : (
-                                <ChevronRight className="h-3.5 w-3.5" />
-                              )}
-                            </span>
+                              <span className="truncate">{item.label}</span>
+                              <div className="flex items-center gap-2 shrink-0 ml-2">
+                                {item.badge && renderBadge(item.badge, item.badgeVariant, isTopLevelActive)}
+                                <span
+                                  className={`h-6 w-6 rounded-full flex items-center justify-center transition-colors ${
+                                    isTopLevelActive
+                                      ? chevronActive
+                                      : isOpen
+                                      ? isDarkSidebar ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300"
+                                      : chevronInactive
+                                  }`}
+                                >
+                                  <ChevronRight
+                                    className={`h-3.5 w-3.5 transition-transform duration-300 ease-in-out ${
+                                      isOpen ? "rotate-90" : "rotate-0"
+                                    }`}
+                                  />
+                                </span>
+                              </div>
+                            </div>
                           </div>
                         </button>
                       ) : (
@@ -691,34 +796,55 @@ export function AdminSidebar({
                             setActiveKey(item.href);
                             if (onItemClick) onItemClick();
                           }}
-                          className={`group flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] transition-all ${isTopLevelActive
-                            ? "bg-[#FFF6EE] dark:bg-orange-950/40 text-orange-500 dark:text-orange-400 font-medium shadow-xs"
-                            : "text-slate-700 dark:text-zinc-300 font-normal hover:bg-slate-100/60 dark:hover:bg-zinc-800/40 hover:text-slate-900 dark:hover:text-zinc-100"
-                            }`}
+                          className={`group flex items-center rounded-2xl text-[14px] transition-all duration-300 ease-in-out ${
+                            isTopLevelActive
+                              ? activeStyle
+                              : inactiveStyle
+                          } ${
+                            isCollapsed
+                              ? "w-11 h-11 mx-auto justify-center p-0"
+                              : "w-full px-3.5 py-2.5 justify-between"
+                          }`}
                         >
-                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className={`flex items-center transition-all duration-300 ${
+                            isCollapsed ? "justify-center w-full gap-0" : "gap-3 flex-1 min-w-0"
+                          }`}>
                             <span
-                              className={`transition-colors ${isTopLevelActive
-                                ? "text-orange-500 dark:text-orange-400"
-                                : "text-slate-400 dark:text-zinc-500 group-hover:text-slate-700 dark:group-hover:text-zinc-200"
-                                }`}
+                              className={`transition-colors shrink-0 flex items-center justify-center w-5 h-5 ${
+                                isTopLevelActive
+                                  ? activeIcon
+                                  : inactiveIcon
+                              }`}
                             >
                               {item.icon}
                             </span>
-                            <span className="truncate">{item.label}</span>
-                          </div>
-
-                          {item.badge && (
-                            <div className="shrink-0">
-                              {renderBadge(item.badge, item.badgeVariant, isTopLevelActive)}
+                            <div
+                              className={`flex items-center justify-between min-w-0 transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap ${
+                                isCollapsed
+                                  ? "max-w-0 w-0 opacity-0 -translate-x-2 pointer-events-none"
+                                  : "max-w-[200px] flex-1 opacity-100 translate-x-0"
+                              }`}
+                            >
+                              <span className="truncate">{item.label}</span>
+                              {item.badge && (
+                                <div className="shrink-0 ml-2">
+                                  {renderBadge(item.badge, item.badgeVariant, isTopLevelActive)}
+                                </div>
+                              )}
                             </div>
-                          )}
+                          </div>
                         </Link>
                       )}
 
                       {/* Dropdown / Submenu matching exact typography of reference */}
-                      {hasChildren && isOpen && (
-                        <div className="pl-9 pr-2 space-y-0.5 py-1">
+                      {hasChildren && (
+                        <div
+                          className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                            isOpen && !isCollapsed
+                              ? "max-h-96 opacity-100 pl-9 pr-2 space-y-0.5 py-1"
+                              : "max-h-0 opacity-0 pointer-events-none py-0"
+                          }`}
+                        >
                           {item.children?.map((child, cIdx) => {
                             const isChildActive =
                               activeKey === child.href ||
@@ -733,13 +859,26 @@ export function AdminSidebar({
                                   setActiveKey(child.href);
                                   if (onItemClick) onItemClick();
                                 }}
-                                style={{ animationDelay: `${cIdx * 25}ms` }}
-                                className={`animate-push-up flex items-center justify-between px-3 py-2 rounded-xl text-[13.5px] transition-colors ${isChildActive
-                                  ? "bg-[#FFF6EE] dark:bg-orange-950/40 text-orange-500 dark:text-orange-400 font-medium"
-                                  : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100/60 dark:hover:bg-zinc-800/40 font-normal"
-                                  }`}
+                                className={`flex items-center justify-between px-3 py-2 rounded-xl text-[13.5px] transition-all duration-150 ease-out hover:translate-x-1 ${
+                                  isChildActive
+                                    ? isDarkSidebar
+                                      ? "bg-white/20 text-white font-medium"
+                                      : currentAccent.activeLight
+                                    : isDarkSidebar
+                                    ? "text-white/70 hover:text-white hover:bg-white/10 font-normal"
+                                    : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100/60 dark:hover:bg-zinc-800/40 font-normal"
+                                }`}
                               >
-                                <span className="truncate">{child.label}</span>
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  <span
+                                    className={`w-1.5 h-1.5 rounded-full shrink-0 transition-all duration-200 ${
+                                      isChildActive
+                                        ? "bg-orange-500 ring-4 ring-orange-200/80 dark:ring-orange-950 scale-110"
+                                        : "bg-slate-300 dark:bg-zinc-600"
+                                    }`}
+                                  />
+                                  <span className={`truncate ${isChildActive ? "font-semibold text-orange-600 dark:text-orange-400" : ""}`}>{child.label}</span>
+                                </div>
                                 {child.badge && renderBadge(child.badge, child.badgeVariant, isChildActive)}
                               </Link>
                             );
@@ -753,12 +892,12 @@ export function AdminSidebar({
 
               {/* Section Divider Line matching Reference Image */}
               {section.showDivider && (
-                <div className="py-2">
-                  {!isCollapsed ? (
-                    <div className="border-t border-slate-150 dark:border-zinc-800/80 mx-1" />
-                  ) : (
-                    <div className="border-t border-slate-200 dark:border-zinc-800 w-6 mx-auto" />
-                  )}
+                <div className="py-2 transition-all duration-300">
+                  <div
+                    className={`border-t transition-all duration-300 ${
+                      isDarkSidebar ? "border-white/15" : "border-slate-200 dark:border-zinc-800"
+                    } ${isCollapsed ? "w-6 mx-auto" : "mx-1"}`}
+                  />
                 </div>
               )}
             </div>
@@ -767,24 +906,38 @@ export function AdminSidebar({
       </div>
 
       {/* Footer Security Badge */}
-      <div className="pt-2.5 pb-1 mt-1 border-t border-slate-150 dark:border-zinc-800 text-[11px] text-slate-500 dark:text-zinc-400 flex items-center justify-between px-2">
-        {!isCollapsed ? (
-          <>
-            <div className="flex items-center gap-1.5 truncate">
-              <ShieldAlert className="h-3.5 w-3.5 text-orange-500 shrink-0" />
-              <span className="truncate font-medium">{user?.roles?.[0]?.name || "Administrator"}</span>
-            </div>
-            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400">
-              Admin
-            </span>
-          </>
-        ) : (
-          <div className="w-full flex justify-center py-1">
-            <span title={user?.roles?.[0]?.name || "Admin"}>
-              <ShieldAlert className="h-4 w-4 text-orange-500" />
-            </span>
+      <div className={`pt-2.5 pb-1 mt-auto border-t text-[11px] flex items-center overflow-hidden transition-all duration-300 ${
+        isDarkSidebar
+          ? "border-white/15 text-white/70"
+          : "border-slate-150 dark:border-zinc-800 text-slate-500 dark:text-zinc-400"
+      } ${
+        isCollapsed ? "justify-center px-0" : "justify-between px-2"
+      }`}>
+        <div className={`flex items-center transition-all duration-300 ${
+          isCollapsed ? "justify-center w-full gap-0" : "gap-2 min-w-0"
+        }`}>
+          <ShieldAlert className={`h-4 w-4 shrink-0 ${isDarkSidebar ? "text-white" : "text-orange-500"}`} />
+          <div
+            className={`transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap ${
+              isCollapsed
+                ? "max-w-0 w-0 opacity-0 -translate-x-2 pointer-events-none"
+                : "max-w-[140px] opacity-100 translate-x-0"
+            }`}
+          >
+            <span className="truncate font-medium block">{user?.roles?.[0]?.name || "Administrator"}</span>
           </div>
-        )}
+        </div>
+        <span
+          className={`text-[10px] font-mono px-1.5 py-0.5 rounded transition-all duration-300 shrink-0 ${
+            isDarkSidebar
+              ? "bg-white/15 text-white"
+              : "bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400"
+          } ${
+            isCollapsed ? "opacity-0 max-w-0 w-0 overflow-hidden pointer-events-none hidden" : "opacity-100"
+          }`}
+        >
+          Admin
+        </span>
       </div>
     </div>
   );

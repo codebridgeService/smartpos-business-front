@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -44,14 +44,18 @@ import {
   UserCheck,
   Truck,
   Megaphone,
+  Sliders,
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { useBusiness } from "@/context/business-context";
 import { useOutlet } from "@/context/outlet-context";
+import { useTheme } from "@/context/theme-context";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { ThemeCustomizerDrawer } from "./theme-customizer-drawer";
 import { AdminSidebar } from "@/app/admin/admin-sidebar";
+import { HorizontalNav } from "./horizontal-nav";
 import { isAdmin, isOwner } from "@/lib/utils/roles";
 import { FeaturesAnnouncementsStore } from "@/lib/storage/features-announcements-store";
 import type { Announcement, AnnouncementRead } from "@/types/features-announcements";
@@ -93,9 +97,16 @@ export interface DashboardShellProps {
 export function DashboardShell({ children, variant = "auto" }: DashboardShellProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
   const { businesses, activeBusiness, selectBusiness } = useBusiness();
   const { outlets, activeOutlet, selectOutlet } = useOutlet();
+
+  // Redirect to login if user is not authenticated on a dashboard route
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push(`/auth/login?redirect=${encodeURIComponent(pathname)}`);
+    }
+  }, [isLoading, isAuthenticated, router, pathname]);
 
   const isUserAdmin = isAdmin(user);
   const isUserOwner = isOwner(user);
@@ -109,6 +120,62 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
   const [isAddNewMenuOpen, setIsAddNewMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isAdminSidebarCollapsed, setIsAdminSidebarCollapsed] = useState(false);
+  const [isSidebarHovered, setIsSidebarHovered] = useState(false);
+  const sidebarOpenTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const sidebarCloseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const {
+    layoutMode,
+    layoutWidth,
+    getTopBarPreset,
+    getSidebarPreset,
+    setIsCustomizerOpen,
+  } = useTheme();
+
+  const topBarPreset = getTopBarPreset();
+  const sidebarPreset = getSidebarPreset();
+
+  const isMini = layoutMode === "mini" || isAdminSidebarCollapsed;
+  // When in mini/collapsed mode, hovering over the sidebar expands it smoothly
+  const isEffectiveCollapsed = isMini && !isSidebarHovered;
+
+  const handleSidebarMouseEnter = () => {
+    if (sidebarCloseTimeoutRef.current) {
+      clearTimeout(sidebarCloseTimeoutRef.current);
+      sidebarCloseTimeoutRef.current = null;
+    }
+    if (isMini && !isSidebarHovered) {
+      if (!sidebarOpenTimeoutRef.current) {
+        sidebarOpenTimeoutRef.current = setTimeout(() => {
+          setIsSidebarHovered(true);
+          sidebarOpenTimeoutRef.current = null;
+        }, 130); // 130ms intentional delay prevents accidental expansion on cursor pass-by
+      }
+    }
+  };
+
+  const handleSidebarMouseLeave = () => {
+    if (sidebarOpenTimeoutRef.current) {
+      clearTimeout(sidebarOpenTimeoutRef.current);
+      sidebarOpenTimeoutRef.current = null;
+    }
+    if (isMini) {
+      if (!sidebarCloseTimeoutRef.current) {
+        sidebarCloseTimeoutRef.current = setTimeout(() => {
+          setIsSidebarHovered(false);
+          sidebarCloseTimeoutRef.current = null;
+        }, 300); // 300ms exit delay prevents premature collapsing when moving cursor
+      }
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (sidebarOpenTimeoutRef.current) clearTimeout(sidebarOpenTimeoutRef.current);
+      if (sidebarCloseTimeoutRef.current) clearTimeout(sidebarCloseTimeoutRef.current);
+    };
+  }, []);
+
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -213,97 +280,151 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
     item.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  if (isLoading && !user) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-zinc-100">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-10 w-10 rounded-2xl bg-orange-500/15 text-orange-500 flex items-center justify-center shadow-xs">
+            <ShoppingBag className="h-5 w-5 animate-pulse" />
+          </div>
+          <span className="text-xs text-slate-500 dark:text-zinc-400 font-medium">Checking authentication...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated && !user) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-zinc-100">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-10 w-10 rounded-2xl bg-orange-500/15 text-orange-500 flex items-center justify-center shadow-xs">
+            <ShoppingBag className="h-5 w-5 animate-pulse" />
+          </div>
+          <span className="text-xs text-slate-500 dark:text-zinc-400 font-medium">Redirecting to login...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 flex flex-col font-sans">
       {/* Top Navigation Bar Matching Design Specification */}
-      <header className="sticky top-0 z-40 h-16 border-b border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex items-center justify-between select-none">
-        {/* Left Section: Brand Logo Box matching sidebar width with dividing line toggle */}
-        <div
-          className={`${
-            showAdminSidebar && isAdminSidebarCollapsed ? "w-20 px-3" : "w-64 px-4"
-          } h-full border-r border-slate-200/80 dark:border-zinc-800 flex items-center justify-between relative shrink-0 transition-all duration-300`}
+      {layoutMode !== "without-header" && (
+        <header
+          className={`sticky top-0 z-50 h-16 border-b flex items-center justify-between select-none transition-colors duration-300 ${topBarPreset.colorClass} ${topBarPreset.borderClass} ${topBarPreset.textClass}`}
         >
-          {/* Brand Logo with Orange Bag & Modern Typography */}
-          <Link href="/" className="flex items-center gap-2.5 min-w-0 group">
-            <div className="h-8.5 w-8.5 rounded-xl bg-gradient-to-tr from-orange-600 to-orange-400 text-white flex items-center justify-center shadow-md shadow-orange-500/25 group-hover:scale-105 transition-transform shrink-0">
-              <ShoppingBag className="h-5 w-5" />
-            </div>
-            {(!showAdminSidebar || !isAdminSidebarCollapsed) && (
-              <div className="flex items-baseline gap-0.5 truncate">
-                <span className="font-extrabold text-lg tracking-tight text-slate-900 dark:text-white">
+          {/* Left Section: Brand Logo Box matching sidebar width with dividing line toggle */}
+          <div
+            onMouseEnter={handleSidebarMouseEnter}
+            onMouseLeave={handleSidebarMouseLeave}
+            className={`${
+              showAdminSidebar && isEffectiveCollapsed ? "w-20 px-2 justify-center" : "w-64 px-3.5 justify-between"
+            } h-full border-r ${topBarPreset.borderClass} flex items-center relative shrink-0 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]`}
+          >
+            {/* Brand Logo with Orange Bag & Modern Typography */}
+            <Link href="/" className={`flex items-center min-w-0 group transition-all duration-300 ${
+              showAdminSidebar && isEffectiveCollapsed ? "justify-center gap-0" : "gap-2.5"
+            }`}>
+              <div className="h-8.5 w-8.5 rounded-xl bg-gradient-to-tr from-orange-600 to-orange-400 text-white flex items-center justify-center shadow-md shadow-orange-500/25 group-hover:scale-105 transition-transform shrink-0">
+                <ShoppingBag className="h-5 w-5" />
+              </div>
+              <div
+                className={`flex items-baseline gap-0.5 truncate transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap ${
+                  showAdminSidebar && isEffectiveCollapsed
+                    ? "max-w-0 w-0 opacity-0 -translate-x-2 pointer-events-none"
+                    : "max-w-[120px] opacity-100 translate-x-0"
+                }`}
+              >
+                <span className={`font-extrabold text-lg tracking-tight ${topBarPreset.isDark ? "text-white" : "text-slate-900 dark:text-white"}`}>
                   Dreams
                 </span>
                 <span className="text-[10px] font-extrabold uppercase tracking-wider text-orange-500 font-mono ml-0.5">
                   POS
                 </span>
               </div>
-            )}
-          </Link>
+            </Link>
 
-          {/* Sidebar Collapse Toggle Button (Circular Orange << / >> centered on dividing line) */}
-          {showAdminSidebar && (
+            {/* Sidebar Collapse Toggle Button (Circular Orange << / >> centered on dividing line) - hidden in horizontal mode */}
+            {showAdminSidebar && layoutMode !== "horizontal" && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsAdminSidebarCollapsed(!isAdminSidebarCollapsed);
+                  setIsSidebarHovered(false);
+                }}
+                className="hidden lg:flex absolute -right-3.5 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-orange-500 hover:bg-orange-600 text-white items-center justify-center shadow-xs shadow-orange-500/30 transition-transform z-30 active:scale-90 cursor-pointer"
+                title={isAdminSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              >
+                {isAdminSidebarCollapsed || layoutMode === "mini" ? (
+                  <ChevronsRight className="h-3.5 w-3.5 stroke-[2.5]" />
+                ) : (
+                  <ChevronsLeft className="h-3.5 w-3.5 stroke-[2.5]" />
+                )}
+              </button>
+            )}
+
+            {/* Mobile hamburger button */}
             <button
               type="button"
-              onClick={() => setIsAdminSidebarCollapsed(!isAdminSidebarCollapsed)}
-              className="hidden lg:flex absolute -right-3.5 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-orange-500 hover:bg-orange-600 text-white items-center justify-center shadow-xs shadow-orange-500/30 transition-transform z-30 active:scale-90"
-              title={isAdminSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className={`lg:hidden p-1.5 rounded-xl transition-colors cursor-pointer ${
+                topBarPreset.isDark ? "text-white hover:bg-white/10" : "text-slate-600 hover:bg-slate-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+              }`}
+              aria-label="Toggle menu"
             >
-              {isAdminSidebarCollapsed ? (
-                <ChevronsRight className="h-3.5 w-3.5 stroke-[2.5]" />
-              ) : (
-                <ChevronsLeft className="h-3.5 w-3.5 stroke-[2.5]" />
-              )}
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
-          )}
-
-          {/* Mobile hamburger button */}
-          <button
-            type="button"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-1.5 rounded-xl text-slate-600 hover:bg-slate-100 dark:text-zinc-300 dark:hover:bg-zinc-800 transition-colors"
-            aria-label="Toggle menu"
-          >
-            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
-        </div>
-
-        {/* Right Section: Global Search Bar, Store Selector, Quick Action Buttons & Status Badges */}
-        <div className="flex-1 flex items-center justify-between px-4 sm:px-6 h-full min-w-0">
-          {/* Global Search Bar with ⌘ K Shortcut */}
-          <div className="flex items-center">
-            <div
-              onClick={() => setIsSearchOpen(true)}
-              className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-800/50 hover:bg-white dark:hover:bg-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 text-slate-400 hover:text-slate-600 transition-all cursor-pointer w-48 sm:w-60 md:w-72 shadow-2xs"
-            >
-              <Search className="h-4 w-4 text-slate-400 shrink-0" />
-              <span className="text-xs text-slate-400 font-normal flex-1">Search</span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-200/70 dark:bg-zinc-700 text-slate-500 dark:text-zinc-400 font-semibold border border-slate-300/60 dark:border-zinc-600">
-                ⌘ K
-              </span>
-            </div>
           </div>
 
-        {/* Right Section: Store Selector, Quick Action Buttons & Status Badges */}
-        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-          {/* Outlet / Store Selector Dropdown */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => {
-                setIsOutletMenuOpen(!isOutletMenuOpen);
-                setIsAddNewMenuOpen(false);
-                setIsUserMenuOpen(false);
-              }}
-              className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-850 hover:bg-slate-50 dark:hover:bg-zinc-800 text-xs font-semibold text-slate-800 dark:text-zinc-200 transition-colors shadow-2xs"
-            >
-              <div className="h-5 w-5 rounded-md bg-slate-900 text-white dark:bg-slate-700 flex items-center justify-center font-bold text-[10px] shrink-0">
-                <Store className="h-3 w-3 text-orange-400" />
+          {/* Right Section: Global Search Bar, Store Selector, Quick Action Buttons & Status Badges */}
+          <div className="flex-1 flex items-center justify-between px-4 sm:px-6 h-full min-w-0">
+            {/* Global Search Bar with ⌘ K Shortcut */}
+            <div className="flex items-center">
+              <div
+                onClick={() => setIsSearchOpen(true)}
+                className={`flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl border transition-all cursor-pointer w-48 sm:w-60 md:w-72 shadow-2xs ${
+                  topBarPreset.isDark
+                    ? "border-white/20 bg-white/10 text-white/70 hover:bg-white/15 hover:text-white"
+                    : "border-slate-200 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-800/50 hover:bg-white dark:hover:bg-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 text-slate-400 hover:text-slate-600"
+                }`}
+              >
+                <Search className={`h-4 w-4 shrink-0 ${topBarPreset.isDark ? "text-white/70" : "text-slate-400"}`} />
+                <span className={`text-xs font-normal flex-1 ${topBarPreset.isDark ? "text-white/70" : "text-slate-400"}`}>Search</span>
+                <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded font-semibold border ${
+                  topBarPreset.isDark
+                    ? "bg-white/20 text-white border-white/30"
+                    : "bg-slate-200/70 dark:bg-zinc-700 text-slate-500 dark:text-zinc-400 border-slate-300/60 dark:border-zinc-600"
+                }`}>
+                  ⌘ K
+                </span>
               </div>
-              <span className="truncate max-w-[90px] sm:max-w-[130px]">
-                {activeOutlet?.name || activeBusiness?.name || "Freshmart"}
-              </span>
-              <ChevronDown className="h-3.5 w-3.5 text-slate-400 shrink-0 ml-auto" />
-            </button>
+            </div>
+
+          {/* Right Section: Store Selector, Quick Action Buttons & Status Badges */}
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+            {/* Outlet / Store Selector Dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsOutletMenuOpen(!isOutletMenuOpen);
+                  setIsAddNewMenuOpen(false);
+                  setIsUserMenuOpen(false);
+                }}
+                className={`flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-semibold transition-colors shadow-2xs ${
+                  topBarPreset.isDark
+                    ? "border-white/20 bg-white/10 text-white hover:bg-white/20"
+                    : "border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-850 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-800 dark:text-zinc-200"
+                }`}
+              >
+                <div className="h-5 w-5 rounded-md bg-slate-900 text-white dark:bg-slate-700 flex items-center justify-center font-bold text-[10px] shrink-0">
+                  <Store className="h-3 w-3 text-orange-400" />
+                </div>
+                <span className="truncate max-w-[90px] sm:max-w-[130px]">
+                  {activeOutlet?.name || activeBusiness?.name || "Freshmart"}
+                </span>
+                <ChevronDown className={`h-3.5 w-3.5 shrink-0 ml-auto ${topBarPreset.isDark ? "text-white/70" : "text-slate-400"}`} />
+              </button>
 
             {isOutletMenuOpen && (
               <div className="absolute right-0 mt-2 w-64 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xl p-1.5 z-50 animate-in fade-in zoom-in-95">
@@ -449,6 +570,20 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
 
           {/* Theme Toggle (Light / Dark / Auto System) */}
           <ThemeToggle />
+
+          {/* Theme & Layout Customizer Settings Button */}
+          <button
+            type="button"
+            onClick={() => setIsCustomizerOpen(true)}
+            className={`p-2 rounded-xl transition-colors flex items-center justify-center cursor-pointer group ${
+              topBarPreset.isDark
+                ? "text-white/80 hover:text-white hover:bg-white/10"
+                : "text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 hover:text-orange-500"
+            }`}
+            title="Customizer: Select Layouts & Colors"
+          >
+            <Sliders className="h-4.5 w-4.5 group-hover:rotate-90 transition-transform duration-300" />
+          </button>
 
           {/* Messages Button with Red Notification Badge 01 */}
           <button
@@ -612,7 +747,7 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
             </button>
 
             {isUserMenuOpen && (
-              <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xl p-1.5 z-50 animate-in fade-in zoom-in-95">
+              <div className="absolute right-0 mt-2 w-64 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xl p-1.5 z-50 animate-in fade-in zoom-in-95">
                 <div className="p-3 border-b border-slate-100 dark:border-zinc-800">
                   <p className="text-xs font-bold text-slate-900 dark:text-zinc-100 truncate">
                     {user?.name || "System Admin"}
@@ -624,6 +759,27 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
                     {user?.roles?.[0]?.name || "Administrator"}
                   </Badge>
                 </div>
+
+                {/* Quick Portal Switcher (Admin <-> Owner) */}
+                {isUserOwner && isUserAdmin && (
+                  <div className="py-1 px-1 border-b border-slate-100 dark:border-zinc-800">
+                    <Link
+                      href={pathname.startsWith("/owner") ? "/admin/dashboard" : "/owner"}
+                      onClick={() => setIsUserMenuOpen(false)}
+                      className="flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-semibold transition-colors"
+                    >
+                      <span className="flex items-center gap-2">
+                        {pathname.startsWith("/owner") ? (
+                          <LayoutDashboard className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                        ) : (
+                          <Crown className="h-3.5 w-3.5 text-amber-500" />
+                        )}
+                        <span>{pathname.startsWith("/owner") ? "Switch to Admin" : "Switch to Owner"}</span>
+                      </span>
+                      <span className="text-[10px] font-bold text-purple-600 dark:text-purple-400">&rarr;</span>
+                    </Link>
+                  </div>
+                )}
                 <div className="py-1">
                   <Link
                     href="/settings/profile"
@@ -664,10 +820,14 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
         </div>
         </div>
       </header>
+      )}
+
+      {/* Horizontal Navigation Menu Bar for horizontal layout */}
+      {layoutMode === "horizontal" && <HorizontalNav />}
 
       {/* Quick Search Spotlight Modal (Triggered by ⌘ K or Search Input) */}
       {isSearchOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in">
+        <div className="fixed inset-0 z-60 flex items-start justify-center pt-20 px-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in">
           <div
             className="fixed inset-0"
             onClick={() => setIsSearchOpen(false)}
@@ -715,62 +875,81 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
       )}
 
       {/* Main Container with Sidebar */}
-      <div className="flex-1 flex">
+      <div className={`flex-1 flex relative ${layoutWidth === "boxed" ? "max-w-[1536px] mx-auto w-full shadow-lg my-2 rounded-2xl overflow-hidden" : "w-full"}`}>
         {/* Sidebar for Desktop */}
-        <aside
-          className={`hidden lg:flex flex-col ${
-            showAdminSidebar && isAdminSidebarCollapsed ? "w-20 p-2.5" : "w-64 p-3.5"
-          } border-r border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 shrink-0 transition-all duration-300`}
-        >
-          {showAdminSidebar ? (
-            <AdminSidebar
-              isCollapsed={isAdminSidebarCollapsed}
-              onToggleCollapse={() => setIsAdminSidebarCollapsed(!isAdminSidebarCollapsed)}
-            />
-          ) : (
-            <div className="space-y-1">
-              {navItems.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                      isActive
-                        ? "bg-blue-600 text-white shadow-sm shadow-blue-600/25 font-semibold"
-                        : "text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-zinc-100"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      {item.icon}
-                      <span>{item.label}</span>
-                    </div>
-                    {item.badge && (
-                      <span
-                        className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+        {layoutMode !== "horizontal" && (
+          <div
+            className={`hidden lg:block relative shrink-0 transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${
+              showAdminSidebar && isMini ? "w-20" : "w-64"
+            }`}
+          >
+            <aside
+              onMouseEnter={handleSidebarMouseEnter}
+              onMouseLeave={handleSidebarMouseLeave}
+              className={`hidden lg:flex flex-col ${
+                showAdminSidebar && isEffectiveCollapsed
+                  ? "w-20 px-2 py-3 z-20"
+                  : isMini
+                  ? "w-64 p-3 absolute top-0 left-0 h-full shadow-2xl ring-1 ring-black/10 dark:ring-white/10 z-40"
+                  : "w-64 p-3 z-20 relative h-full"
+              } border-r transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${sidebarPreset.colorClass} ${sidebarPreset.borderClass} ${sidebarPreset.textClass} ${
+                layoutMode === "detached" ? "m-3 rounded-3xl shadow-xl border" : ""
+              }`}
+            >
+              {showAdminSidebar ? (
+                <AdminSidebar
+                  isCollapsed={isEffectiveCollapsed}
+                  onToggleCollapse={() => {
+                    setIsAdminSidebarCollapsed(!isAdminSidebarCollapsed);
+                    setIsSidebarHovered(false);
+                  }}
+                />
+              ) : (
+                <div className="space-y-1">
+                  {navItems.map((item) => {
+                    const isActive = pathname === item.href;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
                           isActive
-                            ? "bg-white/20 text-white"
-                            : "bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
+                            ? "bg-blue-600 text-white shadow-sm shadow-blue-600/25 font-semibold"
+                            : "text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-zinc-100"
                         }`}
                       >
-                        {item.badge}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </aside>
+                        <div className="flex items-center gap-3">
+                          {item.icon}
+                          <span>{item.label}</span>
+                        </div>
+                        {item.badge && (
+                          <span
+                            className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                              isActive
+                                ? "bg-white/20 text-white"
+                                : "bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
+                            }`}
+                          >
+                            {item.badge}
+                          </span>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </aside>
+          </div>
+        )}
 
         {/* Mobile Navigation Drawer */}
         {isMobileMenuOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden flex">
+          <div className="fixed inset-0 z-60 lg:hidden flex">
             <div
               className="fixed inset-0 bg-black/50 backdrop-blur-sm"
               onClick={() => setIsMobileMenuOpen(false)}
             />
-            <div className="relative w-72 bg-white dark:bg-zinc-900 h-full p-4 flex flex-col z-10">
+            <div className="relative w-72 bg-white dark:bg-zinc-900 h-full p-4 flex flex-col z-50 shadow-2xl animate-in slide-in-from-left duration-200">
               <div className="flex items-center justify-between pb-4 mb-3 border-b border-slate-100 dark:border-zinc-800">
                 <span className="font-bold text-sm tracking-tight text-slate-900 dark:text-white">
                   {showAdminSidebar ? "Admin Console" : "Navigation"}
@@ -783,7 +962,7 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
                   <X className="h-5 w-5" />
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto">
+              <div className="flex-1 overflow-y-auto no-scrollbar">
                 {showAdminSidebar ? (
                   <AdminSidebar onItemClick={() => setIsMobileMenuOpen(false)} />
                 ) : (
@@ -813,8 +992,27 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
         )}
 
         {/* Page Content */}
-        <main className="flex-1 p-5 sm:p-8 max-w-7xl mx-auto w-full">{children}</main>
+        <main
+          className={`flex-1 p-4 sm:p-6 lg:p-7 w-full min-w-0 ${
+            layoutWidth === "boxed" ? "max-w-7xl mx-auto" : ""
+          }`}
+        >
+          {children}
+        </main>
       </div>
+
+      {/* Floating Theme Customizer Trigger Button */}
+      <button
+        type="button"
+        onClick={() => setIsCustomizerOpen(true)}
+        className="fixed right-0 top-1/2 -translate-y-1/2 z-40 bg-orange-500 hover:bg-orange-600 text-white pl-3 pr-2.5 py-3 rounded-l-2xl shadow-xl hover:shadow-orange-500/25 flex items-center gap-2 transition-all active:scale-95 group cursor-pointer"
+        title="Open Theme & Layout Customizer"
+      >
+        <Sliders className="h-4.5 w-4.5 group-hover:rotate-90 transition-transform duration-300" />
+      </button>
+
+      {/* Theme & Layout Customizer Drawer */}
+      <ThemeCustomizerDrawer />
     </div>
   );
 }

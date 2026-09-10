@@ -23,17 +23,17 @@ export function Badge({
 
   const variantStyles = {
     success:
-      "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/60",
+      "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/30",
     warning:
-      "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/60",
+      "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30",
     danger:
-      "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/60",
+      "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/15 dark:text-rose-400 dark:border-rose-500/30",
     info:
-      "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/40 dark:text-sky-300 dark:border-sky-800/60",
+      "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-500/30",
     primary:
-      "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/60",
+      "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-500/15 dark:text-blue-300 dark:border-blue-500/30",
     neutral:
-      "bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800/80 dark:text-zinc-300 dark:border-zinc-700",
+      "bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800/90 dark:text-zinc-300 dark:border-zinc-700",
   };
 
   const dotColors = {
@@ -47,11 +47,11 @@ export function Badge({
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
+      className={`inline-flex flex-row flex-nowrap items-center gap-1.5 rounded-full border whitespace-nowrap shrink-0 select-none ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
       {...props}
     >
-      {dot && <span className={`h-1.5 w-1.5 rounded-full ${dotColors[variant]}`} />}
-      <span>{children}</span>
+      {dot && <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${dotColors[variant]}`} />}
+      {children}
     </span>
   );
 }

@@ -20,6 +20,7 @@ import {
   AlertCircle,
   Plus,
   UserPlus,
+  Globe,
 } from "lucide-react";
 import { apiClient } from "@/lib/api";
 import type { User, LengthAwarePaginator, ApiListResponse } from "@/types";
@@ -34,6 +35,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SearchInput } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar } from "@/components/ui/avatar";
 import { UserDetailsModal } from "./user-details-modal";
 import { CreateUserModal } from "./create-user-modal";
 
@@ -186,26 +188,18 @@ export function UserRoleAssignments({ embedded = false }: UserRoleAssignmentsPro
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/80 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-wider">
-                  <th className="px-5 py-3.5">User Identity</th>
-                  <th className="px-5 py-3.5">Contact Info</th>
-                  <th className="px-5 py-3.5">Assigned Roles</th>
-                  <th className="px-5 py-3.5">Status</th>
-                  <th className="px-5 py-3.5 text-right">Actions</th>
+                  <th className="px-4 py-3.5 whitespace-nowrap">User Identity</th>
+                  <th className="px-4 py-3.5 whitespace-nowrap">Contact Info</th>
+                  <th className="px-4 py-3.5 whitespace-nowrap">Assigned Roles</th>
+                  <th className="px-4 py-3.5 whitespace-nowrap">Last Login & IP</th>
+                  <th className="px-4 py-3.5 whitespace-nowrap">Status</th>
+                  <th className="px-4 py-3.5 text-right whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
                 {filteredUsers.map((u) => {
-                  const initials = u.name
-                    ? u.name
-                      .split(" ")
-                      .filter(Boolean)
-                      .map((n) => n[0])
-                      .join("")
-                      .slice(0, 2)
-                      .toUpperCase()
-                    : (u.username?.[0] || "U").toUpperCase();
                   const fullName = u.name || u.username || "User";
-                  const avatarSrc = u.avatar || (u as unknown as { avatar_url?: string }).avatar_url;
+                  const avatarSrc = u.avatar_url || u.avatar;
                   const userRoles = u.roles || [];
 
                   return (
@@ -214,19 +208,17 @@ export function UserRoleAssignments({ embedded = false }: UserRoleAssignmentsPro
                       className="hover:bg-zinc-50/70 dark:hover:bg-zinc-800/40 transition-colors"
                     >
                       {/* Identity */}
-                      <td className="px-5 py-4">
+                      <td className="px-4 py-3.5">
                         <div className="flex items-center gap-3">
-                          {avatarSrc ? (
-                            <img
-                              src={avatarSrc}
-                              alt={fullName}
-                              className="h-10 w-10 rounded-full object-cover ring-1 ring-zinc-200 dark:ring-zinc-700 shrink-0"
-                            />
-                          ) : (
-                            <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
-                              {initials}
-                            </div>
-                          )}
+                          <Avatar
+                            src={avatarSrc}
+                            name={fullName}
+                            size="md"
+                            shape="circle"
+                            status={u.status}
+                            lastLoginAt={u.last_login_at}
+                            lastLoginIp={u.last_login_ip}
+                          />
                           <div>
                             <div className="font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
                               {fullName}
@@ -239,23 +231,21 @@ export function UserRoleAssignments({ embedded = false }: UserRoleAssignmentsPro
                       </td>
 
                       {/* Contact */}
-                      <td className="px-5 py-4">
+                      <td className="px-4 py-3.5">
                         <div className="space-y-1 text-xs">
                           <div className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-300">
-                            <Mail className="h-3 w-3 text-zinc-400" />
-                            <span className="truncate max-w-[180px]">{u.email}</span>
+                            <Mail className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+                            <span className="truncate max-w-[180px]">{u.email || <span className="text-zinc-400 italic">No email</span>}</span>
                           </div>
-                          {u.phone && (
-                            <div className="flex items-center gap-1.5 text-zinc-400">
-                              <Phone className="h-3 w-3 text-zinc-400" />
-                              <span>{u.phone}</span>
-                            </div>
-                          )}
+                          <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400">
+                            <Phone className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+                            <span>{u.phone || <span className="text-zinc-400 italic">No phone</span>}</span>
+                          </div>
                         </div>
                       </td>
 
                       {/* Assigned Roles */}
-                      <td className="px-5 py-4">
+                      <td className="px-4 py-3.5">
                         <div className="flex flex-wrap items-center gap-1.5 max-w-xs">
                           {userRoles.length === 0 ? (
                             <span className="text-xs text-zinc-400 italic">No roles assigned</span>
@@ -287,8 +277,38 @@ export function UserRoleAssignments({ embedded = false }: UserRoleAssignmentsPro
                         </div>
                       </td>
 
+                      {/* Last Login & IP */}
+                      <td className="px-4 py-3.5 whitespace-nowrap">
+                        <div className="space-y-1 text-xs">
+                          <div className="flex items-center gap-1.5 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                            <Clock className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+                            <span className="whitespace-nowrap">
+                              {u.last_login_at ? (
+                                new Date(u.last_login_at).toLocaleString(undefined, {
+                                  dateStyle: "medium",
+                                  timeStyle: "short",
+                                })
+                              ) : (
+                                <span className="text-zinc-400 italic">Never logged in</span>
+                              )}
+                            </span>
+                          </div>
+                          {u.last_login_ip ? (
+                            <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 font-mono text-[11px] whitespace-nowrap">
+                              <Globe className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+                              <span>{u.last_login_ip}</span>
+                            </div>
+                          ) : u.last_login_at ? (
+                            <div className="flex items-center gap-1.5 text-zinc-400 font-mono text-[11px] whitespace-nowrap">
+                              <Globe className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+                              <span className="italic">No IP recorded</span>
+                            </div>
+                          ) : null}
+                        </div>
+                      </td>
+
                       {/* Status */}
-                      <td className="px-5 py-4">
+                      <td className="px-4 py-3.5 whitespace-nowrap">
                         <Badge
                           variant={u.status === "active" ? "success" : "neutral"}
                           size="sm"
@@ -298,13 +318,13 @@ export function UserRoleAssignments({ embedded = false }: UserRoleAssignmentsPro
                       </td>
 
                       {/* Actions */}
-                      <td className="px-5 py-4 text-right">
+                      <td className="px-4 py-3.5 text-right whitespace-nowrap">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleOpenUserRoles(u.uuid)}
                           leftIcon={<Key className="h-3.5 w-3.5 text-blue-500" />}
-                          className="text-xs hover:border-blue-300 dark:hover:border-blue-800"
+                          className="text-xs hover:border-blue-300 dark:hover:border-blue-800 whitespace-nowrap ml-auto"
                         >
                           Manage Roles
                         </Button>

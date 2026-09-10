@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   User as UserIcon,
   Shield,
@@ -19,14 +19,17 @@ import {
   CheckCircle2,
   AlertCircle,
   Key,
+  Camera,
 } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/toast";
-import { apiClient } from "@/lib/api";
+import { apiClient, usersApi } from "@/lib/api";
+import { useUserStore } from "@/stores";
 import type { User, Role, ApiListResponse } from "@/types";
 
 interface UserDetailsModalProps {
@@ -44,48 +47,79 @@ export function UserDetailsModal({
 }: UserDetailsModalProps) {
   const toast = useToast();
 
-  const [user, setUser] = useState<User | null>(null);
-  const [availableRoles, setAvailableRoles] = useState<Role[]>([]);
-  const [selectedRoleUuid, setSelectedRoleUuid] = useState("");
+  const {
+    selectedUser: user,
+    availableRoles,
+    selectedRoleUuid,
+    isLoadingDetails: isLoading,
+    setSelectedRoleUuid,
+    updateSelectedUser,
+    loadUserDetails,
+    setSelectedUser,
+  } = useUserStore();
+
   const [activeTab, setActiveTab] = useState<"profile" | "roles">("roles");
-  const [isLoading, setIsLoading] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
   const [revokingRoleId, setRevokingRoleId] = useState<number | string | null>(null);
   const [copiedUuid, setCopiedUuid] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  // Fetch full user details and roles catalog
-  const loadUserDetails = useCallback(async (uuid: string) => {
-    setIsLoading(true);
+  const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Avatar file size must be less than 5MB.");
+      return;
+    }
+
+    setIsUploadingAvatar(true);
     try {
-      const [userRes, rolesRes] = await Promise.all([
-        apiClient.get<User>(`/users/${uuid}`),
-        apiClient.get<ApiListResponse<Role> | any>("/roles"),
-      ]);
-
-      setUser(userRes);
-
-      const rList = Array.isArray(rolesRes)
-        ? rolesRes
-        : rolesRes?.data || [];
-      setAvailableRoles(rList);
-      if (rList.length > 0) {
-        setSelectedRoleUuid(rList[0].uuid);
+      const res = await usersApi.uploadAvatar(user.uuid, file);
+      const newUrl = res.data?.avatar_url || res.data?.avatar;
+      updateSelectedUser({ avatar_url: newUrl, avatar: newUrl });
+      toast.success("Avatar updated successfully!");
+      if (onSuccess) {
+        void onSuccess();
       }
     } catch {
-      toast.error("Failed to load user profile details.");
+      toast.error("Failed to upload avatar.");
     } finally {
-      setIsLoading(false);
+      setIsUploadingAvatar(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
-  }, [toast]);
+  };
+
+  const handleAvatarRemove = async () => {
+    if (!user) return;
+    setIsUploadingAvatar(true);
+    try {
+      await usersApi.deleteAvatar(user.uuid);
+      updateSelectedUser({ avatar_url: null, avatar: null });
+      toast.success("Avatar removed.");
+      if (onSuccess) {
+        void onSuccess();
+      }
+    } catch {
+      toast.error("Failed to remove avatar.");
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
 
   useEffect(() => {
     if (isOpen && userUuid) {
-      void loadUserDetails(userUuid);
+      void loadUserDetails(userUuid).catch(() => {
+        toast.error("Failed to load user profile details.");
+      });
       setActiveTab("roles");
     } else {
-      setUser(null);
+      setSelectedUser(null);
     }
-  }, [isOpen, userUuid, loadUserDetails]);
+  }, [isOpen, userUuid, loadUserDetails, setSelectedUser, toast]);
 
   if (!isOpen || !userUuid) return null;
 
@@ -157,14 +191,6 @@ export function UserDetailsModal({
     value: r.uuid,
     label: `${r.name} (${r.code})${r.is_system ? " - System" : ""}`,
   }));
-
-  const userInitials =
-    user?.name
-      ?.split(" ")
-      .map((n) => n[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase() || "U";
 
   return (
     <Modal
@@ -346,18 +372,56 @@ export function UserDetailsModal({
           {/* TAB 2: Account Information */}
           {activeTab === "profile" && (
             <div className="space-y-4 text-xs">
-              <div className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-50/60 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800">
-                <div className="h-14 w-14 rounded-full overflow-hidden border-2 border-white dark:border-zinc-800 bg-blue-600 text-white flex items-center justify-center font-bold text-lg shrink-0">
-                  {user.avatar_url ? (
-                    <img src={user.avatar_url} alt={user.name} className="h-full w-full object-cover" />
-                  ) : (
-                    <span>{userInitials}</span>
-                  )}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-zinc-50/60 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800">
+                <div className="flex items-center gap-4">
+                  <Avatar
+                    src={user.avatar_url || user.avatar}
+                    name={user.name}
+                    size="xl"
+                    shape="circle"
+                    status={user.status}
+                    lastLoginAt={user.last_login_at}
+                    lastLoginIp={user.last_login_ip}
+                  />
+                  <div className="space-y-0.5">
+                    <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">{user.name}</h3>
+                    <p className="text-zinc-500 dark:text-zinc-400">{user.email || "No Email Provided"}</p>
+                    {user.phone && <p className="text-zinc-500 dark:text-zinc-400">{user.phone}</p>}
+                  </div>
                 </div>
-                <div className="space-y-0.5">
-                  <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">{user.name}</h3>
-                  <p className="text-zinc-500 dark:text-zinc-400">{user.email || "No Email Provided"}</p>
-                  {user.phone && <p className="text-zinc-500 dark:text-zinc-400">{user.phone}</p>}
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/png,image/jpeg,image/webp"
+                    className="hidden"
+                    onChange={handleAvatarFileChange}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={isUploadingAvatar}
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center gap-1.5 text-xs"
+                  >
+                    <Camera className="h-3.5 w-3.5" />
+                    {isUploadingAvatar ? "Uploading..." : user.avatar_url ? "Change Avatar" : "Upload Avatar"}
+                  </Button>
+                  {user.avatar_url && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      disabled={isUploadingAvatar}
+                      onClick={handleAvatarRemove}
+                      className="text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+                      title="Remove Avatar"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
                 </div>
               </div>
 
@@ -390,8 +454,18 @@ export function UserDetailsModal({
                 </div>
 
                 <div className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+                  <span className="text-zinc-400 block mb-1">Phone Number</span>
+                  <span className="font-semibold text-zinc-800 dark:text-zinc-200">{user.phone || "Not provided"}</span>
+                </div>
+
+                <div className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
                   <span className="text-zinc-400 block mb-1">Last Login</span>
                   <span className="font-semibold text-zinc-800 dark:text-zinc-200">{formatDate(user.last_login_at)}</span>
+                </div>
+
+                <div className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+                  <span className="text-zinc-400 block mb-1">Last Login IP</span>
+                  <span className="font-mono text-[11px] font-semibold text-zinc-800 dark:text-zinc-200">{user.last_login_ip || "N/A"}</span>
                 </div>
               </div>
             </div>

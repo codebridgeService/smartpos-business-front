@@ -171,7 +171,7 @@ export default function AdminDashboardPage() {
 
   return (
     <FeatureGuard featureKey="dashboard.reports" fallbackTitle="Dashboard & Reports">
-      <div className="space-y-6 max-w-7xl mx-auto pb-12 select-none">
+      <div className="space-y-6 w-full pb-12 select-none">
       {/* 1. Header Title & Date Range */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

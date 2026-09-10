@@ -30,44 +30,44 @@ export function ThemeToggle({ variant = "dropdown", className = "" }: ThemeToggl
   if (variant === "segmented") {
     return (
       <div
-        className={`inline-flex p-1 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-xs font-medium ${className}`}
+        className={`flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-xs font-medium ${className}`}
       >
         <button
           type="button"
           onClick={() => setTheme("light")}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+          className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg transition-all ${
             theme === "light"
               ? "bg-white dark:bg-zinc-700 text-amber-600 dark:text-amber-400 shadow-xs font-semibold"
               : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100"
           }`}
         >
-          <Sun className="h-3.5 w-3.5" />
+          <Sun className="h-3.5 w-3.5 shrink-0" />
           <span>Light</span>
         </button>
 
         <button
           type="button"
           onClick={() => setTheme("dark")}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+          className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg transition-all ${
             theme === "dark"
               ? "bg-white dark:bg-zinc-700 text-sky-600 dark:text-sky-400 shadow-xs font-semibold"
               : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100"
           }`}
         >
-          <Moon className="h-3.5 w-3.5" />
+          <Moon className="h-3.5 w-3.5 shrink-0" />
           <span>Dark</span>
         </button>
 
         <button
           type="button"
           onClick={() => setTheme("system")}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+          className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg transition-all ${
             theme === "system"
               ? "bg-white dark:bg-zinc-700 text-orange-600 dark:text-orange-400 shadow-xs font-semibold"
               : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100"
           }`}
         >
-          <Monitor className="h-3.5 w-3.5" />
+          <Monitor className="h-3.5 w-3.5 shrink-0" />
           <span>System</span>
         </button>
       </div>

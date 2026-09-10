@@ -48,6 +48,11 @@ This document outlines the complete development roadmap, architectural milestone
     ├── Route Protection & Role Guards
     ├── Performance Optimization & Error Boundaries
     └── Production Build & CI/CD
+[Phase 9] Multi-Role Account Context & Role Switching
+    ├── Switch Context API Integration (POST /auth/switch-context)
+    ├── Active Role & Business Scoped Permissions in JWT
+    ├── Zustand useAuthStore Active Context State
+    └── Interactive Role Switcher in User Menu & Dashboard Shell
 ```
 
 ---
@@ -150,6 +155,7 @@ This document outlines the complete development roadmap, architectural milestone
   - [x] User details modal with role management tab (`GET /users/{user}`).
   - [x] Assign role to user (`POST /users/{user}/roles`).
   - [x] Revoke role from user (`DELETE /users/{user}/roles/{role}`).
+  - [ ] *(Future Enhancement)* Real-time Online / Offline user presence indicator (via WebSocket heartbeat or 4-min `last_login_at` activity threshold).
 
 ---
 
@@ -295,3 +301,57 @@ This document outlines the complete development roadmap, architectural milestone
   - [ ] Run ESLint check (`npm run lint`).
   - [ ] Run full Next.js production build (`npm run build`).
   - [ ] Verify zero TypeScript errors and ensure production bundle stability.
+
+---
+
+## 🔀 Phase 9: Multi-Role Account Context & Role Switching
+
+*Ref: Backend Architecture & Implementation Spec: [`identity-service/docs/ROLE_CONTEXT_SWITCHING.md`](file:///Users/macbookpro/Projects/smartpos/identity-service/docs/ROLE_CONTEXT_SWITCHING.md)*
+
+- [ ] **9.1 TypeScript Types & Schema Definitions (`types/identity.ts`)**
+  - [ ] Define `ActiveRole` union: `'owner' | 'admin' | 'manager' | 'cashier' | 'staff'`.
+  - [ ] Define `ActiveContext`: `{ business_uuid: string; role: ActiveRole }`.
+  - [ ] Define `SwitchContextRequest`: `{ business_uuid: string; role: string }`.
+  - [ ] Define `SwitchContextResponse`: Standardized API response containing new `access_token`, `active_context`, `roles`, and `permissions`.
+  - [ ] Update `JwtPayload` type with `active_role`, `business_uuid`, `roles`, `permissions`, and `sid`.
+
+- [ ] **9.2 API Client & Service Method (`lib/api/auth.ts`)**
+  - [ ] Implement `switchContext(payload: SwitchContextRequest): Promise<SwitchContextResponse>`.
+  - [ ] Automatically replace current access token in `tokenStorage` and update `smartpos_access_token` and `smartpos_active_role` cookies.
+  - [ ] Dispatch global `authEvents.onContextSwitched(newContext)` event to reload active stores.
+
+- [ ] **9.3 Zustand State Management (`stores/useAuthStore.ts`)**
+  - [ ] Add state properties: `activeRole`, `availableRoles`, `activeBusinessUuid`.
+  - [ ] Add action `switchRole(role: ActiveRole, businessUuid?: string): Promise<void>`.
+  - [ ] Scoped permission check helper: `hasPermission(perm)` evaluates only the active role's permissions.
+  - [ ] Persist active role context into local storage / cookies for smooth page reloads.
+
+- [ ] **9.4 Next.js Edge Proxy Integration (`proxy.ts`)**
+  - [ ] Read `smartpos_active_role` cookie and extract `active_role` claim from JWT payload.
+  - [ ] Enforce portal access based on `active_role`:
+    - `/admin/*` requires `active_role === 'admin'`.
+    - `/owner/*` requires `active_role === 'owner'`.
+    - `/pos/*` requires `active_role in ['cashier', 'pos', 'owner', 'admin']`.
+  - [ ] If user tries to access `/owner` while active role is `admin`, prompt or redirect to switch context.
+
+- [ ] **9.5 Interactive Role Switcher UI (`components/layout/dashboard-shell.tsx`)**
+  - [ ] Add interactive multi-role switcher inside the top-header User Profile menu:
+    - Display current active role badge and active business name.
+    - List all available assigned roles (`roles` array) with active checkmark.
+    - One-click role switch triggering `switchRole(role)`.
+    - Loading spinner during context switch and smooth toast notification feedback.
+  - [ ] Provide quick portal toggle shortcut button between Admin (`/admin/dashboard`) and Owner (`/owner`).
+  - [ ] *(Future Enhancement)* Multi-Account fast-switch / remembered user account switcher.
+  - [ ] *(Future Enhancement)* Real-time Online / Offline presence detection (via WebSocket heartbeat or 4-min `last_login_at` activity window).
+
+- [ ] **9.6 Route Guards & Error Boundary Updates**
+  - [ ] Update `AdminGuard` (`components/admin/admin-guard.tsx`) to check `activeRole === 'admin'`.
+  - [ ] Update `OwnerGuard` (`components/owner/owner-guard.tsx`) to check `activeRole === 'owner'`.
+  - [ ] Render a friendly "Switch to Required Role" button on 403 Access Denied screens instead of dead-ends.
+
+- [ ] **9.7 Automated Testing & Verification**
+  - [ ] Unit tests for `useAuthStore.switchRole` in `test/unit/stores.test.ts`.
+  - [ ] Test that permissions update to match only the newly active role.
+  - [ ] Test token storage updates on successful context switch.
+  - [ ] Verify Next.js production build (`npm run build`).
+
