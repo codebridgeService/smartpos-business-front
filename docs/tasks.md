@@ -103,53 +103,53 @@ This document outlines the complete development roadmap, architectural milestone
   - [x] **Logout**:
     - [x] Call `POST /auth/logout` with `refresh_token`, purge tokens, and redirect to login.
 
-- [ ] **2.2 User Profile & Account Settings (`/settings/profile`)**
-  - [ ] View current user profile (`GET /auth/me`).
-  - [ ] Edit personal information (`PUT /users/{user}`).
-  - [ ] Avatar management:
-    - [ ] WebP image upload modal (`POST /users/{user}/avatar` via `multipart/form-data`).
-    - [ ] Delete avatar button (`DELETE /users/{user}/avatar`).
+- [x] **2.2 User Profile & Account Settings (`/settings/profile`)**
+  - [x] View current user profile (`GET /auth/me`).
+  - [x] Edit personal information (`PUT /users/{user}`).
+  - [x] Avatar management:
+    - [x] WebP image upload modal (`POST /users/{user}/avatar` via `multipart/form-data`).
+    - [x] Delete avatar button (`DELETE /users/{user}/avatar`).
 
-- [ ] **2.3 Session & Device Security (`/settings/security`)**
-  - [ ] Active Sessions list (`GET /sessions`):
-    - [ ] Display IP address, browser/user agent, last activity, expiration.
-    - [ ] Terminate specific session (`DELETE /sessions/{userSession}`).
-    - [ ] Terminate all other sessions button (`DELETE /sessions?except_current=true`).
-  - [ ] Registered Devices list (`GET /devices`):
-    - [ ] Display device type, platform, trust status, block status, last seen.
-    - [ ] Trust device action (`PATCH /devices/{userDevice}/trust`).
-    - [ ] Block device action (`PATCH /devices/{userDevice}/block`).
-  - [ ] Login Attempts audit table (`GET /login-attempts` with pagination).
+- [x] **2.3 Session & Device Security (`/settings/security`)**
+  - [x] Active Sessions list (`GET /sessions`):
+    - [x] Display IP address, browser/user agent, last activity, expiration.
+    - [x] Terminate specific session (`DELETE /sessions/{userSession}`).
+    - [x] Terminate all other sessions button (`DELETE /sessions?except_current=true`).
+  - [x] Registered Devices list (`GET /devices`):
+    - [x] Display device type, platform, trust status, block status, last seen.
+    - [x] Trust device action (`PATCH /devices/{userDevice}/trust`).
+    - [x] Block device action (`PATCH /devices/{userDevice}/block`).
+  - [x] Login Attempts audit table (`GET /login-attempts` with pagination).
 
-- [ ] **2.4 POS Fast-Access PIN (`/settings/pos-pin`)**
-  - [ ] Set or change 4-to-6 digit numeric POS PIN (`PUT /users/{user}/pos-pin`).
-  - [ ] In-app PIN test / verification tool (`POST /users/{user}/pos-pin/verify`).
+- [x] **2.4 POS Fast-Access PIN (`/settings/pos-pin`)**
+  - [x] Set or change 4-to-6 digit numeric POS PIN (`PUT /users/{user}/pos-pin`).
+  - [x] In-app PIN test / verification tool (`POST /users/{user}/pos-pin/verify`).
 
 ---
 
 ## 🛡️ Phase 3: RBAC & Access Control
 
-- [ ] **3.1 Permissions Management (`/admin/permissions`)**
-  - [ ] Paginated permissions directory (`GET /permissions`).
-  - [ ] Filter permissions by module (Auth, Business, Outlet, Register, Inventory).
-  - [ ] Batch permission creation modal (`POST /permissions`).
-  - [ ] Edit and delete permission modals (`PUT/DELETE /permissions/{permission}`).
+- [x] **3.1 Permissions Management (`/admin/permissions`)**
+  - [x] Paginated permissions directory (`GET /permissions`).
+  - [x] Filter permissions by module (Auth, Business, Outlet, Register, Inventory).
+  - [x] Batch permission creation modal (`POST /permissions`).
+  - [x] Edit and delete permission modals (`PUT/DELETE /permissions/{permission}`).
 
-- [ ] **3.2 Roles Management (`/admin/roles`)**
-  - [ ] Paginated roles list with badges for system vs. custom roles (`GET /roles`).
-  - [ ] Create custom role modal (`POST /roles`).
-  - [ ] Edit role details (`PUT /roles/{role}`).
-  - [ ] Safe delete role (`DELETE /roles/{role}` with prevention banner for system roles).
-  - [ ] **Role Auto-Provisioning button**: Trigger `POST /roles/provision` to instantiate default roles (`Store_Manager`, `Cashier`, `Inventory_Clerk`) for a business.
-  - [ ] **Permission Matrix Editor**:
-    - [ ] Interactive matrix to view and toggle permissions attached to a role.
-    - [ ] Synchronize selected permissions (`POST /roles/{role}/permissions`).
-    - [ ] "Attach All Permissions" one-click action (`POST /roles/{role}/permissions/all`).
+- [x] **3.2 Roles Management (`/admin/roles`)**
+  - [x] Paginated roles list with badges for system vs. custom roles (`GET /roles`).
+  - [x] Create custom role modal (`POST /roles`).
+  - [x] Edit role details (`PUT /roles/{role}`).
+  - [x] Safe delete role (`DELETE /roles/{role}` with prevention banner for system roles).
+  - [x] **Role Auto-Provisioning button**: Trigger `POST /roles/provision` to instantiate default roles (`Store_Manager`, `Cashier`, `Inventory_Clerk`) for a business.
+  - [x] **Permission Matrix Editor**:
+    - [x] Interactive matrix to view and toggle permissions attached to a role.
+    - [x] Synchronize selected permissions (`POST /roles/{role}/permissions`).
+    - [x] "Attach All Permissions" one-click action (`POST /roles/{role}/permissions/all`).
 
-- [ ] **3.3 User Role Assignment**
-  - [ ] User details modal with role management tab (`GET /users/{user}`).
-  - [ ] Assign role to user (`POST /users/{user}/roles`).
-  - [ ] Revoke role from user (`DELETE /users/{user}/roles/{role}`).
+- [x] **3.3 User Role Assignment**
+  - [x] User details modal with role management tab (`GET /users/{user}`).
+  - [x] Assign role to user (`POST /users/{user}/roles`).
+  - [x] Revoke role from user (`DELETE /users/{user}/roles/{role}`).
 
 ---
 

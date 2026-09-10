@@ -10,6 +10,7 @@ import React, {
 } from "react";
 import { apiClient, tokenStorage, authEvents } from "@/lib/api";
 import { getDeviceInfo } from "@/lib/utils/device";
+import { getUserRoleCodes } from "@/lib/utils/roles";
 import type {
   User,
   UserDevice,
@@ -59,6 +60,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await apiClient.get<AuthMeResponse>("/auth/me");
       setUser(res.user);
+      if (res.user) {
+        tokenStorage.setUserRoles(getUserRoleCodes(res.user));
+      }
       setSession(res.session);
       setDevice(res.device);
     } catch {
@@ -91,6 +95,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       setUser(response.user);
+      if (response.user) {
+        tokenStorage.setUserRoles(getUserRoleCodes(response.user));
+      }
       // Asynchronously load session details in background
       void refreshUser();
 
@@ -117,6 +124,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       setUser(response.user);
+      if (response.user) {
+        tokenStorage.setUserRoles(getUserRoleCodes(response.user));
+      }
       void refreshUser();
 
       return response;

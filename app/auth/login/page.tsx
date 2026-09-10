@@ -8,6 +8,7 @@ import { TextInput, PasswordInput, Button, Alert } from "@/components/ui";
 import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/components/ui/toast";
 import { ApiError } from "@/lib/api";
+import { isOwner, isAdmin, hasRole } from "@/lib/utils/roles";
 import { LogIn, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
@@ -58,7 +59,51 @@ export default function LoginPage() {
       });
 
       toast.success(`Welcome back, ${res.user.name}!`);
-      router.push("/");
+
+      // 1. Prioritize redirect query param if present
+      const redirectUrl =
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search).get("redirect")
+          : null;
+
+      // If user is Store Owner, always land on /owner unless they specifically requested a subpage
+      if (isOwner(res.user)) {
+        if (
+          redirectUrl &&
+          !redirectUrl.startsWith("/admin") &&
+          redirectUrl !== "/"
+        ) {
+          router.push(redirectUrl);
+        } else {
+          router.push("/owner");
+        }
+        return;
+      }
+
+      // 2. Non-owner redirect flow (Admin, Cashier, etc.)
+      if (redirectUrl) {
+        const isOwnerRedirect =
+          redirectUrl === "/admin/owner" ||
+          redirectUrl.startsWith("/admin/owner/") ||
+          redirectUrl === "/owner" ||
+          redirectUrl.startsWith("/owner/");
+
+        if (isOwnerRedirect) {
+          router.push("/admin/dashboard");
+        } else {
+          router.push(redirectUrl);
+        }
+        return;
+      }
+
+      // 3. Default role landing destinations
+      if (isAdmin(res.user)) {
+        router.push("/admin/dashboard");
+      } else if (hasRole(res.user, ["cashier", "pos"])) {
+        router.push("/pos");
+      } else {
+        router.push("/admin/dashboard");
+      }
     } catch (err: unknown) {
       if (err instanceof ApiError) {
         if (err.isValidationError() && err.errors) {

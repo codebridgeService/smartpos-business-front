@@ -5,6 +5,7 @@
 
 const ACCESS_TOKEN_KEY = "smartpos_access_token";
 const REFRESH_TOKEN_KEY = "smartpos_refresh_token";
+const USER_ROLES_KEY = "smartpos_user_roles";
 
 /**
  * Cookie helper for client-side cookies
@@ -65,6 +66,27 @@ export const tokenStorage = {
     setCookie(REFRESH_TOKEN_KEY, token, 30);
   },
 
+  getUserRoles(): string[] {
+    if (typeof window === "undefined") return [];
+    try {
+      const raw = localStorage.getItem(USER_ROLES_KEY) || getCookie(USER_ROLES_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  },
+
+  setUserRoles(roles: string[]): void {
+    if (typeof window === "undefined") return;
+    const serialized = JSON.stringify(roles);
+    try {
+      localStorage.setItem(USER_ROLES_KEY, serialized);
+    } catch {
+      // ignore
+    }
+    setCookie(USER_ROLES_KEY, serialized, 7);
+  },
+
   setTokens(tokens: { access_token: string; refresh_token: string }): void {
     this.setAccessToken(tokens.access_token);
     this.setRefreshToken(tokens.refresh_token);
@@ -75,11 +97,13 @@ export const tokenStorage = {
     try {
       localStorage.removeItem(ACCESS_TOKEN_KEY);
       localStorage.removeItem(REFRESH_TOKEN_KEY);
+      localStorage.removeItem(USER_ROLES_KEY);
     } catch {
       // ignore
     }
     removeCookie(ACCESS_TOKEN_KEY);
     removeCookie(REFRESH_TOKEN_KEY);
+    removeCookie(USER_ROLES_KEY);
   },
 
   hasTokens(): boolean {
