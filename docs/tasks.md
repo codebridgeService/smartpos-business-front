@@ -161,22 +161,22 @@ This document outlines the complete development roadmap, architectural milestone
 
 ## 🏢 Phase 4: Business Operations & Multi-Tenancy Master
 
-- [ ] **4.1 Business Master Management (`/businesses`)**
-  - [ ] Business Switcher component in the top navigation bar with search and active indicator.
-  - [ ] List user's businesses (`GET /businesses`).
-  - [ ] **Create Business Modal (`POST /businesses`)**:
-    - [ ] Input: Name, code, legal name, tax number, registration number, address, currency, timezone, tax rate.
-    - [ ] Success Dialog: Display auto-provisioned default outlet, cash register, and machine credentials (`device_code` and `machine_password`).
-  - [ ] Edit business details (`PUT /businesses/{business}`).
-  - [ ] Delete business modal (`DELETE /businesses/{business}`).
+- [x] **4.1 Business Master Management (`/businesses`)**
+  - [x] Business Switcher component in the top navigation bar with search and active indicator.
+  - [x] List user's businesses (`GET /businesses`).
+  - [x] **Create Business Modal (`POST /businesses`)**:
+    - [x] Input: Name, code, legal name, tax number, registration number, address, currency, timezone, tax rate.
+    - [x] Success Dialog: Display auto-provisioned default outlet, cash register, and machine credentials (`device_code` and `machine_password`).
+  - [x] Edit business details (`PUT /businesses/{business}`).
+  - [x] Delete business modal (`DELETE /businesses/{business}`).
 
-- [ ] **4.2 POS Global Settings (`/businesses/{business}/settings`)**
-  - [ ] Receipt customization (receipt prefix, header, footer).
-  - [ ] Tax configuration (enable/disable, default percentage, tax inclusive toggle).
-  - [ ] Operational policies:
-    - [ ] Allow negative inventory stock toggle.
-    - [ ] Allow cashier discounts toggle & maximum discount percentage limit.
-    - [ ] Terminal auto-lock timeout duration (minutes).
+- [x] **4.2 POS Global Settings (`/businesses/{business}/settings`)**
+  - [x] Receipt customization (receipt prefix, header, footer).
+  - [x] Tax configuration (enable/disable, default percentage, tax inclusive toggle).
+  - [x] Operational policies:
+    - [x] Allow negative inventory stock toggle.
+    - [x] Allow cashier discounts toggle & maximum discount percentage limit.
+    - [x] Terminal auto-lock timeout duration (minutes).
 
 - [ ] **4.3 Outlets (Store Locations) (`/businesses/{business}/outlets`)**
   - [ ] Outlets grid/table displaying name, code, phone, address, and device count (`GET /businesses/{business}/outlets`).

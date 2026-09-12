@@ -154,13 +154,13 @@ describe("Theme & Layout Customizer System", () => {
       </ThemeProvider>
     );
 
-    expect(screen.queryByText("Customizer & Layouts")).toBeNull();
+    expect(screen.queryByText("Theme Customizer")).toBeNull();
 
     act(() => {
       fireEvent.click(screen.getByText("Open Customizer"));
     });
 
-    expect(screen.getByText("Customizer & Layouts")).toBeDefined();
+    expect(screen.getByText("Theme Customizer")).toBeDefined();
     expect(screen.getByText("Select Layouts")).toBeDefined();
     expect(screen.getByText("Layout Width")).toBeDefined();
     expect(screen.getByText("Top Bar Color")).toBeDefined();

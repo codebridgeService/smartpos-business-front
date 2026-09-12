@@ -75,7 +75,7 @@ export default function LoginPage() {
         ) {
           router.push(redirectUrl);
         } else {
-          router.push("/owner");
+          router.push("/businesses");
         }
         return;
       }
@@ -85,8 +85,8 @@ export default function LoginPage() {
         const isOwnerRedirect =
           redirectUrl === "/admin/owner" ||
           redirectUrl.startsWith("/admin/owner/") ||
-          redirectUrl === "/owner" ||
-          redirectUrl.startsWith("/owner/");
+          redirectUrl === "/businesses" ||
+          redirectUrl.startsWith("/businesses/");
 
         if (isOwnerRedirect) {
           router.push("/admin/dashboard");

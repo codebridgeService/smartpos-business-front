@@ -94,15 +94,15 @@ export function proxy(request: NextRequest) {
     if (redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("/auth/")) {
       return NextResponse.redirect(new URL(redirectParam, request.url));
     }
-    const hasOwnerRole = userRoles.some((role) => OWNER_ROLES.includes(role));
-    if (hasOwnerRole) {
-      const ownerUrl = new URL("/owner", request.url);
-      return NextResponse.redirect(ownerUrl);
-    }
     const hasAdminRole = userRoles.some((role) => ADMIN_ROLES.includes(role));
     if (hasAdminRole) {
       const dashboardUrl = new URL("/admin/dashboard", request.url);
       return NextResponse.redirect(dashboardUrl);
+    }
+    const hasOwnerRole = userRoles.some((role) => OWNER_ROLES.includes(role));
+    if (hasOwnerRole) {
+      const ownerUrl = new URL("/businesses", request.url);
+      return NextResponse.redirect(ownerUrl);
     }
     const posUrl = new URL("/pos", request.url);
     return NextResponse.redirect(posUrl);
@@ -143,7 +143,7 @@ export function proxy(request: NextRequest) {
         // If user is owner, redirect directly to /owner
         const hasOwnerRole = userRoles.some((role) => OWNER_ROLES.includes(role));
         if (hasOwnerRole) {
-          const ownerUrl = new URL("/owner", request.url);
+          const ownerUrl = new URL("/businesses", request.url);
           ownerUrl.searchParams.set("error", "admin_role_required");
           return NextResponse.redirect(ownerUrl);
         }

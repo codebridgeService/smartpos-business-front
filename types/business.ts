@@ -37,6 +37,10 @@ export interface Business {
   is_tax_inclusive: boolean;
   timezone: string;
   status: BusinessStatus;
+  outlets_count?: number;
+  registers_count?: number;
+  pos_devices_count?: number;
+  business_users_count?: number;
   created_at: string | null;
   updated_at: string | null;
 }
