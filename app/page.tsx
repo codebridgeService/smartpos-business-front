@@ -30,15 +30,17 @@ export default function HomePage() {
   const { activeBusiness, settings } = useBusiness();
   const { activeOutlet } = useOutlet();
 
-  // Redirect authenticated users immediately to their respective home portal
+  // Redirect authenticated users immediately to their respective isolated home portal
   useEffect(() => {
     if (!isLoading && isAuthenticated && user) {
-      if (isOwner(user)) {
-        router.replace("/owner");
-      } else if (isAdmin(user)) {
+      if (isAdmin(user)) {
         router.replace("/admin/dashboard");
+      } else if (isOwner(user)) {
+        router.replace("/businesses");
       } else if (hasRole(user, ["cashier", "pos"])) {
         router.replace("/pos");
+      } else {
+        router.replace("/businesses");
       }
     }
   }, [isLoading, isAuthenticated, user, router]);

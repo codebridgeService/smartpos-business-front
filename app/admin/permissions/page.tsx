@@ -39,12 +39,13 @@ import {
   Trash2,
 } from "lucide-react";
 import { apiClient } from "@/lib/api";
+import { usePermissionStore } from "@/stores/usePermissionStore";
 import {
   BatchCreatePermissionModal,
   EditPermissionModal,
   DeletePermissionModal,
 } from "@/components/admin/permissions";
-import type { Permission, LengthAwarePaginator, ApiListResponse } from "@/types";
+import type { Permission } from "@/types";
 import {
   Card,
   CardHeader,
@@ -860,47 +861,42 @@ const MODULE_REGISTRY: Record<string, ModuleMeta> = {
 };
 
 export default function AdminPermissionsPage() {
-  const [permissions, setPermissions] = useState<Permission[]>(DEFAULT_PERMISSIONS);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedModule, setSelectedModule] = useState<string>("all");
-  const [selectedAction, setSelectedAction] = useState<string>("all");
+  const {
+    permissions,
+    isLoading,
+    error,
+    searchQuery,
+    selectedModule,
+    selectedAction,
+    collapsedModules,
+    isBatchModalOpen,
+    permissionToEdit,
+    permissionToDelete,
+    setPermissions,
+    setSearchQuery,
+    setSelectedModule,
+    setSelectedAction,
+    toggleModuleCollapse,
+    toggleAllModules,
+    openBatchModal,
+    closeBatchModal,
+    openEditModal,
+    closeEditModal,
+    openDeleteModal,
+    closeDeleteModal,
+    fetchPermissions,
+    getModules,
+    getGroupedMatrix,
+  } = usePermissionStore();
+
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
-  const [collapsedModules, setCollapsedModules] = useState<Record<string, boolean>>({});
-
-  // Modals state
-  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
-  const [permissionToEdit, setPermissionToEdit] = useState<Permission | null>(null);
-  const [permissionToDelete, setPermissionToDelete] = useState<Permission | null>(null);
-
-  // Fetch permissions from identity-service API
-  const fetchPermissions = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const res = await apiClient.get<LengthAwarePaginator<Permission> | ApiListResponse<Permission> | Permission[]>(
-        "/permissions?per_page=150"
-      );
-
-      let fetchedList: Permission[] = [];
-      if (Array.isArray(res)) {
-        fetchedList = res;
-      } else if (res && typeof res === "object" && "data" in res && Array.isArray(res.data)) {
-        fetchedList = res.data;
-      }
-
-      if (fetchedList.length > 0) {
-        setPermissions(fetchedList);
-      }
-    } catch {
-      // Fallback seamlessly to the comprehensive seeded catalog
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
 
   useEffect(() => {
+    if (usePermissionStore.getState().permissions.length === 0) {
+      setPermissions(DEFAULT_PERMISSIONS);
+    }
     void fetchPermissions();
-  }, [fetchPermissions]);
+  }, [fetchPermissions, setPermissions]);
 
   // Copy code handler with visual feedback
   const handleCopyCode = async (code: string) => {
@@ -915,89 +911,12 @@ export default function AdminPermissionsPage() {
     }
   };
 
-  // Toggle single module accordion
-  const toggleModuleCollapse = (mod: string) => {
-    setCollapsedModules((prev) => ({
-      ...prev,
-      [mod]: !prev[mod],
-    }));
-  };
-
-  // Expand / Collapse all modules
-  const toggleAllModules = (expand: boolean) => {
-    const nextState: Record<string, boolean> = {};
-    if (!expand) {
-      allModules.forEach((mod) => {
-        nextState[mod] = true;
-      });
-    }
-    setCollapsedModules(nextState);
-  };
-
-  // Extract unique modules ordered alphabetically
-  const allModules = useMemo(() => {
-    const modSet = new Set<string>();
-    permissions.forEach((p) => {
-      if (p.module) modSet.add(p.module.toLowerCase());
-    });
-    return Array.from(modSet).sort();
-  }, [permissions]);
-
-  // Group and order permissions by module
-  const groupedPermissions = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-
-    // Filter permissions
-    const filtered = permissions.filter((perm) => {
-      // Module filter
-      if (selectedModule !== "all" && perm.module?.toLowerCase() !== selectedModule) {
-        return false;
-      }
-
-      // Action type filter (e.g. view, create, update, delete, manage)
-      if (selectedAction !== "all") {
-        const actionPart = perm.code.split(".").pop()?.toLowerCase() || "";
-        if (!actionPart.includes(selectedAction)) {
-          return false;
-        }
-      }
-
-      // Search query filter
-      if (query) {
-        const matchesCode = perm.code.toLowerCase().includes(query);
-        const matchesName = perm.name.toLowerCase().includes(query);
-        const matchesDesc = perm.description?.toLowerCase().includes(query);
-        const matchesModule = perm.module?.toLowerCase().includes(query);
-        return Boolean(matchesCode || matchesName || matchesDesc || matchesModule);
-      }
-
-      return true;
-    });
-
-    // Group by module
-    const groups: Record<string, Permission[]> = {};
-    filtered.forEach((perm) => {
-      const mod = perm.module?.toLowerCase() || "general";
-      if (!groups[mod]) {
-        groups[mod] = [];
-      }
-      groups[mod].push(perm);
-    });
-
-    // Sort permissions within each module by code
-    Object.keys(groups).forEach((mod) => {
-      groups[mod].sort((a, b) => a.code.localeCompare(b.code));
-    });
-
-    // Sort module keys alphabetically for deterministic ordering
-    const sortedModuleKeys = Object.keys(groups).sort();
-
-    return {
-      sortedModuleKeys,
-      groups,
-      totalMatching: filtered.length,
-    };
-  }, [permissions, searchQuery, selectedModule, selectedAction]);
+  // Derive unique modules and grouped permissions directly from PermissionState getters
+  const allModules = useMemo(() => getModules(), [permissions, getModules]);
+  const groupedPermissions = useMemo(
+    () => getGroupedMatrix(),
+    [permissions, searchQuery, selectedModule, selectedAction, getGroupedMatrix]
+  );
 
   // Helper for action badge styling
   const getActionBadge = (code: string) => {
@@ -1088,7 +1007,7 @@ export default function AdminPermissionsPage() {
           <Button
             variant="ghost"
             size="md"
-            onClick={() => void fetchPermissions()}
+            onClick={() => void fetchPermissions(true)}
             isLoading={isLoading}
             leftIcon={<RefreshCw className="h-4 w-4" />}
           >
@@ -1097,7 +1016,7 @@ export default function AdminPermissionsPage() {
           <Button
             variant="primary"
             size="md"
-            onClick={() => setIsBatchModalOpen(true)}
+            onClick={openBatchModal}
             leftIcon={<Plus className="h-4 w-4" />}
           >
             Batch Create
@@ -1353,7 +1272,7 @@ export default function AdminPermissionsPage() {
 
                             <button
                               type="button"
-                              onClick={() => setPermissionToEdit(perm)}
+                              onClick={() => openEditModal(perm)}
                               className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
                               title="Edit permission"
                               aria-label="Edit permission"
@@ -1363,7 +1282,7 @@ export default function AdminPermissionsPage() {
 
                             <button
                               type="button"
-                              onClick={() => setPermissionToDelete(perm)}
+                              onClick={() => openDeleteModal(perm)}
                               className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
                               title="Delete permission"
                               aria-label="Delete permission"
@@ -1385,22 +1304,28 @@ export default function AdminPermissionsPage() {
       {/* Permissions Modals */}
       <BatchCreatePermissionModal
         isOpen={isBatchModalOpen}
-        onClose={() => setIsBatchModalOpen(false)}
-        onSuccess={fetchPermissions}
+        onClose={closeBatchModal}
+        onSuccess={async () => {
+          await fetchPermissions(true);
+        }}
       />
 
       <EditPermissionModal
         isOpen={Boolean(permissionToEdit)}
-        onClose={() => setPermissionToEdit(null)}
+        onClose={closeEditModal}
         permission={permissionToEdit}
-        onSuccess={fetchPermissions}
+        onSuccess={async () => {
+          await fetchPermissions(true);
+        }}
       />
 
       <DeletePermissionModal
         isOpen={Boolean(permissionToDelete)}
-        onClose={() => setPermissionToDelete(null)}
+        onClose={closeDeleteModal}
         permission={permissionToDelete}
-        onSuccess={fetchPermissions}
+        onSuccess={async () => {
+          await fetchPermissions(true);
+        }}
       />
     </div>
   );

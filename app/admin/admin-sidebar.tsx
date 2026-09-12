@@ -30,7 +30,6 @@ import {
   History,
   Settings,
   ShieldAlert,
-  ChevronDown,
   ChevronRight,
   Store,
   Key,
@@ -45,9 +44,9 @@ import {
   GitCommit,
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
+import { useBusiness } from "@/context/business-context";
 import { useOutlet } from "@/context/outlet-context";
 import { useTheme } from "@/context/theme-context";
-import { isAdmin } from "@/lib/utils/roles";
 
 export interface AdminNavItem {
   label: string;
@@ -83,7 +82,12 @@ export function AdminSidebar({
   const router = useRouter();
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { activeBusiness, businesses } = useBusiness();
   const { outlets } = useOutlet();
+
+  const businessSettingsHref = activeBusiness?.uuid
+    ? `/businesses/${activeBusiness.uuid}/settings`
+    : "/businesses";
 
   // Active item tracking (by href) - set on click and synced with pathname
   const [activeKey, setActiveKey] = useState<string>(() => pathname);
@@ -98,8 +102,6 @@ export function AdminSidebar({
       return isCurrentlyOpen ? {} : { [label]: true };
     });
   };
-
-  const isUserAdmin = isAdmin(user);
 
   // Navigation sections matching Dreams POS Admin Specification:
   // Main:
@@ -140,6 +142,20 @@ export function AdminSidebar({
               badgeVariant: "success",
             },
           ],
+        },
+        {
+          label: "Business Settings",
+          href: businessSettingsHref,
+          icon: <Settings className="h-4.5 w-4.5 shrink-0" />,
+          badge: activeBusiness?.code || "Tenant",
+          badgeVariant: "neutral",
+        },
+        {
+          label: "Business Master",
+          href: "/businesses",
+          icon: <Building2 className="h-4.5 w-4.5 shrink-0" />,
+          badge: businesses.length > 0 ? `${businesses.length}` : undefined,
+          badgeVariant: "neutral",
         },
         {
           label: "Super Admin",
@@ -378,6 +394,13 @@ export function AdminSidebar({
       showDivider: true,
       items: [
         {
+          label: "Business Master",
+          href: "/businesses",
+          icon: <Building2 className="h-4.5 w-4.5 shrink-0" />,
+          badge: "Multi-Tenant",
+          badgeVariant: "orange",
+        },
+        {
           label: "Cash Registers",
           href: "/admin/businesses/registers",
           icon: <Calculator className="h-4.5 w-4.5 shrink-0" />,
@@ -513,6 +536,7 @@ export function AdminSidebar({
       typeof window !== "undefined" && window.location.search
         ? `${pathname}${window.location.search}`
         : pathname;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setActiveKey(fullCurrentPath);
 
     let matchedGroup: string | null = null;
@@ -528,6 +552,7 @@ export function AdminSidebar({
     if (matchedGroup) {
       setOpenDropdowns({ [matchedGroup]: true });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const handleGroupClick = (item: AdminNavItem) => {
@@ -654,7 +679,7 @@ export function AdminSidebar({
   return (
     <div className={`flex flex-col h-full select-none ${className}`}>
       {/* Navigation Sections starting directly at top matching Dreams POS design */}
-      <div className="flex-1 overflow-y-auto no-scrollbar pr-0.5 py-1 space-y-1">
+      <div className={`flex-1 overflow-y-auto no-scrollbar py-1 space-y-1 ${isCollapsed ? "" : "pr-0.5"}`}>
         {sections.map((section, sIdx) => {
           return (
             <div key={sIdx} className="space-y-0.5">
@@ -705,27 +730,22 @@ export function AdminSidebar({
                         <button
                           type="button"
                           onClick={() => handleActionClick(item)}
-                          className={`group flex items-center rounded-2xl text-[14px] transition-all duration-300 ease-in-out text-left cursor-pointer ${
-                            inactiveStyle
-                          } ${
-                            isCollapsed
-                              ? "w-11 h-11 mx-auto justify-center p-0"
-                              : "w-full px-3.5 py-2.5 justify-between"
-                          }`}
+                          title={isCollapsed ? item.label : undefined}
+                          className={`group flex items-center rounded-2xl text-[14px] transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] text-left cursor-pointer w-full h-11 focus:outline-none ${
+                            isCollapsed ? "justify-center px-0" : "px-3"
+                          } ${inactiveStyle}`}
                         >
-                          <div className={`flex items-center transition-all duration-300 ${
-                            isCollapsed ? "justify-center w-full gap-0" : "gap-3 flex-1 min-w-0"
-                          }`}>
+                          <div className={`flex items-center ${isCollapsed ? "justify-center w-full" : "w-full min-w-0"}`}>
                             <span className={`shrink-0 flex items-center justify-center w-5 h-5 transition-colors ${
                               inactiveIcon
                             }`}>
                               {item.icon}
                             </span>
                             <div
-                              className={`flex items-center justify-between min-w-0 transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap ${
+                              className={`flex items-center justify-between min-w-0 flex-1 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden whitespace-nowrap ${
                                 isCollapsed
-                                  ? "max-w-0 w-0 opacity-0 -translate-x-2 pointer-events-none"
-                                  : "max-w-[200px] flex-1 opacity-100 translate-x-0"
+                                  ? "max-w-0 opacity-0 -translate-x-2 pointer-events-none ml-0"
+                                  : "max-w-[200px] opacity-100 translate-x-0 ml-3"
                               }`}
                             >
                               <span className="truncate">{item.label}</span>
@@ -736,21 +756,18 @@ export function AdminSidebar({
                         <button
                           type="button"
                           onClick={() => handleGroupClick(item)}
-                          className={`group flex items-center rounded-2xl text-[14px] transition-all duration-300 ease-in-out text-left cursor-pointer ${
+                          title={isCollapsed ? item.label : undefined}
+                          className={`group flex items-center rounded-2xl text-[14px] transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] text-left cursor-pointer w-full h-11 focus:outline-none ${
+                            isCollapsed ? "justify-center px-0" : "px-3"
+                          } ${
                             isTopLevelActive
                               ? activeStyle
                               : isOpen && !isCollapsed
                                 ? isDarkSidebar ? "bg-white/10 text-white font-medium" : "text-slate-900 dark:text-zinc-100 font-medium hover:bg-slate-100/60 dark:hover:bg-zinc-800/40"
                                 : inactiveStyle
-                          } ${
-                            isCollapsed
-                              ? "w-11 h-11 mx-auto justify-center p-0"
-                              : "w-full px-3.5 py-2.5 justify-between"
                           }`}
                         >
-                          <div className={`flex items-center transition-all duration-300 ${
-                            isCollapsed ? "justify-center w-full gap-0" : "gap-3 flex-1 min-w-0"
-                          }`}>
+                          <div className={`flex items-center ${isCollapsed ? "justify-center w-full" : "w-full min-w-0"}`}>
                             <span
                               className={`transition-colors shrink-0 flex items-center justify-center w-5 h-5 ${
                                 isTopLevelActive || isAnyChildActive
@@ -761,10 +778,10 @@ export function AdminSidebar({
                               {item.icon}
                             </span>
                             <div
-                              className={`flex items-center justify-between min-w-0 transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap ${
+                              className={`flex items-center justify-between min-w-0 flex-1 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden whitespace-nowrap ${
                                 isCollapsed
-                                  ? "max-w-0 w-0 opacity-0 -translate-x-2 pointer-events-none"
-                                  : "max-w-[200px] flex-1 opacity-100 translate-x-0"
+                                  ? "max-w-0 opacity-0 -translate-x-2 pointer-events-none ml-0"
+                                  : "max-w-[200px] opacity-100 translate-x-0 ml-3"
                               }`}
                             >
                               <span className="truncate">{item.label}</span>
@@ -796,19 +813,16 @@ export function AdminSidebar({
                             setActiveKey(item.href);
                             if (onItemClick) onItemClick();
                           }}
-                          className={`group flex items-center rounded-2xl text-[14px] transition-all duration-300 ease-in-out ${
+                          title={isCollapsed ? item.label : undefined}
+                          className={`group flex items-center rounded-2xl text-[14px] transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] w-full h-11 focus:outline-none ${
+                            isCollapsed ? "justify-center px-0" : "px-3"
+                          } ${
                             isTopLevelActive
                               ? activeStyle
                               : inactiveStyle
-                          } ${
-                            isCollapsed
-                              ? "w-11 h-11 mx-auto justify-center p-0"
-                              : "w-full px-3.5 py-2.5 justify-between"
                           }`}
                         >
-                          <div className={`flex items-center transition-all duration-300 ${
-                            isCollapsed ? "justify-center w-full gap-0" : "gap-3 flex-1 min-w-0"
-                          }`}>
+                          <div className={`flex items-center ${isCollapsed ? "justify-center w-full" : "w-full min-w-0"}`}>
                             <span
                               className={`transition-colors shrink-0 flex items-center justify-center w-5 h-5 ${
                                 isTopLevelActive
@@ -819,10 +833,10 @@ export function AdminSidebar({
                               {item.icon}
                             </span>
                             <div
-                              className={`flex items-center justify-between min-w-0 transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap ${
+                              className={`flex items-center justify-between min-w-0 flex-1 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden whitespace-nowrap ${
                                 isCollapsed
-                                  ? "max-w-0 w-0 opacity-0 -translate-x-2 pointer-events-none"
-                                  : "max-w-[200px] flex-1 opacity-100 translate-x-0"
+                                  ? "max-w-0 opacity-0 -translate-x-2 pointer-events-none ml-0"
+                                  : "max-w-[200px] opacity-100 translate-x-0 ml-3"
                               }`}
                             >
                               <span className="truncate">{item.label}</span>
@@ -845,7 +859,7 @@ export function AdminSidebar({
                               : "max-h-0 opacity-0 pointer-events-none py-0"
                           }`}
                         >
-                          {item.children?.map((child, cIdx) => {
+                          {item.children?.map((child) => {
                             const isChildActive =
                               activeKey === child.href ||
                               (!activeKey && pathname === child.href) ||
@@ -911,16 +925,16 @@ export function AdminSidebar({
           ? "border-white/15 text-white/70"
           : "border-slate-150 dark:border-zinc-800 text-slate-500 dark:text-zinc-400"
       } ${
-        isCollapsed ? "justify-center px-0" : "justify-between px-2"
+        isCollapsed ? "px-1 justify-center" : "justify-between px-2"
       }`}>
-        <div className={`flex items-center transition-all duration-300 ${
-          isCollapsed ? "justify-center w-full gap-0" : "gap-2 min-w-0"
-        }`}>
-          <ShieldAlert className={`h-4 w-4 shrink-0 ${isDarkSidebar ? "text-white" : "text-orange-500"}`} />
+        <div className={`flex items-center ${isCollapsed ? "justify-center" : "min-w-0 gap-2"}`}>
+          <span className="w-5 h-5 shrink-0 flex items-center justify-center">
+            <ShieldAlert className={`h-4 w-4 shrink-0 ${isDarkSidebar ? "text-white" : "text-orange-500"}`} />
+          </span>
           <div
-            className={`transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap ${
+            className={`transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden whitespace-nowrap ${
               isCollapsed
-                ? "max-w-0 w-0 opacity-0 -translate-x-2 pointer-events-none"
+                ? "max-w-0 opacity-0 -translate-x-2 pointer-events-none"
                 : "max-w-[140px] opacity-100 translate-x-0"
             }`}
           >
@@ -933,7 +947,7 @@ export function AdminSidebar({
               ? "bg-white/15 text-white"
               : "bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400"
           } ${
-            isCollapsed ? "opacity-0 max-w-0 w-0 overflow-hidden pointer-events-none hidden" : "opacity-100"
+            isCollapsed ? "opacity-0 max-w-0 overflow-hidden pointer-events-none scale-90" : "opacity-100 scale-100"
           }`}
         >
           Admin

@@ -131,6 +131,36 @@ describe("Zustand Stores", () => {
       store.closeBatchCreate();
       expect(usePermissionStore.getState().isBatchCreateOpen).toBe(false);
     });
+
+    it("orders permissions strictly by module and then by code", () => {
+      const store = usePermissionStore.getState();
+      store.setSearchQuery("");
+      store.setSelectedModule("all");
+      store.setSelectedAction("all");
+      const mockUnsorted = [
+        { id: 1, uuid: "u1", code: "users.update", name: "Update Users", module: "users", description: null, created_at: null, updated_at: null },
+        { id: 2, uuid: "u2", code: "dashboard.view", name: "View Dashboard", module: "dashboard", description: null, created_at: null, updated_at: null },
+        { id: 3, uuid: "u3", code: "users.create", name: "Create Users", module: "users", description: null, created_at: null, updated_at: null },
+        { id: 4, uuid: "u4", code: "billing.invoice", name: "Invoicing", module: "billing", description: null, created_at: null, updated_at: null },
+        { id: 5, uuid: "u5", code: "billing.charge", name: "Charge Card", module: "billing", description: null, created_at: null, updated_at: null },
+      ];
+
+      store.setPermissions(mockUnsorted);
+      const current = usePermissionStore.getState().permissions;
+
+      expect(current.map((p) => p.code)).toEqual([
+        "billing.charge",
+        "billing.invoice",
+        "dashboard.view",
+        "users.create",
+        "users.update",
+      ]);
+
+      const grouped = usePermissionStore.getState().getGroupedPermissions();
+      expect(Object.keys(grouped)).toEqual(["billing", "dashboard", "users"]);
+      expect(grouped["billing"].map((p) => p.code)).toEqual(["billing.charge", "billing.invoice"]);
+      expect(grouped["users"].map((p) => p.code)).toEqual(["users.create", "users.update"]);
+    });
   });
 
   describe("useUserStore", () => {

@@ -197,30 +197,25 @@ export function ThemeCustomizerDrawer() {
       {/* Slide-over Drawer */}
       <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
         <aside className="w-screen max-w-md bg-white dark:bg-zinc-900 border-l border-slate-200 dark:border-zinc-800 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
-          {/* Header */}
-          <div className="px-5 py-4.5 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-slate-50/70 dark:bg-zinc-850/50">
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-orange-500 text-white flex items-center justify-center shadow-md shadow-orange-500/25">
-                <Sliders className="h-5 w-5" />
+          {/* Header - Dreams POS Dark Navy Header matching screenshot 1 */}
+          <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-[#1e293b] text-white">
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-sm tracking-tight text-white">
+                  Theme Customizer
+                </h3>
+                <span className="text-[9.5px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-orange-500 text-white">
+                  Live
+                </span>
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-sm text-slate-900 dark:text-white tracking-tight">
-                    Customizer & Layouts
-                  </h3>
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400">
-                    Live
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">
-                  Customize layout, navbar & color palette
-                </p>
-              </div>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Choose your themes & layouts etc.
+              </p>
             </div>
             <button
               type="button"
               onClick={() => setIsCustomizerOpen(false)}
-              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200 hover:bg-slate-200/60 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+              className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
               aria-label="Close customizer"
             >
               <X className="h-5 w-5" />
@@ -228,9 +223,9 @@ export function ThemeCustomizerDrawer() {
           </div>
 
           {/* Body with Accordion Sections */}
-          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
+          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
             {/* Section 1: Select Layouts */}
-            <div className="border border-slate-200/90 dark:border-zinc-800 rounded-2xl p-4 bg-slate-50/50 dark:bg-zinc-850/30">
+            <div className="border border-slate-200 dark:border-zinc-800 rounded-2xl p-4 bg-slate-50/60 dark:bg-zinc-850/40">
               <button
                 type="button"
                 onClick={() => toggleSection("layouts")}
@@ -262,20 +257,25 @@ export function ThemeCustomizerDrawer() {
                         onClick={() => setLayoutMode(opt.id)}
                         className={`group relative flex flex-col items-center p-2 rounded-xl border text-center transition-all cursor-pointer ${
                           isActive
-                            ? "border-orange-500 bg-orange-50/40 dark:bg-orange-950/30 shadow-xs ring-1 ring-orange-500"
+                            ? "border-orange-500 bg-orange-50/50 dark:bg-orange-950/30 shadow-xs ring-1 ring-orange-500"
                             : "border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-slate-300 dark:hover:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800/60"
                         }`}
                       >
-                        {isActive && (
-                          <div className="absolute top-1.5 right-1.5 h-4 w-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-xs">
-                            <Check className="h-2.5 w-2.5 stroke-[3]" />
-                          </div>
-                        )}
-                        <div className="w-full px-1">{opt.preview(isActive)}</div>
+                        <div className="relative w-full px-0.5">
+                          {opt.preview(isActive)}
+                          {/* Centered Green Circular Checkmark matching Dreams POS Screenshots 1, 3, 4 */}
+                          {isActive && (
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <div className="h-5.5 w-5.5 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-md ring-2 ring-white dark:ring-zinc-900 animate-in zoom-in-75 duration-150">
+                                <Check className="h-3 w-3 stroke-[3]" />
+                              </div>
+                            </div>
+                          )}
+                        </div>
                         <span
-                          className={`text-[11.5px] font-medium mt-2 truncate w-full ${
+                          className={`text-[11px] font-semibold mt-2 truncate w-full ${
                             isActive
-                              ? "text-orange-600 dark:text-orange-400 font-semibold"
+                              ? "text-orange-600 dark:text-orange-400"
                               : "text-slate-700 dark:text-zinc-300"
                           }`}
                         >
