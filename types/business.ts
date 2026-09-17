@@ -122,7 +122,13 @@ export interface Outlet {
   is_active: boolean;
   status: "active" | "inactive" | string;
   devices_count?: number;
+  pos_devices_count?: number;
   registers_count?: number;
+  business?: Business;
+  registers?: Register[];
+  pos_devices?: PosDevice[];
+  posDevices?: PosDevice[];
+  warehouses?: any[];
   created_at: string | null;
   updated_at: string | null;
 }

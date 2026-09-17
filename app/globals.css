@@ -283,6 +283,45 @@ body {
   background: rgba(148, 163, 184, 0.6);
 }
 
+/* Custom Sleek Sidebar Scrollbar with Smooth Scrolling */
+.sidebar-scrollbar {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+  scroll-behavior: smooth;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 9999px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sidebar-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.6);
+}
+
+:where(.dark) .sidebar-scrollbar {
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+:where(.dark) .sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+:where(.dark) .sidebar-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.45);
+}
+
 /* Hide scrollbar utility across WebKit, Firefox, and Edge */
 .no-scrollbar::-webkit-scrollbar {
   display: none !important;
@@ -340,5 +379,43 @@ body {
 .animate-push-up {
   opacity: 0;
   animation: pushDownToUp 0.34s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Modern Skeleton Shimmer / Wave Animation */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 1.6s infinite ease-in-out;
+}
+
+:where(.dark) .animate-shimmer::after {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
 }
 

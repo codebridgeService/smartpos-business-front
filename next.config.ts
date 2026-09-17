@@ -4,6 +4,16 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
+        protocol: "http",
+        hostname: "api.smartpos.test",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "api.smartpos.test",
+        pathname: "/**",
+      },
+      {
         protocol: "https",
         hostname: "smartpos-api.servicefixit.me",
         pathname: "/**",

@@ -4,8 +4,7 @@
  */
 
 export const env = {
-  apiBaseUrl:
-    process.env.NEXT_PUBLIC_API_BASE_URL || "https://smartpos-api.servicefixit.me/api/v1",
+  apiBaseUrl: (process.env.NEXT_PUBLIC_API_BASE_URL || "").replace(/\/+$/, ""),
   appName: process.env.NEXT_PUBLIC_APP_NAME || "SmartPOS Business",
   appEnv: process.env.NEXT_PUBLIC_APP_ENV || "development",
   defaultDeviceType: process.env.NEXT_PUBLIC_DEFAULT_DEVICE_TYPE || "browser",

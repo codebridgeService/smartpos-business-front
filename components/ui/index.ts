@@ -12,3 +12,4 @@ export * from "./data-table";
 export * from "./skeleton";
 export * from "./theme-toggle";
 export * from "./avatar";
+export * from "./animated-number";

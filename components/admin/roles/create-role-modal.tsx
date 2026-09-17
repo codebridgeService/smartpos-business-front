@@ -8,7 +8,7 @@ import { TextInput } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
 import { useBusiness } from "@/context/business-context";
-import { apiClient } from "@/lib/api";
+import { useRoleStore } from "@/stores/useRoleStore";
 import type { Role, StoreRoleRequest } from "@/types";
 
 interface CreateRoleModalProps {
@@ -24,6 +24,8 @@ export function CreateRoleModal({
 }: CreateRoleModalProps) {
   const toast = useToast();
   const { businesses, activeBusiness } = useBusiness();
+
+  const { createRole } = useRoleStore();
 
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
@@ -71,14 +73,12 @@ export function CreateRoleModal({
     setIsSubmitting(true);
 
     try {
-      const payload: StoreRoleRequest = {
+      await createRole({
         name: name.trim(),
         code: code.trim().toLowerCase(),
         business_uuid: businessUuid || null,
         is_system: isSystem,
-      };
-
-      await apiClient.post<Role>("/roles", payload);
+      });
 
       toast.success(`Role "${name}" created successfully!`);
       await onSuccess();

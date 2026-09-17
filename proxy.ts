@@ -12,6 +12,7 @@ const PROTECTED_PREFIXES = [
   "/warehouses",
   "/businesses",
   "/settings",
+  "/outlets",
 ];
 
 // Specific roles allowed for owner portal (Store Owner only)
@@ -54,12 +55,38 @@ function extractRolesFromToken(token?: string): string[] {
   }
 }
 
+function extractUserUuidFromToken(token?: string): string | null {
+  if (!token) return null;
+  try {
+    const parts = token.split(".");
+    if (parts.length < 2) return null;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    const payload = JSON.parse(jsonPayload);
+    return payload.user_uuid || payload.sub || null;
+  } catch {
+    return null;
+  }
+}
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 1. Redirect legacy /admin/owner paths directly to /owner
-  if (pathname === "/admin/owner" || pathname.startsWith("/admin/owner/")) {
-    const target = pathname.replace(/^\/admin\/owner/, "/owner");
+  // 1. Redirect legacy /admin/owner or /owner paths directly to /businesses
+  if (
+    pathname === "/admin/owner" ||
+    pathname.startsWith("/admin/owner/") ||
+    pathname === "/owner" ||
+    pathname.startsWith("/owner/")
+  ) {
+    const subpath = pathname.replace(/^\/admin\/owner/, "").replace(/^\/owner/, "");
+    const target = subpath ? `/businesses${subpath}` : "/businesses";
     return NextResponse.redirect(new URL(target, request.url));
   }
 
@@ -76,9 +103,14 @@ export function proxy(request: NextRequest) {
       const parsed = JSON.parse(decodeURIComponent(rolesCookie));
       if (Array.isArray(parsed)) {
         userRoles = parsed.map((r) => String(r).toLowerCase().trim());
+      } else if (typeof parsed === "string") {
+        userRoles = [parsed.toLowerCase().trim()];
       }
     } catch {
-      userRoles = [];
+      userRoles = decodeURIComponent(rolesCookie)
+        .split(",")
+        .map((r) => r.toLowerCase().trim())
+        .filter(Boolean);
     }
   }
   if (userRoles.length === 0 && accessToken) {
@@ -116,20 +148,30 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Case C: Authenticated user accessing Owner Portal (/owner/*)
-  // Strict rule: Admins without Owner role CANNOT access Owner pages
-  const isOwnerRoute =
+  // Case C: Authenticated user accessing Owner Root Portal (/businesses or /owner/*)
+  // Strict rule: ONLY Owners can access the Top-Level Business Portal (/businesses or /owner).
+  // For specific tenant routes (/businesses/:id/*), any authenticated user can access (checks auth only).
+  const isOwnerRootPortal =
     pathname === "/owner" ||
-    pathname.startsWith("/owner/");
+    pathname.startsWith("/owner/") ||
+    pathname === "/businesses" ||
+    pathname === "/businesses/";
 
-  if (isOwnerRoute && isAuthenticated) {
+  if (isOwnerRootPortal && isAuthenticated) {
     if (userRoles.length > 0) {
       const hasOwnerRole = userRoles.some((role) => OWNER_ROLES.includes(role));
       if (!hasOwnerRole) {
-        // Admin or staff CANNOT access owner page -> redirect to admin dashboard
-        const deniedUrl = new URL("/admin/dashboard", request.url);
-        deniedUrl.searchParams.set("error", "owner_role_required");
-        return NextResponse.redirect(deniedUrl);
+        // If user is admin, strictly redirect back to /admin/dashboard
+        const hasAdminRole = userRoles.some((role) => ADMIN_ROLES.includes(role));
+        if (hasAdminRole) {
+          const deniedUrl = new URL("/admin/dashboard", request.url);
+          deniedUrl.searchParams.set("error", "owner_role_required");
+          return NextResponse.redirect(deniedUrl);
+        }
+        // Regular staff/cashier without owner role -> redirect to POS terminal
+        const posUrl = new URL("/pos", request.url);
+        posUrl.searchParams.set("error", "owner_role_required");
+        return NextResponse.redirect(posUrl);
       }
     }
   }
@@ -163,15 +205,20 @@ export function proxy(request: NextRequest) {
   return response;
 }
 
+// Aliases for compatibility across Next.js conventions
+export { proxy as middleware };
+export default proxy;
+
 export const config = {
   matcher: [
     /*
      * Match all request paths except:
+     * - api (API routes including /api/proxy)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public asset extensions (svg, png, jpg, webp, etc.)
+     * - public asset extensions (svg, png, jpg, jpeg, gif, webp)
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

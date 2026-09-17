@@ -178,12 +178,12 @@ This document outlines the complete development roadmap, architectural milestone
     - [x] Allow cashier discounts toggle & maximum discount percentage limit.
     - [x] Terminal auto-lock timeout duration (minutes).
 
-- [ ] **4.3 Outlets (Store Locations) (`/businesses/{business}/outlets`)**
-  - [ ] Outlets grid/table displaying name, code, phone, address, and device count (`GET /businesses/{business}/outlets`).
-  - [ ] Create outlet modal (`POST /businesses/{business}/outlets`) with "Main Outlet" checkbox.
-  - [ ] Outlet detail page (`GET /outlets/{outlet}`) showing connected registers, POS hardware, and warehouses.
-  - [ ] Update outlet configuration (`PUT /outlets/{outlet}`).
-  - [ ] Delete outlet action (`DELETE /outlets/{outlet}`).
+- [x] **4.3 Outlets (Store Locations) (`/businesses/{business}/outlets`)**
+  - [x] Outlets grid/table displaying name, code, phone, address, and device count (`GET /businesses/{business}/outlets`).
+  - [x] Create outlet modal (`POST /businesses/{business}/outlets`) with "Main Outlet" checkbox.
+  - [x] Outlet detail page (`GET /outlets/{outlet}`) showing connected registers, POS hardware, and warehouses.
+  - [x] Update outlet configuration (`PUT /outlets/{outlet}`).
+  - [x] Delete outlet action (`DELETE /outlets/{outlet}`).
 
 - [ ] **4.4 Staff Memberships & Access (`/businesses/{business}/staff`)**
   - [ ] List staff members for business (`GET /businesses/{business}/users`).

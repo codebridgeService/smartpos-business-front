@@ -82,9 +82,7 @@ export function BusinessSidebar({
     });
   };
 
-  const businessSettingsHref = activeBusiness?.uuid
-    ? `/businesses/${activeBusiness.uuid}/settings`
-    : "/businesses";
+  const businessSettingsHref = "/businesses/settings";
 
   const sections: BusinessNavSection[] = [
     {
@@ -93,27 +91,22 @@ export function BusinessSidebar({
       items: [
         {
           label: "Dashboard",
-          href: "/admin/dashboard",
+          href: "/businesses/dashboard",
           icon: <LayoutGrid className="h-4.5 w-4.5 shrink-0" />,
           children: [
             {
               label: "Admin Dashboard",
-              href: "/admin/dashboard",
-              icon: <LayoutGrid className="h-3.5 w-3.5 shrink-0" />,
-            },
-            {
-              label: "Admin Dashboard 2",
-              href: "/admin/dashboard?view=v2",
+              href: "/businesses/dashboard",
               icon: <LayoutGrid className="h-3.5 w-3.5 shrink-0" />,
             },
             {
               label: "Sales Dashboard",
-              href: "/admin/dashboard?view=sales",
+              href: "/businesses/dashboard?view=sales",
               icon: <TrendingUp className="h-3.5 w-3.5 shrink-0" />,
             },
             {
               label: "POS Terminal",
-              href: "/admin/pos",
+              href: "/businesses/pos",
               icon: <Store className="h-3.5 w-3.5 shrink-0" />,
               badge: "LIVE",
               badgeVariant: "success",
@@ -122,19 +115,19 @@ export function BusinessSidebar({
         },
         {
           label: "Outlets",
-          href: "/admin/businesses/outlets",
+          href: "/businesses/outlets",
           icon: <Building2 className="h-4.5 w-4.5 shrink-0" />,
           badge: outlets.length > 0 ? `${outlets.length}` : undefined,
           badgeVariant: "neutral",
           children: [
             {
               label: "All Outlets",
-              href: "/admin/businesses/outlets",
+              href: "/businesses/outlets",
               icon: <Building2 className="h-3.5 w-3.5 shrink-0" />,
             },
             ...outlets.map((outlet) => ({
               label: outlet.name,
-              href: `/admin/businesses/outlets?uuid=${outlet.uuid}`,
+              href: `/businesses/outlets/${outlet.uuid}`,
               icon: <Store className="h-3.5 w-3.5 shrink-0" />,
               badge:
                 activeOutlet?.uuid === outlet.uuid
@@ -172,19 +165,19 @@ export function BusinessSidebar({
       items: [
         {
           label: "Outlets & Branches",
-          href: "/admin/businesses/outlets",
+          href: "/businesses/outlets",
           icon: <Building2 className="h-4.5 w-4.5 shrink-0" />,
           badge: outlets.length > 0 ? `${outlets.length}` : undefined,
           badgeVariant: "neutral",
           children: [
             {
               label: "All Outlets",
-              href: "/admin/businesses/outlets",
+              href: "/businesses/outlets",
               icon: <Building2 className="h-3.5 w-3.5 shrink-0" />,
             },
             ...outlets.map((outlet) => ({
               label: outlet.name,
-              href: `/admin/businesses/outlets?uuid=${outlet.uuid}`,
+              href: `/businesses/outlets/${outlet.uuid}`,
               icon: <Store className="h-3.5 w-3.5 shrink-0" />,
               badge:
                 activeOutlet?.uuid === outlet.uuid
@@ -202,36 +195,36 @@ export function BusinessSidebar({
         },
         {
           label: "Cash Registers",
-          href: "/admin/businesses/registers",
+          href: "/businesses/outlets",
           icon: <Calculator className="h-4.5 w-4.5 shrink-0" />,
         },
         {
           label: "POS Devices",
-          href: "/admin/businesses/pos-devices",
+          href: "/businesses/pos",
           icon: <Tablet className="h-4.5 w-4.5 shrink-0" />,
           badge: "Hardware",
           badgeVariant: "neutral",
         },
         {
           label: "Cash Drawer & Shifts",
-          href: "/admin/pos/shifts",
+          href: "/businesses/pos?tab=shifts",
           icon: <History className="h-4.5 w-4.5 shrink-0" />,
           children: [
             {
               label: "Register Shifts",
-              href: "/admin/pos/shifts",
+              href: "/businesses/pos?tab=shifts",
               icon: <History className="h-3.5 w-3.5 shrink-0" />,
             },
             {
               label: "Cash Drawer",
-              href: "/admin/pos/drawer",
+              href: "/businesses/pos?tab=drawer",
               icon: <Calculator className="h-3.5 w-3.5 shrink-0" />,
             },
           ],
         },
         {
           label: "POS Terminal",
-          href: "/admin/pos",
+          href: "/businesses/pos",
           icon: <Store className="h-4.5 w-4.5 shrink-0 text-orange-500" />,
           badge: "Live",
           badgeVariant: "success",
@@ -244,7 +237,7 @@ export function BusinessSidebar({
       items: [
         {
           label: "Manage Stock",
-          href: "/admin/warehouses",
+          href: "/businesses/warehouses",
           icon: <Layers className="h-4.5 w-4.5 shrink-0" />,
         },
         {
@@ -275,22 +268,22 @@ export function BusinessSidebar({
       items: [
         {
           label: "Staff & Members",
-          href: "/admin/businesses/staff",
+          href: "/businesses/staff",
           icon: <Users className="h-4.5 w-4.5 shrink-0" />,
         },
         {
           label: "Users Management",
-          href: "/admin/users",
+          href: "/businesses/staff",
           icon: <UserCheck className="h-4.5 w-4.5 shrink-0" />,
         },
         {
           label: "Roles & RBAC",
-          href: "/admin/roles",
+          href: "/businesses/roles",
           icon: <BadgeCheck className="h-4.5 w-4.5 shrink-0" />,
         },
         {
           label: "Permissions Directory",
-          href: "/admin/permissions",
+          href: "/businesses/permissions",
           icon: <Key className="h-4.5 w-4.5 shrink-0" />,
         },
       ],
@@ -301,38 +294,38 @@ export function BusinessSidebar({
       items: [
         {
           label: "General Settings",
-          href: "/admin/settings?tab=profile",
+          href: "/businesses/settings?tab=profile",
           icon: <Settings className="h-4.5 w-4.5 shrink-0" />,
           children: [
-            { label: "Profile", href: "/admin/settings?tab=profile", icon: <UserCheck className="h-3.5 w-3.5 shrink-0" /> },
-            { label: "Company Profile", href: "/admin/settings?tab=company-settings", icon: <Building2 className="h-3.5 w-3.5 shrink-0" /> },
-            { label: "Security", href: "/admin/settings?tab=security", icon: <ShieldAlert className="h-3.5 w-3.5 shrink-0" /> },
-            { label: "Notifications", href: "/admin/settings?tab=notifications", icon: <Megaphone className="h-3.5 w-3.5 shrink-0" /> },
+            { label: "Profile", href: "/businesses/settings?tab=profile", icon: <UserCheck className="h-3.5 w-3.5 shrink-0" /> },
+            { label: "Company Profile", href: "/businesses/settings?tab=company-settings", icon: <Building2 className="h-3.5 w-3.5 shrink-0" /> },
+            { label: "Security", href: "/businesses/settings?tab=security", icon: <ShieldAlert className="h-3.5 w-3.5 shrink-0" /> },
+            { label: "Notifications", href: "/businesses/announcements", icon: <Megaphone className="h-3.5 w-3.5 shrink-0" /> },
           ],
         },
         {
           label: "App & Hardware",
-          href: "/admin/settings?tab=pos-pin",
+          href: "/businesses/settings?tab=pos-pin",
           icon: <Smartphone className="h-4.5 w-4.5 shrink-0" />,
           children: [
-            { label: "POS Fast-Access PIN", href: "/admin/settings?tab=pos-pin", icon: <Key className="h-3.5 w-3.5 shrink-0" /> },
-            { label: "Invoice Formats", href: "/admin/settings?tab=invoice-settings", icon: <Receipt className="h-3.5 w-3.5 shrink-0" /> },
-            { label: "Printers & Hardware", href: "/admin/settings?tab=printers", icon: <Tablet className="h-3.5 w-3.5 shrink-0" /> },
+            { label: "POS Fast-Access PIN", href: "/businesses/settings?tab=pos-pin", icon: <Key className="h-3.5 w-3.5 shrink-0" /> },
+            { label: "Invoice Formats", href: "/businesses/settings?tab=invoice-settings", icon: <Receipt className="h-3.5 w-3.5 shrink-0" /> },
+            { label: "Printers & Hardware", href: "/businesses/settings?tab=printers", icon: <Tablet className="h-3.5 w-3.5 shrink-0" /> },
           ],
         },
         {
           label: "Financial Settings",
-          href: "/admin/settings?tab=payment-gateways",
+          href: "/businesses/settings?tab=payment-gateways",
           icon: <CircleDollarSign className="h-4.5 w-4.5 shrink-0" />,
           children: [
-            { label: "Payment Gateways", href: "/admin/settings?tab=payment-gateways", icon: <CreditCard className="h-3.5 w-3.5 shrink-0" /> },
-            { label: "Bank Accounts", href: "/admin/settings?tab=bank-accounts", icon: <Building2 className="h-3.5 w-3.5 shrink-0" /> },
-            { label: "Tax Rates & Surcharges", href: "/admin/settings?tab=tax-rates", icon: <Receipt className="h-3.5 w-3.5 shrink-0" /> },
+            { label: "Payment Gateways", href: "/businesses/settings?tab=payment-gateways", icon: <CreditCard className="h-3.5 w-3.5 shrink-0" /> },
+            { label: "Bank Accounts", href: "/businesses/settings?tab=bank-accounts", icon: <Building2 className="h-3.5 w-3.5 shrink-0" /> },
+            { label: "Tax Rates & Surcharges", href: "/businesses/settings?tab=tax-rates", icon: <Receipt className="h-3.5 w-3.5 shrink-0" /> },
           ],
         },
         {
           label: "Change Log",
-          href: "/admin/system/changelogs",
+          href: "/businesses/system",
           icon: <GitCommit className="h-4.5 w-4.5 shrink-0 text-orange-500" />,
           badge: "v1.2.1",
           badgeVariant: "orange",
@@ -505,7 +498,7 @@ export function BusinessSidebar({
       {/* Top Active Business Tenant Identity Card */}
       <div className="mb-2">
         <Link
-          href="/businesses"
+          href="/businesses/dashboard"
           onClick={() => onItemClick?.()}
           title={isCollapsed ? activeBusiness?.name || "Business Master" : undefined}
           className={`group flex items-center rounded-2xl border transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${isDarkSidebar
@@ -567,7 +560,7 @@ export function BusinessSidebar({
       </div>
 
       {/* Navigation Sections */}
-      <div className={`flex-1 overflow-y-auto no-scrollbar py-1 space-y-1 ${isCollapsed ? "" : "pr-0.5"}`}>
+      <div className={`flex-1 sidebar-scrollbar py-1 space-y-1 ${isCollapsed ? "" : "pr-0.5"}`}>
         {sections.map((section, sIdx) => {
           return (
             <div key={sIdx} className="space-y-0.5">
@@ -615,7 +608,7 @@ export function BusinessSidebar({
                     (!isOpen && (isAnyChildActive || isSettingsGroupActive))
                     : (activeKey || pathname) === item.href ||
                     (item.href !== "/businesses" &&
-                      item.href !== "/admin/dashboard" &&
+                      item.href !== "/businesses/dashboard" &&
                       item.href !== "#" &&
                       item.href !== "#logout" &&
                       pathname.startsWith(item.href + "/"));
@@ -740,10 +733,16 @@ export function BusinessSidebar({
                             }`}
                         >
                           {item.children?.map((child) => {
-                            const isChildActive =
-                              activeKey === child.href ||
-                              (!activeKey && pathname === child.href) ||
-                              pathname === child.href;
+                            const isChildActive = (() => {
+                              if (activeKey) {
+                                return activeKey === child.href;
+                              }
+                              const currentHref =
+                                typeof window !== "undefined" && window.location.search
+                                  ? `${pathname}${window.location.search}`
+                                  : pathname;
+                              return currentHref === child.href;
+                            })();
 
                             return (
                               <Link

@@ -5,7 +5,7 @@ import { Trash2, AlertTriangle, ShieldAlert, ShieldCheck } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
-import { apiClient } from "@/lib/api";
+import { useRoleStore } from "@/stores/useRoleStore";
 import type { Role } from "@/types";
 
 interface DeleteRoleModalProps {
@@ -22,6 +22,7 @@ export function DeleteRoleModal({
   onSuccess,
 }: DeleteRoleModalProps) {
   const toast = useToast();
+  const { deleteRole } = useRoleStore();
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,7 +37,7 @@ export function DeleteRoleModal({
     setError(null);
 
     try {
-      await apiClient.delete(`/roles/${role.uuid}`);
+      await deleteRole(role.uuid);
       toast.success(`Role "${role.name}" deleted successfully.`);
       await onSuccess();
       onClose();

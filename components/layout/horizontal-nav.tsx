@@ -181,7 +181,6 @@ export function HorizontalNav() {
         { label: "Users Management", href: "/admin/users", icon: <Users className="h-3.5 w-3.5" /> },
         { label: "Roles & RBAC", href: "/admin/roles", icon: <BadgeCheck className="h-3.5 w-3.5" /> },
         { label: "Permissions Directory", href: "/admin/permissions", icon: <Key className="h-3.5 w-3.5" /> },
-        { label: "Owner Portal", href: "/admin/owner", icon: <Store className="h-3.5 w-3.5" />, badge: "Owner", badgeVariant: "orange" },
       ],
     },
     {

@@ -28,18 +28,13 @@ import { businessesApi } from "@/lib/api/businesses";
 import { useBusiness } from "@/context/business-context";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { Business, BusinessSetting, UpdateBusinessSettingRequest } from "@/types";
 
-interface PageProps {
-  params: Promise<{ business: string }>;
-}
-
-export default function BusinessSettingsPage({ params }: PageProps) {
+export default function BusinessSettingsPage() {
   const router = useRouter();
-  const resolvedParams = use(params);
-  const businessUuid = resolvedParams.business;
-
-  const { activeBusiness, selectBusiness, refreshSettings: refreshContextSettings } = useBusiness();
+  const { activeBusiness, businesses, selectBusiness, refreshSettings: refreshContextSettings } = useBusiness();
+  const businessUuid = activeBusiness?.uuid || (businesses.length > 0 ? businesses[0].uuid : "");
 
   // State
   const [business, setBusiness] = useState<Business | null>(null);
@@ -238,6 +233,44 @@ export default function BusinessSettingsPage({ params }: PageProps) {
   };
 
   const isCurrentActive = activeBusiness?.uuid === businessUuid;
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 animate-in fade-in duration-200">
+        {/* Breadcrumb Skeleton */}
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-4 w-28 rounded-md" />
+          <Skeleton className="h-4 w-4 rounded-full" />
+          <Skeleton className="h-4 w-32 rounded-md" />
+        </div>
+
+        {/* Header Banner Skeleton */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-5">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-12 w-12 rounded-2xl shrink-0" />
+            <div className="space-y-2">
+              <Skeleton className="h-7 w-52 rounded-xl" />
+              <Skeleton className="h-4 w-80 rounded-md" />
+            </div>
+          </div>
+          <Skeleton className="h-10 w-32 rounded-xl" />
+        </div>
+
+        {/* Navigation Tabs Skeleton */}
+        <div className="flex gap-3 border-b border-slate-200 dark:border-zinc-800 pb-2">
+          <Skeleton className="h-8 w-36 rounded-xl" />
+          <Skeleton className="h-8 w-36 rounded-xl" />
+          <Skeleton className="h-8 w-36 rounded-xl" />
+        </div>
+
+        {/* Main Content Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <Skeleton className="h-96 lg:col-span-7 rounded-3xl" />
+          <Skeleton className="h-96 lg:col-span-5 rounded-3xl" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

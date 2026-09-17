@@ -26,6 +26,7 @@ import { HorizontalNav } from "./horizontal-nav";
 import { TwoColumnSidebar } from "./two-column-sidebar";
 import { AdminNavbar } from "./admin-navbar";
 import { isAdmin, isOwner } from "@/lib/utils/roles";
+import { PageFeatureGuard } from "@/components/feature-handler";
 
 interface NavItem {
   label: string;
@@ -228,11 +229,11 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
                 />
               ) : (
                 <div className="space-y-1">
-                  {navItems.map((item) => {
+                  {navItems.map((item, idx) => {
                     const isActive = pathname === item.href;
                     return (
                       <Link
-                        key={item.href}
+                        key={`${item.label}-${item.href}-${idx}`}
                         href={item.href}
                         className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
                           isActive
@@ -297,9 +298,9 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
                 <AdminSidebar onItemClick={() => setIsMobileMenuOpen(false)} />
               ) : (
                 <div className="space-y-1">
-                  {navItems.map((item) => (
+                  {navItems.map((item, idx) => (
                     <Link
-                      key={item.href}
+                      key={`mobile-${item.label}-${item.href}-${idx}`}
                       href={item.href}
                       onClick={() => setIsMobileMenuOpen(false)}
                       className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium ${
@@ -326,7 +327,7 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
             layoutWidth === "boxed" ? "max-w-7xl mx-auto" : ""
           }`}
         >
-          {children}
+          <PageFeatureGuard>{children}</PageFeatureGuard>
         </main>
       </div>
 

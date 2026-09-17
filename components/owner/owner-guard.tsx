@@ -52,7 +52,7 @@ export function OwnerGuard({ children, fallback }: OwnerGuardProps) {
     );
   }
 
-  // 3. Owner Role Check
+  // 3. Owner Role Check: Strictly Store Owner only (Admins cannot access Owner portal)
   const hasOwnerPrivilege = isOwner(user);
   const userRoles = getUserRoleCodes(user);
   const hasAdminPrivilege = isAdmin(user);
