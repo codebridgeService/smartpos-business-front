@@ -4,3 +4,6 @@ export * from "./token";
 export * from "./users";
 export * from "./permissions";
 export * from "./businesses";
+export * from "./outlets";
+export * from "./business-users";
+export * from "./roles";

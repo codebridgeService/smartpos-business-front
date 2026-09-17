@@ -111,7 +111,6 @@ describe("BusinessSidebar Component", () => {
     fireEvent.click(dashboardBtn);
 
     expect(screen.getByText("Admin Dashboard")).toBeDefined();
-    expect(screen.getByText("Admin Dashboard 2")).toBeDefined();
     expect(screen.getByText("Sales Dashboard")).toBeDefined();
     expect(screen.getAllByText("POS Terminal").length).toBeGreaterThanOrEqual(1);
 
@@ -135,6 +134,29 @@ describe("BusinessSidebar Component", () => {
     const masterLink = screen.getByText("Business Master");
     fireEvent.click(masterLink);
     expect(onItemClick).toHaveBeenCalled();
+  });
+
+  it("activates only the clicked child without falsely highlighting siblings", () => {
+    render(
+      <ThemeProvider>
+        <BusinessSidebar />
+      </ThemeProvider>
+    );
+
+    // Open Dashboard dropdown
+    const dashboardBtn = screen.getByText("Dashboard");
+    fireEvent.click(dashboardBtn);
+
+    const adminDash = screen.getByText("Admin Dashboard");
+    const salesDash = screen.getByText("Sales Dashboard");
+
+    // Click Sales Dashboard
+    fireEvent.click(salesDash);
+
+    // Sales Dashboard should have active classes (orange font / font-semibold)
+    expect(salesDash.className).toContain("text-orange-600");
+    // Admin Dashboard should NOT have active class
+    expect(adminDash.className).not.toContain("text-orange-600");
   });
 
   it("renders correctly in collapsed mode", () => {

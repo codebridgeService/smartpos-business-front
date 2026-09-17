@@ -6,7 +6,7 @@ import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
-import { apiClient } from "@/lib/api";
+import { useRoleStore } from "@/stores/useRoleStore";
 import type { Role, UpdateRoleRequest } from "@/types";
 
 interface EditRoleModalProps {
@@ -23,6 +23,7 @@ export function EditRoleModal({
   onSuccess,
 }: EditRoleModalProps) {
   const toast = useToast();
+  const { updateRole } = useRoleStore();
 
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
@@ -54,12 +55,10 @@ export function EditRoleModal({
     setError(null);
 
     try {
-      const payload: UpdateRoleRequest = {
+      await updateRole(role.uuid, {
         name: name.trim(),
         code: code.trim().toLowerCase(),
-      };
-
-      await apiClient.put(`/roles/${role.uuid}`, payload);
+      });
 
       toast.success(`Role "${name}" updated successfully.`);
       await onSuccess();

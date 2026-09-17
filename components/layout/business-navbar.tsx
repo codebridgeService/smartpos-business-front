@@ -58,15 +58,15 @@ interface QuickAddItem {
 }
 
 const BUSINESS_QUICK_ADD_ITEMS: QuickAddItem[] = [
-  { label: "Sale / POS", href: "/admin/pos", icon: <ShoppingCart className="h-5 w-5" /> },
+  { label: "Sale / POS", href: "/businesses/pos", icon: <ShoppingCart className="h-5 w-5" /> },
   { label: "Product", href: "/coming-soon?feature=create-product", icon: <PlusSquare className="h-5 w-5" /> },
   { label: "Category", href: "/coming-soon?feature=category", icon: <Boxes className="h-5 w-5" /> },
-  { label: "Register Shift", href: "/admin/pos/shifts", icon: <History className="h-5 w-5" /> },
-  { label: "Outlet / Branch", href: "/admin/businesses/outlets", icon: <Building2 className="h-5 w-5" /> },
-  { label: "Staff Member", href: "/admin/businesses/staff", icon: <Users className="h-5 w-5" /> },
+  { label: "Register Shift", href: "/businesses/pos?tab=shifts", icon: <History className="h-5 w-5" /> },
+  { label: "Outlet / Branch", href: "/businesses/outlets", icon: <Building2 className="h-5 w-5" /> },
+  { label: "Staff Member", href: "/businesses/staff", icon: <Users className="h-5 w-5" /> },
   { label: "Customer", href: "/coming-soon?feature=customers", icon: <UserIcon className="h-5 w-5" /> },
   { label: "Stock Transfer", href: "/coming-soon?feature=stock-transfer", icon: <Truck className="h-5 w-5" /> },
-  { label: "Purchase", href: "/coming-soon?feature=create-purchase", icon: <ShoppingBag className="h-5 w-5" /> },
+  { label: "Purchase", href: "/businesses/purchase-transaction", icon: <ShoppingBag className="h-5 w-5" /> },
   { label: "Expense", href: "/coming-soon?feature=create-expense", icon: <FileText className="h-5 w-5" /> },
   { label: "Sales Return", href: "/coming-soon?feature=sales-return", icon: <RotateCcw className="h-5 w-5" /> },
   { label: "Supplier", href: "/coming-soon?feature=suppliers", icon: <UserCheck className="h-5 w-5" /> },
@@ -184,21 +184,20 @@ export function BusinessNavbar({
     router.push("/auth/login");
   };
 
-  const businessSettingsHref = activeBusiness?.uuid
-    ? `/businesses/${activeBusiness.uuid}/settings`
-    : "/businesses";
+  const businessSettingsHref = "/businesses/settings";
 
   // Quick navigation items for Search / Spotlight Modal tailored for Business operations
   const quickActions = [
-    { label: "Admin Dashboard", href: "/admin/dashboard", icon: <LayoutDashboard className="h-4 w-4 text-orange-500" /> },
-    { label: "POS Terminal (Cashier)", href: "/admin/pos", icon: <ShoppingCart className="h-4 w-4 text-sky-500" /> },
-    { label: "Outlets & Store Locations", href: "/admin/businesses/outlets", icon: <Building2 className="h-4 w-4 text-indigo-500" /> },
-    { label: "Cash Registers", href: "/admin/businesses/registers", icon: <Calculator className="h-4 w-4 text-teal-500" /> },
-    { label: "POS Devices & Hardware", href: "/admin/businesses/pos-devices", icon: <Tablet className="h-4 w-4 text-amber-500" /> },
-    { label: "Register Shifts & Drawer", href: "/admin/pos/shifts", icon: <History className="h-4 w-4 text-blue-500" /> },
-    { label: "Manage Stock & Warehouses", href: "/admin/warehouses", icon: <Boxes className="h-4 w-4 text-emerald-500" /> },
+    { label: "Business Dashboard", href: "/businesses/dashboard", icon: <LayoutDashboard className="h-4 w-4 text-orange-500" /> },
+    { label: "Sales Dashboard", href: "/businesses/dashboard?view=sales", icon: <LayoutDashboard className="h-4 w-4 text-amber-500" /> },
+    { label: "POS Terminal (Cashier)", href: "/businesses/pos", icon: <ShoppingCart className="h-4 w-4 text-sky-500" /> },
+    { label: "Outlets & Store Locations", href: "/businesses/outlets", icon: <Building2 className="h-4 w-4 text-indigo-500" /> },
+    { label: "Cash Registers", href: "/businesses/outlets", icon: <Calculator className="h-4 w-4 text-teal-500" /> },
+    { label: "POS Devices & Hardware", href: "/businesses/pos", icon: <Tablet className="h-4 w-4 text-amber-500" /> },
+    { label: "Register Shifts & Drawer", href: "/businesses/pos?tab=shifts", icon: <History className="h-4 w-4 text-blue-500" /> },
+    { label: "Manage Stock & Warehouses", href: "/businesses/warehouses", icon: <Boxes className="h-4 w-4 text-emerald-500" /> },
     { label: "Products Catalog", href: "/coming-soon?feature=products", icon: <Package className="h-4 w-4 text-purple-500" /> },
-    { label: "Staff & Members", href: "/admin/businesses/staff", icon: <Users className="h-4 w-4 text-pink-500" /> },
+    { label: "Staff & Members", href: "/businesses/staff", icon: <Users className="h-4 w-4 text-pink-500" /> },
     { label: "Business Settings & Profile", href: businessSettingsHref, icon: <Settings className="h-4 w-4 text-slate-500" /> },
     { label: "Business Master (All Tenants)", href: "/businesses", icon: <Sparkles className="h-4 w-4 text-orange-400" /> },
   ];
@@ -220,7 +219,7 @@ export function BusinessNavbar({
             } h-full border-r ${topBarPreset.borderClass} flex items-center relative shrink-0 transition-[width,padding] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-[width]`}
         >
           {/* Brand Logo with Store/Retail Icon & Typography */}
-          <Link href="/admin/dashboard" className="flex items-center min-w-0 group">
+          <Link href="/businesses/dashboard" className="flex items-center min-w-0 group">
             <div className="h-8.5 w-8.5 rounded-xl bg-gradient-to-tr from-orange-600 to-orange-400 text-white flex items-center justify-center shadow-md shadow-orange-500/25 group-hover:scale-105 transition-transform shrink-0">
               <Store className="h-5 w-5" />
             </div>
@@ -722,22 +721,7 @@ export function BusinessNavbar({
                     </div>
                   </div>
 
-                  {/* Portal Switcher (Admin Portal <-> Business Portal) */}
-                  {(isUserAdmin || isUserOwner) && (
-                    <div className="py-1 px-1 border-b border-slate-100 dark:border-zinc-800">
-                      <Link
-                        href="/admin/dashboard"
-                        onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-semibold transition-colors"
-                      >
-                        <span className="flex items-center gap-2">
-                          <Crown className="h-3.5 w-3.5 text-amber-500" />
-                          <span>Switch to Admin Portal</span>
-                        </span>
-                        <span className="text-[10px] font-bold text-purple-600 dark:text-purple-400">&rarr;</span>
-                      </Link>
-                    </div>
-                  )}
+
 
                   <div className="py-1">
                     <Link

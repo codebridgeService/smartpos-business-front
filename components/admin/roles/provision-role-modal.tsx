@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
 import { useBusiness } from "@/context/business-context";
-import { apiClient } from "@/lib/api";
+import { useRoleStore } from "@/stores/useRoleStore";
 
 interface ProvisionRoleModalProps {
   isOpen: boolean;
@@ -22,6 +22,7 @@ export function ProvisionRoleModal({
 }: ProvisionRoleModalProps) {
   const toast = useToast();
   const { businesses, activeBusiness } = useBusiness();
+  const { provisionRoles } = useRoleStore();
 
   const [businessUuid, setBusinessUuid] = useState(
     activeBusiness?.uuid || (businesses.length > 0 ? businesses[0].uuid : "")
@@ -46,9 +47,7 @@ export function ProvisionRoleModal({
     setError(null);
 
     try {
-      await apiClient.post("/roles/provision", {
-        business_uuid: businessUuid,
-      });
+      await provisionRoles(businessUuid);
 
       const selectedName =
         businesses.find((b) => b.uuid === businessUuid)?.name || "selected store";

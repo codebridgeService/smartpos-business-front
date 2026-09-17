@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { useAuthStore, useUIStore, usePermissionStore, useUserStore } from "@/stores";
+import { useAuthStore, useUIStore, usePermissionStore, useUserStore, useRoleStore } from "@/stores";
 
 describe("Zustand Stores", () => {
   beforeEach(() => {
@@ -219,6 +219,69 @@ describe("Zustand Stores", () => {
       expect(useUserStore.getState().isDetailsModalOpen).toBe(false);
       expect(useUserStore.getState().selectedUser).toBeNull();
       expect(useUserStore.getState().selectedUserUuid).toBeNull();
+    });
+  });
+
+  describe("useRoleStore", () => {
+    it("initializes with default system roles and proper filter defaults", () => {
+      const store = useRoleStore.getState();
+      expect(store.roles.length).toBeGreaterThanOrEqual(4);
+      expect(store.searchQuery).toBe("");
+      expect(store.filterType).toBe("all");
+      expect(store.isCreateModalOpen).toBe(false);
+      expect(store.roleForMatrix).toBeNull();
+    });
+
+    it("filters roles properly using getFilteredRoles", () => {
+      const store = useRoleStore.getState();
+
+      store.setSearchQuery("cashier");
+      const filtered = store.getFilteredRoles();
+      expect(filtered.length).toBe(1);
+      expect(filtered[0].code).toBe("cashier");
+
+      store.setSearchQuery("");
+      store.setFilterType("system");
+      const systemOnly = store.getFilteredRoles();
+      expect(systemOnly.every((r) => r.is_system)).toBe(true);
+
+      store.setFilterType("all");
+    });
+
+    it("manages role modals and selection state", () => {
+      const store = useRoleStore.getState();
+
+      store.setIsCreateModalOpen(true);
+      expect(useRoleStore.getState().isCreateModalOpen).toBe(true);
+      store.setIsCreateModalOpen(false);
+      expect(useRoleStore.getState().isCreateModalOpen).toBe(false);
+
+      const mockRole = {
+        id: 99,
+        uuid: "role-test-uuid",
+        business_uuid: null,
+        name: "Test Auditor",
+        code: "auditor",
+        is_system: false,
+        created_at: null,
+        updated_at: null,
+      };
+
+      store.setRoleForMatrix(mockRole);
+      expect(useRoleStore.getState().roleForMatrix?.code).toBe("auditor");
+      store.setRoleForMatrix(null);
+      expect(useRoleStore.getState().roleForMatrix).toBeNull();
+    });
+
+    it("manages selectedBusinessUuid state for optional business filtering", () => {
+      const store = useRoleStore.getState();
+      expect(store.selectedBusinessUuid).toBeNull();
+
+      store.setSelectedBusinessUuid("biz-test-uuid");
+      expect(useRoleStore.getState().selectedBusinessUuid).toBe("biz-test-uuid");
+
+      store.setSelectedBusinessUuid(null);
+      expect(useRoleStore.getState().selectedBusinessUuid).toBeNull();
     });
   });
 });

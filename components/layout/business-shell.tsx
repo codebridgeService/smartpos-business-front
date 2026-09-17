@@ -10,6 +10,7 @@ import { BusinessNavbar } from "./business-navbar";
 import { BusinessSidebar } from "./business-sidebar";
 import { HorizontalNav } from "./horizontal-nav";
 import { TwoColumnSidebar } from "./two-column-sidebar";
+import { PageFeatureGuard } from "@/components/feature-handler";
 
 export interface BusinessShellProps {
   children: React.ReactNode;
@@ -207,7 +208,7 @@ export function BusinessShell({ children }: BusinessShellProps) {
             layoutWidth === "boxed" ? "max-w-7xl mx-auto" : ""
           }`}
         >
-          {children}
+          <PageFeatureGuard>{children}</PageFeatureGuard>
         </main>
       </div>
 

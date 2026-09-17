@@ -642,35 +642,14 @@ export function AdminNavbar({
                     </Badge>
                   </div>
 
-                  {/* Quick Portal Switcher (Admin <-> Owner) */}
-                  {isUserOwner && isUserAdmin && (
-                    <div className="py-1 px-1 border-b border-slate-100 dark:border-zinc-800">
-                      <Link
-                        href={pathname.startsWith("/owner") ? "/admin/dashboard" : "/owner"}
-                        onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-semibold transition-colors"
-                      >
-                        <span className="flex items-center gap-2">
-                          {pathname.startsWith("/owner") ? (
-                            <LayoutDashboard className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                          ) : (
-                            <Crown className="h-3.5 w-3.5 text-amber-500" />
-                          )}
-                          <span>{pathname.startsWith("/owner") ? "Switch to Admin" : "Switch to Owner"}</span>
-                        </span>
-                        <span className="text-[10px] font-bold text-purple-600 dark:text-purple-400">&rarr;</span>
-                      </Link>
-                    </div>
-                  )}
-
                   <div className="py-1">
                     <Link
-                      href="/businesses"
+                      href="/admin/companies"
                       onClick={() => setIsUserMenuOpen(false)}
                       className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors font-medium"
                     >
                       <Building2 className="h-4 w-4 text-slate-400" />
-                      Business Master
+                      Companies & Businesses
                     </Link>
                     <Link
                       href="/settings/profile"

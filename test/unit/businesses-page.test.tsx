@@ -41,7 +41,7 @@ describe("BusinessesPage (DreamsPOS Dashboard)", () => {
     expect(screen.getByText("Profit")).toBeDefined();
     expect(screen.getByText("$8,458,798")).toBeDefined();
     expect(screen.getByText("Invoice Due")).toBeDefined();
-    expect(screen.getByText("$48,988,78")).toBeDefined();
+    expect(screen.getByText("$4,898,878")).toBeDefined();
     expect(screen.getByText("Total Expenses")).toBeDefined();
     expect(screen.getByText("$8,980,097")).toBeDefined();
   });

@@ -26,10 +26,7 @@ async function handleProxyRequest(
     const { path } = await context.params;
     const targetPath = Array.isArray(path) ? path.join("/") : "";
 
-    const baseUrl = (
-      process.env.NEXT_PUBLIC_API_BASE_URL ||
-      "https://smartpos-api.servicefixit.me/api/v1"
-    ).replace(/\/+$/, "");
+    const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || "").replace(/\/+$/, "");
 
     const search = request.nextUrl.search;
     const targetUrl = `${baseUrl}/${targetPath}${search}`;

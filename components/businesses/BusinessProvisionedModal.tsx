@@ -73,7 +73,7 @@ export function BusinessProvisionedModal({
   const handleGoToSettings = async () => {
     await selectBusiness(business.uuid);
     onClose();
-    router.push(`/businesses/${business.uuid}/settings`);
+    router.push("/businesses/settings");
   };
 
   const handleSwitchTenant = async () => {

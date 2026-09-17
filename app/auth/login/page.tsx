@@ -58,6 +58,7 @@ export default function LoginPage() {
         password: form.password,
       });
 
+
       toast.success(`Welcome back, ${res.user.name}!`);
 
       // 1. Prioritize redirect query param if present
@@ -66,44 +67,59 @@ export default function LoginPage() {
           ? new URLSearchParams(window.location.search).get("redirect")
           : null;
 
-      // If user is Store Owner, always land on /owner unless they specifically requested a subpage
+      // 2. Role: Store Owner -> /businesses
       if (isOwner(res.user)) {
         if (
           redirectUrl &&
           !redirectUrl.startsWith("/admin") &&
-          redirectUrl !== "/"
+          redirectUrl !== "/" &&
+          redirectUrl !== "/coming-soon"
         ) {
           router.push(redirectUrl);
-        } else {
-          router.push("/businesses");
+          return;
         }
+
+        router.push("/businesses");
         return;
       }
 
-      // 2. Non-owner redirect flow (Admin, Cashier, etc.)
-      if (redirectUrl) {
-        const isOwnerRedirect =
-          redirectUrl === "/admin/owner" ||
-          redirectUrl.startsWith("/admin/owner/") ||
-          redirectUrl === "/businesses" ||
-          redirectUrl.startsWith("/businesses/");
-
-        if (isOwnerRedirect) {
-          router.push("/admin/dashboard");
-        } else {
-          router.push(redirectUrl);
-        }
-        return;
-      }
-
-      // 3. Default role landing destinations
+      // 3. Role: System Admin -> /admin/dashboard
       if (isAdmin(res.user)) {
+        if (
+          redirectUrl &&
+          redirectUrl.startsWith("/admin") &&
+          redirectUrl !== "/admin/owner" &&
+          !redirectUrl.startsWith("/admin/owner/")
+        ) {
+          router.push(redirectUrl);
+          return;
+        }
+
         router.push("/admin/dashboard");
-      } else if (hasRole(res.user, ["cashier", "pos"])) {
-        router.push("/pos");
-      } else {
-        router.push("/admin/dashboard");
+        return;
       }
+
+      // 4. Role: Cashier / POS Operator -> /pos
+      if (hasRole(res.user, ["cashier", "pos"])) {
+        if (
+          redirectUrl &&
+          (redirectUrl === "/pos" || redirectUrl.startsWith("/pos/") || redirectUrl.startsWith("/businesses/pos"))
+        ) {
+          router.push(redirectUrl);
+          return;
+        }
+
+        router.push("/pos");
+        return;
+      }
+
+      // 5. Fallback for any other valid redirect or default landing
+      if (redirectUrl && !redirectUrl.startsWith("/auth/")) {
+        router.push(redirectUrl);
+        return;
+      }
+
+      router.push("/admin/dashboard");
     } catch (err: unknown) {
       if (err instanceof ApiError) {
         if (err.isValidationError() && err.errors) {

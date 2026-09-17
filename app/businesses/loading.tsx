@@ -4,19 +4,19 @@ import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 
-export default function OwnerLoading() {
+export default function BusinessLoading() {
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
-      {/* Executive Hero Banner Skeleton */}
-      <div className="rounded-3xl bg-purple-950/20 dark:bg-purple-950/30 border border-purple-900/40 p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      {/* Top Banner Skeleton */}
+      <div className="rounded-3xl bg-slate-900/5 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-3 max-w-xl w-full">
-          <Skeleton className="h-5 w-40 rounded-full" />
-          <Skeleton className="h-8 w-72 rounded-xl" />
+          <Skeleton className="h-5 w-36 rounded-full" />
+          <Skeleton className="h-8 w-64 rounded-xl" />
           <Skeleton className="h-4 w-full max-w-md rounded-md" />
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <Skeleton className="h-10 w-32 rounded-xl" />
-          <Skeleton className="h-10 w-32 rounded-xl" />
+          <Skeleton className="h-10 w-36 rounded-xl" />
+          <Skeleton className="h-10 w-28 rounded-xl" />
         </div>
       </div>
 
@@ -28,8 +28,8 @@ export default function OwnerLoading() {
               <Skeleton className="h-3.5 w-24 rounded-md" />
               <Skeleton className="h-9 w-9 rounded-xl" />
             </div>
-            <Skeleton className="h-7 w-24 rounded-md" />
-            <Skeleton className="h-3 w-36 rounded-md" />
+            <Skeleton className="h-7 w-20 rounded-md" />
+            <Skeleton className="h-3 w-32 rounded-md" />
           </Card>
         ))}
       </div>
@@ -40,25 +40,25 @@ export default function OwnerLoading() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div className="space-y-1.5">
-                <Skeleton className="h-5 w-48 rounded-md" />
-                <Skeleton className="h-3 w-64 rounded-md" />
+                <Skeleton className="h-5 w-44 rounded-md" />
+                <Skeleton className="h-3 w-60 rounded-md" />
               </div>
               <Skeleton className="h-8 w-24 rounded-xl" />
             </CardHeader>
             <CardContent className="space-y-3 pt-4">
-              {Array.from({ length: 3 }).map((_, rIdx) => (
+              {Array.from({ length: 4 }).map((_, rIdx) => (
                 <div
                   key={rIdx}
-                  className="flex items-center justify-between p-3.5 rounded-xl border border-zinc-100 dark:border-zinc-800/80"
+                  className="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-zinc-800/80"
                 >
                   <div className="flex items-center gap-3">
-                    <Skeleton className="h-10 w-10 rounded-xl shrink-0" />
+                    <Skeleton className="h-9 w-9 rounded-xl shrink-0" />
                     <div className="space-y-1">
-                      <Skeleton className="h-4 w-36 rounded-md" />
-                      <Skeleton className="h-3 w-24 rounded-md" />
+                      <Skeleton className="h-3.5 w-32 rounded-md" />
+                      <Skeleton className="h-2.5 w-20 rounded-md" />
                     </div>
                   </div>
-                  <Skeleton className="h-6 w-20 rounded-full" />
+                  <Skeleton className="h-6 w-16 rounded-full" />
                 </div>
               ))}
             </CardContent>
@@ -68,14 +68,17 @@ export default function OwnerLoading() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <Skeleton className="h-5 w-36 rounded-md" />
+              <Skeleton className="h-5 w-32 rounded-md" />
               <Skeleton className="h-3 w-48 rounded-md mt-1" />
             </CardHeader>
             <CardContent className="space-y-4">
-              {Array.from({ length: 4 }).map((_, idx) => (
-                <div key={idx} className="flex items-center justify-between">
-                  <Skeleton className="h-3.5 w-28 rounded-md" />
-                  <Skeleton className="h-3.5 w-16 rounded-md" />
+              {Array.from({ length: 3 }).map((_, fIdx) => (
+                <div key={fIdx} className="space-y-2 pb-3 border-b border-slate-100 dark:border-zinc-800/60 last:border-none last:pb-0">
+                  <div className="flex items-center justify-between">
+                    <Skeleton className="h-3 w-28 rounded-md" />
+                    <Skeleton className="h-2.5 w-12 rounded-md" />
+                  </div>
+                  <Skeleton className="h-2.5 w-full rounded-md" />
                 </div>
               ))}
             </CardContent>

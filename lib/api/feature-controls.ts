@@ -20,13 +20,17 @@ export async function checkFeatureStatus(featureKey: string): Promise<FeatureChe
     const res = await apiClient.get<ApiResponse<FeatureCheckResponse>>(
       `/feature-controls/check/${featureKey}`
     );
-    return res.data;
-  } catch (err) {
-    // Graceful fallback to active if service is loading or offline
+    if (res?.data) return res.data;
+  } catch {
+    // Fallback if backend service is offline or unconfigured
+  }
+
+  // When the bug fix is completed, status is set to 'ACTIVE'
+  if (featureKey === 'dashboard.reports') {
     return {
-      feature_key: featureKey,
-      name: featureKey,
-      status: 'ACTIVE',
+      feature_key: 'dashboard.reports',
+      name: 'Dashboard & Reports',
+      status: 'ACTIVE', // Fix completed: set back to ACTIVE
       maintenance_type: null,
       reason: null,
       maintenance_started_at: null,
@@ -36,6 +40,19 @@ export async function checkFeatureStatus(featureKey: string): Promise<FeatureChe
       allow_admin_bypass: true,
     };
   }
+
+  return {
+    feature_key: featureKey,
+    name: featureKey,
+    status: 'ACTIVE',
+    maintenance_type: null,
+    reason: null,
+    maintenance_started_at: null,
+    estimated_completed_at: null,
+    show_countdown: false,
+    allow_owner_bypass: true,
+    allow_admin_bypass: true,
+  };
 }
 
 /**
