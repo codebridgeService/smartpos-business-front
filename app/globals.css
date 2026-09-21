@@ -283,17 +283,20 @@ body {
   background: rgba(148, 163, 184, 0.6);
 }
 
-/* Custom Sleek Sidebar Scrollbar with Smooth Scrolling */
+/* Custom Sleek Sidebar Scrollbar with Smooth Scrolling & Modern Aesthetics */
 .sidebar-scrollbar {
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overscroll-behavior-y: contain;
   scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
+  -webkit-overflow-scrolling: touch;
 }
 
 .sidebar-scrollbar::-webkit-scrollbar {
   width: 5px;
+  height: 5px;
 }
 
 .sidebar-scrollbar::-webkit-scrollbar-track {
@@ -301,9 +304,9 @@ body {
 }
 
 .sidebar-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.3);
+  background: rgba(148, 163, 184, 0.25);
   border-radius: 9999px;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background-color 0.2s ease, width 0.2s ease;
 }
 
 .sidebar-scrollbar:hover::-webkit-scrollbar-thumb {
@@ -311,15 +314,15 @@ body {
 }
 
 :where(.dark) .sidebar-scrollbar {
-  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
 :where(.dark) .sidebar-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 :where(.dark) .sidebar-scrollbar:hover::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.4);
 }
 
 /* Hide scrollbar utility across WebKit, Firefox, and Edge */

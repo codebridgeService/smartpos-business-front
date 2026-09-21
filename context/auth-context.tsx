@@ -152,7 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Listen to unauthorized events from API client
   useEffect(() => {
-    const unsubscribe = authEvents.onUnauthorized(() => {
+    const unsubscribeUnauthorized = authEvents.onUnauthorized(() => {
       tokenStorage.clearTokens();
       setUser(null);
       setSession(null);
@@ -166,7 +166,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     });
 
-    return unsubscribe;
+    const unsubscribeRefreshed = authEvents.onRefreshed((detail) => {
+      if (detail.roles && detail.roles.length > 0) {
+        setUser((prev) => {
+          if (!prev) return prev;
+          const updatedRoles = detail.roles!.map((code) => ({
+            id: 0,
+            uuid: "",
+            name: code,
+            code,
+            is_system: false,
+          }));
+          return {
+            ...prev,
+            roles: updatedRoles as any,
+          };
+        });
+      }
+    });
+
+    return () => {
+      unsubscribeUnauthorized();
+      unsubscribeRefreshed();
+    };
   }, []);
 
   // Initial authentication check on application mount

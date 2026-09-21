@@ -197,7 +197,9 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
         {/* Sidebar for Desktop */}
         {layoutMode !== "horizontal" && (
           <div
-            className={`hidden lg:block relative shrink-0 transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-[width] ${
+            className={`hidden lg:block sticky top-16 shrink-0 ${
+              layoutMode === "detached" ? "h-[calc(100vh-4rem-1.5rem)] my-3 ml-3" : "h-[calc(100vh-4rem)]"
+            } transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-[width] z-30 ${
               layoutMode === "two-column"
                 ? "w-74"
                 : showAdminSidebar && isEffectiveCollapsed
@@ -213,10 +215,10 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
               <aside
                 onMouseEnter={handleSidebarMouseEnter}
                 onMouseLeave={handleSidebarMouseLeave}
-                className={`hidden lg:flex flex-col w-full h-full ${
+                className={`hidden lg:flex flex-col w-full h-full overflow-hidden ${
                   showAdminSidebar && isEffectiveCollapsed ? "px-2 py-3" : "p-3"
                 } border-r transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${sidebarPreset.colorClass} ${sidebarPreset.borderClass} ${sidebarPreset.textClass} ${
-                  layoutMode === "detached" ? "m-3 rounded-3xl shadow-xl border" : ""
+                  layoutMode === "detached" ? "rounded-3xl shadow-xl border" : ""
                 }`}
               >
               {showAdminSidebar ? (
@@ -228,7 +230,7 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
                   }}
                 />
               ) : (
-                <div className="space-y-1">
+                <div className="space-y-1 flex-1 min-h-0 sidebar-scrollbar overflow-y-auto">
                   {navItems.map((item, idx) => {
                     const isActive = pathname === item.href;
                     return (

@@ -111,6 +111,12 @@ export const tokenStorage = {
   },
 };
 
+export interface TokenRefreshedEventDetail {
+  access_token: string;
+  roles?: string[];
+  permissions?: string[];
+}
+
 /**
  * Event emitter for auth-related events across components
  */
@@ -126,5 +132,21 @@ export const authEvents = {
     const handler = () => callback();
     window.addEventListener("smartpos:unauthorized", handler);
     return () => window.removeEventListener("smartpos:unauthorized", handler);
+  },
+
+  emitRefreshed(detail: TokenRefreshedEventDetail) {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("smartpos:refreshed", { detail }));
+    }
+  },
+
+  onRefreshed(callback: (detail: TokenRefreshedEventDetail) => void): () => void {
+    if (typeof window === "undefined") return () => {};
+    const handler = (e: Event) => {
+      const customEvent = e as CustomEvent<TokenRefreshedEventDetail>;
+      callback(customEvent.detail);
+    };
+    window.addEventListener("smartpos:refreshed", handler);
+    return () => window.removeEventListener("smartpos:refreshed", handler);
   },
 };

@@ -619,9 +619,9 @@ export function AdminSidebar({
   };
 
   return (
-    <div className={`flex flex-col h-full select-none ${className}`}>
+    <div className={`flex flex-col h-full select-none overflow-hidden ${className}`}>
       {/* Navigation Sections starting directly at top matching Dreams POS design */}
-      <div className={`flex-1 sidebar-scrollbar py-1 space-y-1 ${isCollapsed ? "" : "pr-0.5"}`}>
+      <div className={`flex-1 min-h-0 sidebar-scrollbar py-1 pb-10 space-y-1 ${isCollapsed ? "" : "pr-0.5"}`}>
         {sections.map((section, sIdx) => {
           return (
             <div key={sIdx} className="space-y-0.5">

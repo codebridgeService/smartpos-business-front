@@ -46,7 +46,6 @@ import { useOutlet } from "@/context/outlet-context";
 import { useTheme } from "@/context/theme-context";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { BusinessSwitcher } from "./business-switcher";
 import { isAdmin, isOwner } from "@/lib/utils/roles";
 import { FeaturesAnnouncementsStore } from "@/lib/storage/features-announcements-store";
 import type { Announcement, AnnouncementRead } from "@/types/features-announcements";
@@ -285,13 +284,8 @@ export function AdminNavbar({
             </div>
           </div>
 
-          {/* Right Section: Business Switcher, Store Selector, Quick Action Buttons & Status Badges */}
+          {/* Right Section: Store Selector, Quick Action Buttons & Status Badges */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-            {/* Business Tenant Switcher (Dreams POS pill button style) */}
-            <div className="flex items-center">
-              <BusinessSwitcher isDarkTheme={topBarPreset.isDark} />
-            </div>
-
             {/* Outlet / Store Selector Dropdown */}
             <div className="relative">
               <button

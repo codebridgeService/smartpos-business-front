@@ -31,6 +31,7 @@ import {
   Store,
   Tablet,
   GitCommit,
+  Scale,
 } from "lucide-react";
 import { useTheme } from "@/context/theme-context";
 import { useOutlet } from "@/context/outlet-context";
@@ -195,6 +196,7 @@ export function HorizontalNav() {
         { label: "Category", href: "/coming-soon?feature=category", icon: <FolderTree className="h-3.5 w-3.5" /> },
         { label: "Sub Category", href: "/coming-soon?feature=sub-category", icon: <GitFork className="h-3.5 w-3.5" /> },
         { label: "Brands", href: "/coming-soon?feature=brands", icon: <Award className="h-3.5 w-3.5" /> },
+        { label: "Units & Scaling", href: "/coming-soon?feature=units", icon: <Scale className="h-3.5 w-3.5" /> },
       ],
     },
     {

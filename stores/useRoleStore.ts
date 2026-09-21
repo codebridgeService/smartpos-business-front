@@ -25,6 +25,46 @@ export const DEFAULT_SYSTEM_ROLES: Role[] = [
   },
   {
     id: 3,
+    uuid: "sys-role-inventory-admin",
+    business_uuid: null,
+    code: "inventory_admin",
+    name: "Inventory Admin",
+    is_system: true,
+    created_at: null,
+    updated_at: null,
+  },
+  {
+    id: 4,
+    uuid: "sys-role-finance-admin",
+    business_uuid: null,
+    code: "finance_admin",
+    name: "Finance Admin",
+    is_system: true,
+    created_at: null,
+    updated_at: null,
+  },
+  {
+    id: 5,
+    uuid: "sys-role-pos-admin",
+    business_uuid: null,
+    code: "pos_admin",
+    name: "POS Admin",
+    is_system: true,
+    created_at: null,
+    updated_at: null,
+  },
+  {
+    id: 6,
+    uuid: "sys-role-hr-admin",
+    business_uuid: null,
+    code: "hr_admin",
+    name: "HR Admin",
+    is_system: true,
+    created_at: null,
+    updated_at: null,
+  },
+  {
+    id: 7,
     uuid: "sys-role-store-manager",
     business_uuid: null,
     code: "store_manager",
@@ -34,7 +74,7 @@ export const DEFAULT_SYSTEM_ROLES: Role[] = [
     updated_at: null,
   },
   {
-    id: 4,
+    id: 8,
     uuid: "sys-role-cashier",
     business_uuid: null,
     code: "cashier",
@@ -44,7 +84,7 @@ export const DEFAULT_SYSTEM_ROLES: Role[] = [
     updated_at: null,
   },
   {
-    id: 5,
+    id: 9,
     uuid: "sys-role-inventory-clerk",
     business_uuid: null,
     code: "inventory_clerk",
@@ -96,10 +136,11 @@ export interface RoleState {
 
   // Async Actions
   fetchRoles: (businessUuid?: string | null, page?: number) => Promise<Role[]>;
+  fetchRole: (uuidOrCode: string) => Promise<Role>;
   createRole: (payload: CreateRolePayload) => Promise<Role>;
   updateRole: (uuid: string, payload: UpdateRolePayload) => Promise<Role>;
   deleteRole: (uuid: string) => Promise<void>;
-  provisionRoles: (businessUuid?: string | null) => Promise<any>;
+  provisionRoles: (businessUuid?: string | null, module?: string) => Promise<any>;
   syncPermissions: (roleUuid: string, permissionUuids: string[]) => Promise<Role>;
   syncAllPermissions: (roleUuid: string) => Promise<Role>;
 
@@ -192,6 +233,20 @@ export const useRoleStore = create<RoleState>((set, get) => ({
     }
   },
 
+  fetchRole: async (uuidOrCode: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const role = await rolesApi.getRole(uuidOrCode);
+      set({ selectedRole: role });
+      return role;
+    } catch (err: any) {
+      set({ error: err?.message || "Failed to fetch role details" });
+      throw err;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
   createRole: async (payload) => {
     set({ isSaving: true, error: null });
     try {
@@ -242,10 +297,10 @@ export const useRoleStore = create<RoleState>((set, get) => ({
     }
   },
 
-  provisionRoles: async (businessUuid) => {
+  provisionRoles: async (businessUuid, module) => {
     set({ isSaving: true, error: null });
     try {
-      const res = await rolesApi.provisionRoles(businessUuid);
+      const res = await rolesApi.provisionRoles(businessUuid, module);
       await get().fetchRoles(businessUuid, 1);
       set({ isProvisionModalOpen: false });
       return res;

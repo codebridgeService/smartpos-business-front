@@ -44,7 +44,7 @@ export class ApiError extends Error {
   }
 
   /**
-   * Check if error is an HTTP 403 Forbidden
+   * Check if error is an HTTP 403 Forbidden (Permission denied)
    */
   public isForbidden(): boolean {
     return this.status === 403;
@@ -55,6 +55,31 @@ export class ApiError extends Error {
    */
   public isNotFound(): boolean {
     return this.status === 404;
+  }
+
+  /**
+   * Check if error is an HTTP 429 Too Many Requests (Rate limit exceeded)
+   */
+  public isRateLimited(): boolean {
+    return this.status === 429;
+  }
+
+  /**
+   * Check if error is an HTTP 500-599 Server Error
+   */
+  public isServerError(): boolean {
+    return this.status >= 500 && this.status < 600;
+  }
+
+  /**
+   * Get retry-after seconds if provided in response data or rate limit headers
+   */
+  public getRetryAfter(): number | undefined {
+    if (this.data && typeof this.data === "object" && "retry_after" in this.data) {
+      const val = Number((this.data as { retry_after?: unknown }).retry_after);
+      if (!isNaN(val)) return val;
+    }
+    return undefined;
   }
 
   /**

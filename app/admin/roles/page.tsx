@@ -25,6 +25,10 @@ import {
   SlidersHorizontal,
   Boxes,
   Building2,
+  Package,
+  DollarSign,
+  ShoppingCart,
+  Users2,
 } from "lucide-react";
 import { useBusiness } from "@/context/business-context";
 import { useRoleStore, DEFAULT_SYSTEM_ROLES } from "@/stores/useRoleStore";
@@ -58,100 +62,144 @@ interface RoleThemeConfig {
 }
 
 const getRoleConfig = (code: string, isSystem: boolean): RoleThemeConfig => {
-  switch (code) {
-    case "owner":
-      return {
-        gradient: "from-purple-500/10 via-violet-500/5 to-transparent",
-        glow: "group-hover:shadow-purple-500/10",
-        iconBg: "bg-purple-100 dark:bg-purple-950/60",
-        iconColor: "text-purple-600 dark:text-purple-400",
-        borderHover: "hover:border-purple-300 dark:hover:border-purple-800",
-        badgeBg: "bg-purple-50 dark:bg-purple-950/50",
-        badgeText: "text-purple-700 dark:text-purple-300",
-        badgeBorder: "border-purple-200 dark:border-purple-800/60",
-        tag: "Root Authority",
-        defaultDescription:
-          "Full sovereign control across multi-store provisioning, financial audits, cashier management, and fiscal ledger governance.",
-        icon: <Crown className="h-5 w-5" />,
-      };
-    case "admin":
-      return {
-        gradient: "from-blue-500/10 via-indigo-500/5 to-transparent",
-        glow: "group-hover:shadow-blue-500/10",
-        iconBg: "bg-blue-100 dark:bg-blue-950/60",
-        iconColor: "text-blue-600 dark:text-blue-400",
-        borderHover: "hover:border-blue-300 dark:hover:border-blue-800",
-        badgeBg: "bg-blue-50 dark:bg-blue-950/50",
-        badgeText: "text-blue-700 dark:text-blue-300",
-        badgeBorder: "border-blue-200 dark:border-blue-800/60",
-        tag: "System Admin",
-        defaultDescription:
-          "System operations, RBAC matrix governance, hardware device credentials, staff assignments, and branch security.",
-        icon: <ShieldAlert className="h-5 w-5" />,
-      };
-    case "manager":
-    case "store_manager":
-      return {
-        gradient: "from-emerald-500/10 via-teal-500/5 to-transparent",
-        glow: "group-hover:shadow-emerald-500/10",
-        iconBg: "bg-emerald-100 dark:bg-emerald-950/60",
-        iconColor: "text-emerald-600 dark:text-emerald-400",
-        borderHover: "hover:border-emerald-300 dark:hover:border-emerald-800",
-        badgeBg: "bg-emerald-50 dark:bg-emerald-950/50",
-        badgeText: "text-emerald-700 dark:text-emerald-300",
-        badgeBorder: "border-emerald-200 dark:border-emerald-800/60",
-        tag: "Branch Manager",
-        defaultDescription:
-          "Store branch operations, register shift sign-offs, drawer opening float setup, price overrides, and cash variance reconciliations.",
-        icon: <Users className="h-5 w-5" />,
-      };
-    case "cashier":
-      return {
-        gradient: "from-amber-500/10 via-orange-500/5 to-transparent",
-        glow: "group-hover:shadow-amber-500/10",
-        iconBg: "bg-amber-100 dark:bg-amber-950/60",
-        iconColor: "text-amber-600 dark:text-amber-400",
-        borderHover: "hover:border-amber-300 dark:hover:border-amber-800",
-        badgeBg: "bg-amber-50 dark:bg-amber-950/50",
-        badgeText: "text-amber-700 dark:text-amber-300",
-        badgeBorder: "border-amber-200 dark:border-amber-800/60",
-        tag: "Frontline POS",
-        defaultDescription:
-          "Front counter retail checkout, barcode scanner interactions, tender settlements, discount triggers, and customer receipt printing.",
-        icon: <ShieldCheck className="h-5 w-5" />,
-      };
-    case "inventory_clerk":
-    case "clerk":
-      return {
-        gradient: "from-cyan-500/10 via-sky-500/5 to-transparent",
-        glow: "group-hover:shadow-cyan-500/10",
-        iconBg: "bg-cyan-100 dark:bg-cyan-950/60",
-        iconColor: "text-cyan-600 dark:text-cyan-400",
-        borderHover: "hover:border-cyan-300 dark:hover:border-cyan-800",
-        badgeBg: "bg-cyan-50 dark:bg-cyan-950/50",
-        badgeText: "text-cyan-700 dark:text-cyan-300",
-        badgeBorder: "border-cyan-200 dark:border-cyan-800/60",
-        tag: "Inventory & Stock",
-        defaultDescription:
-          "Stock level monitoring, barcode SKU generation, product receiving, catalog price adjustments, and shelf label printing.",
-        icon: <Boxes className="h-5 w-5" />,
-      };
-    default:
-      return {
-        gradient: "from-indigo-500/10 via-slate-500/5 to-transparent",
-        glow: "group-hover:shadow-indigo-500/10",
-        iconBg: "bg-indigo-100 dark:bg-indigo-950/60",
-        iconColor: "text-indigo-600 dark:text-indigo-400",
-        borderHover: "hover:border-indigo-300 dark:hover:border-indigo-800",
-        badgeBg: "bg-indigo-50 dark:bg-indigo-950/50",
-        badgeText: "text-indigo-700 dark:text-indigo-300",
-        badgeBorder: "border-indigo-200 dark:border-indigo-800/60",
-        tag: isSystem ? "System Role" : "Custom Role",
-        defaultDescription:
-          "Custom tailored business role configured with specialized operational permissions.",
-        icon: <Shield className="h-5 w-5" />,
-      };
+  const c = code.toLowerCase().trim();
+
+  // 1. Super Admin / Owner
+  if (c === "super_admin" || c === "owner") {
+    return {
+      gradient: "from-purple-500/10 via-violet-500/5 to-transparent",
+      glow: "group-hover:shadow-purple-500/10",
+      iconBg: "bg-purple-100 dark:bg-purple-950/60",
+      iconColor: "text-purple-600 dark:text-purple-400",
+      borderHover: "hover:border-purple-300 dark:hover:border-purple-800",
+      badgeBg: "bg-purple-50 dark:bg-purple-950/50",
+      badgeText: "text-purple-700 dark:text-purple-300",
+      badgeBorder: "border-purple-200 dark:border-purple-800/60",
+      tag: c === "super_admin" ? "Super Admin" : "Root Owner",
+      defaultDescription:
+        "Full sovereign authority across all microservice modules, role governance, multi-tenant businesses, and system operations.",
+      icon: <Crown className="h-5 w-5" />,
+    };
   }
+
+  // 2. Inventory Module Roles (Blue)
+  if (
+    c.startsWith("inventory") ||
+    c.includes("warehouse") ||
+    c.includes("planner") ||
+    c.includes("purchasing") ||
+    c.includes("procurement") ||
+    c.includes("fulfillment")
+  ) {
+    return {
+      gradient: "from-blue-500/10 via-cyan-500/5 to-transparent",
+      glow: "group-hover:shadow-blue-500/10",
+      iconBg: "bg-blue-100 dark:bg-blue-950/60",
+      iconColor: "text-blue-600 dark:text-blue-400",
+      borderHover: "hover:border-blue-300 dark:hover:border-blue-800",
+      badgeBg: "bg-blue-50 dark:bg-blue-950/50",
+      badgeText: "text-blue-700 dark:text-blue-300",
+      badgeBorder: "border-blue-200 dark:border-blue-800/60",
+      tag: c === "inventory_admin" ? "Inventory Admin" : "Inventory Module",
+      defaultDescription:
+        "Stock warehousing, inventory counts, supplier purchase orders, product receiving, and order fulfillment workflows.",
+      icon: <Package className="h-5 w-5" />,
+    };
+  }
+
+  // 3. Finance Module Roles (Coral / Rose)
+  if (
+    c.startsWith("finance") ||
+    c.includes("treasury") ||
+    c.includes("analyst") ||
+    c.includes("ar_") ||
+    c.includes("ap_") ||
+    c.includes("ledger") ||
+    c.includes("controller") ||
+    c.includes("accountant")
+  ) {
+    return {
+      gradient: "from-rose-500/10 via-red-500/5 to-transparent",
+      glow: "group-hover:shadow-rose-500/10",
+      iconBg: "bg-rose-100 dark:bg-rose-950/60",
+      iconColor: "text-rose-600 dark:text-rose-400",
+      borderHover: "hover:border-rose-300 dark:hover:border-rose-800",
+      badgeBg: "bg-rose-50 dark:bg-rose-950/50",
+      badgeText: "text-rose-700 dark:text-rose-300",
+      badgeBorder: "border-rose-200 dark:border-rose-800/60",
+      tag: c === "finance_admin" ? "Finance Admin" : "Finance Module",
+      defaultDescription:
+        "General ledger postings, chart of accounts, treasury cash management, vendor bills AP, customer invoices AR, and fiscal reporting.",
+      icon: <DollarSign className="h-5 w-5" />,
+    };
+  }
+
+  // 4. POS Module Roles (Emerald / Green)
+  if (
+    c.startsWith("pos") ||
+    c === "store_manager" ||
+    c === "manager" ||
+    c === "cashier" ||
+    c === "shift_supervisor" ||
+    c.includes("reporting_accountant")
+  ) {
+    return {
+      gradient: "from-emerald-500/10 via-teal-500/5 to-transparent",
+      glow: "group-hover:shadow-emerald-500/10",
+      iconBg: "bg-emerald-100 dark:bg-emerald-950/60",
+      iconColor: "text-emerald-600 dark:text-emerald-400",
+      borderHover: "hover:border-emerald-300 dark:hover:border-emerald-800",
+      badgeBg: "bg-emerald-50 dark:bg-emerald-950/50",
+      badgeText: "text-emerald-700 dark:text-emerald-300",
+      badgeBorder: "border-emerald-200 dark:border-emerald-800/60",
+      tag: c === "pos_admin" ? "POS Admin" : "POS Module",
+      defaultDescription:
+        "Point of sale checkout, cash drawer shifts, terminal quick PINs, barcode scanning, refunds, and store counter operations.",
+      icon: <ShoppingCart className="h-5 w-5" />,
+    };
+  }
+
+  // 5. HR Module Roles (Purple / Violet)
+  if (
+    c.startsWith("hr") ||
+    c.includes("payroll") ||
+    c.includes("benefits") ||
+    c.includes("recruiter") ||
+    c.includes("people_manager") ||
+    c.includes("compliance") ||
+    c.includes("employee_self_service")
+  ) {
+    return {
+      gradient: "from-violet-500/10 via-purple-500/5 to-transparent",
+      glow: "group-hover:shadow-violet-500/10",
+      iconBg: "bg-violet-100 dark:bg-violet-950/60",
+      iconColor: "text-violet-600 dark:text-violet-400",
+      borderHover: "hover:border-violet-300 dark:hover:border-violet-800",
+      badgeBg: "bg-violet-50 dark:bg-violet-950/50",
+      badgeText: "text-violet-700 dark:text-violet-300",
+      badgeBorder: "border-violet-200 dark:border-violet-800/60",
+      tag: c === "hr_admin" ? "HR Admin" : "HR Module",
+      defaultDescription:
+        "Staff management, payroll processing, benefits administration, recruitment pipelines, attendance, and employee self-service.",
+      icon: <Users2 className="h-5 w-5" />,
+    };
+  }
+
+  // Default / System Administrator
+  return {
+    gradient: "from-indigo-500/10 via-slate-500/5 to-transparent",
+    glow: "group-hover:shadow-indigo-500/10",
+    iconBg: "bg-indigo-100 dark:bg-indigo-950/60",
+    iconColor: "text-indigo-600 dark:text-indigo-400",
+    borderHover: "hover:border-indigo-300 dark:hover:border-indigo-800",
+    badgeBg: "bg-indigo-50 dark:bg-indigo-950/50",
+    badgeText: "text-indigo-700 dark:text-indigo-300",
+    badgeBorder: "border-indigo-200 dark:border-indigo-800/60",
+    tag: isSystem ? "System Role" : "Custom Role",
+    defaultDescription:
+      "Operational role configured with custom tenant and outlet permissions.",
+    icon: <Shield className="h-5 w-5" />,
+  };
 };
 
 export default function AdminRolesPage() {
