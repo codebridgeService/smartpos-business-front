@@ -77,8 +77,9 @@ describe("BusinessSidebar Component", () => {
     // Core Business links
     expect(screen.getByText("Dashboard")).toBeDefined();
     expect(screen.getByText("Outlets")).toBeDefined();
-    expect(screen.getByText("Business Master")).toBeDefined();
-    expect(screen.getByText("Business Settings")).toBeDefined();
+    expect(screen.getByText("Staff & Members")).toBeDefined();
+    expect(screen.getByText("Users Management")).toBeDefined();
+    expect(screen.getByText("Units & Scaling")).toBeDefined();
     expect(screen.getByText("Outlets & Branches")).toBeDefined();
     expect(screen.getByText("Cash Registers")).toBeDefined();
     expect(screen.getByText("POS Devices")).toBeDefined();
@@ -131,8 +132,8 @@ describe("BusinessSidebar Component", () => {
       </ThemeProvider>
     );
 
-    const masterLink = screen.getByText("Business Master");
-    fireEvent.click(masterLink);
+    const staffLink = screen.getByText("Staff & Members");
+    fireEvent.click(staffLink);
     expect(onItemClick).toHaveBeenCalled();
   });
 

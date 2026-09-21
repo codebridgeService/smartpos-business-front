@@ -1,0 +1,21 @@
+services:
+  admin-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: smartpos-admin-web-prod
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL:-https://api.smartpos.com/api/v1}
+      - NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME:-SmartPOS Business}
+      - API_URL=${API_URL:-https://api.smartpos.com/api/v1}
+      - PORT=3000
+    networks:
+      - frontend-network
+
+networks:
+  frontend-network:
+    name: frontend-network
+    driver: bridge

@@ -31,6 +31,7 @@ import {
   LogOut,
   Sparkles,
   GitCommit,
+  Scale,
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { useBusiness } from "@/context/business-context";
@@ -143,20 +144,6 @@ export function BusinessSidebar({
             })),
           ],
         },
-        {
-          label: "Business Settings",
-          href: businessSettingsHref,
-          icon: <Settings className="h-4.5 w-4.5 shrink-0" />,
-          badge: activeBusiness?.code || "Tenant",
-          badgeVariant: "neutral",
-        },
-        {
-          label: "Business Master",
-          href: "/businesses",
-          icon: <Building2 className="h-4.5 w-4.5 shrink-0" />,
-          badge: businesses.length > 0 ? `${businesses.length}` : undefined,
-          badgeVariant: "neutral",
-        },
       ],
     },
     {
@@ -249,6 +236,11 @@ export function BusinessSidebar({
           label: "Category & Brands",
           href: "/coming-soon?feature=category",
           icon: <FolderTree className="h-4.5 w-4.5 shrink-0" />,
+        },
+        {
+          label: "Units & Scaling",
+          href: "/coming-soon?feature=units",
+          icon: <Scale className="h-4.5 w-4.5 shrink-0" />,
         },
         {
           label: "Stock Adjustment",
@@ -494,9 +486,9 @@ export function BusinessSidebar({
   const businessInitial = activeBusiness?.name ? activeBusiness.name.charAt(0).toUpperCase() : "B";
 
   return (
-    <div className={`flex flex-col h-full select-none ${className}`}>
+    <div className={`flex flex-col h-full min-h-0 select-none overflow-hidden ${className}`}>
       {/* Top Active Business Tenant Identity Card */}
-      <div className="mb-2">
+      <div className="mb-2 shrink-0">
         <Link
           href="/businesses/dashboard"
           onClick={() => onItemClick?.()}
@@ -560,7 +552,7 @@ export function BusinessSidebar({
       </div>
 
       {/* Navigation Sections */}
-      <div className={`flex-1 sidebar-scrollbar py-1 space-y-1 ${isCollapsed ? "" : "pr-0.5"}`}>
+      <div className={`flex-1 min-h-0 sidebar-scrollbar overflow-y-auto py-1 space-y-1 ${isCollapsed ? "" : "pr-0.5"}`}>
         {sections.map((section, sIdx) => {
           return (
             <div key={sIdx} className="space-y-0.5">

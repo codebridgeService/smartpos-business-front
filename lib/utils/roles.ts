@@ -93,28 +93,34 @@ export function isAdmin(user: User | null): boolean {
  * Checks if the user has a specific permission by code.
  */
 export function hasPermission(
-  user: User | null,
+  user: User | any,
   permissionCode: string
 ): boolean {
-  if (!user) return false;
+  if (!user || !permissionCode) return false;
 
   const targetCode = permissionCode.toLowerCase().trim();
+  if (!targetCode) return false;
 
-  // 1. Check direct user permissions
+  // 1. Check direct user permissions (both object or string array formats)
   if (user.permissions && Array.isArray(user.permissions)) {
-    const directMatch = user.permissions.some(
-      (p) => (p.code || "").toLowerCase().trim() === targetCode
-    );
+    const directMatch = user.permissions.some((p: any) => {
+      if (!p) return false;
+      const code = typeof p === "string" ? p : p.code || p.name || "";
+      return code.toLowerCase().trim() === targetCode;
+    });
     if (directMatch) return true;
   }
 
   // 2. Check permissions nested inside user roles
   if (user.roles && Array.isArray(user.roles)) {
     for (const role of user.roles) {
+      if (!role || typeof role === "string") continue;
       if (role.permissions && Array.isArray(role.permissions)) {
-        const roleMatch = role.permissions.some(
-          (p) => (p.code || "").toLowerCase().trim() === targetCode
-        );
+        const roleMatch = role.permissions.some((p: any) => {
+          if (!p) return false;
+          const code = typeof p === "string" ? p : p.code || p.name || "";
+          return code.toLowerCase().trim() === targetCode;
+        });
         if (roleMatch) return true;
       }
     }

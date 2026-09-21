@@ -29,6 +29,7 @@ import {
   ChevronRight,
   Check,
   Sparkles,
+  Scale,
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { useBusiness } from "@/context/business-context";
@@ -111,6 +112,7 @@ export function TwoColumnSidebar() {
         { label: "Manage Stock", href: "/admin/warehouses", icon: <Layers className="h-4 w-4" /> },
         { label: "Products Catalog", href: "/coming-soon?feature=products", icon: <Package className="h-4 w-4" /> },
         { label: "Category & Brands", href: "/coming-soon?feature=category", icon: <FolderTree className="h-4 w-4" /> },
+        { label: "Units & Scaling", href: "/coming-soon?feature=units", icon: <Scale className="h-4 w-4" /> },
         { label: "Stock Adjustment", href: "/coming-soon?feature=stock-adjustment", icon: <TrendingUp className="h-4 w-4" /> },
         { label: "Stock Transfer", href: "/coming-soon?feature=stock-transfer", icon: <ArrowLeftRight className="h-4 w-4" /> },
       ],
@@ -156,7 +158,7 @@ export function TwoColumnSidebar() {
   return (
     <div className="flex h-full border-r border-slate-200 dark:border-zinc-800 select-none">
       {/* First Column: Slim Rail Dock */}
-      <div className={`w-18 shrink-0 h-full border-r border-slate-200/80 dark:border-zinc-800 flex flex-col items-center py-3.5 space-y-2 ${sidebarPreset.colorClass} ${sidebarPreset.textClass}`}>
+      <div className={`w-18 shrink-0 h-full border-r border-slate-200/80 dark:border-zinc-800 flex flex-col items-center py-3.5 space-y-2 overflow-y-auto sidebar-scrollbar ${sidebarPreset.colorClass} ${sidebarPreset.textClass}`}>
         <div className="space-y-1.5 w-full px-2">
           {sections.map((sec) => {
             const isSelected = activeSectionId === sec.id;
@@ -183,9 +185,9 @@ export function TwoColumnSidebar() {
       </div>
 
       {/* Second Column: Submenu Panel with User Profile matching Dreams POS Screenshot 2 */}
-      <div className="w-56 shrink-0 h-full flex flex-col bg-white dark:bg-zinc-900 sidebar-scrollbar">
+      <div className="w-56 shrink-0 h-full flex flex-col bg-white dark:bg-zinc-900 overflow-hidden">
         {/* User Card Header matching Dreams POS */}
-        <div className="p-4 border-b border-slate-100 dark:border-zinc-800 flex items-center gap-3 bg-slate-50/50 dark:bg-zinc-850/40">
+        <div className="p-4 border-b border-slate-100 dark:border-zinc-800 flex items-center gap-3 bg-slate-50/50 dark:bg-zinc-855/40 shrink-0">
           <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-orange-500 to-amber-400 text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
             {user?.name?.charAt(0) || "A"}
           </div>
@@ -200,7 +202,7 @@ export function TwoColumnSidebar() {
         </div>
 
         {/* Section Title */}
-        <div className="px-4 pt-3 pb-1 flex items-center justify-between">
+        <div className="px-4 pt-3 pb-1 flex items-center justify-between shrink-0">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
             {currentSection.title}
           </span>
@@ -210,7 +212,7 @@ export function TwoColumnSidebar() {
         </div>
 
         {/* Submenu List */}
-        <div className="p-2 space-y-1 flex-1">
+        <div className="p-2 space-y-1 flex-1 min-h-0 overflow-y-auto sidebar-scrollbar pb-8">
           {currentSection.items.map((item, idx) => {
             const isActive = pathname === item.href;
             return (

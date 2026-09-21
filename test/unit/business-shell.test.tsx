@@ -80,7 +80,7 @@ describe("BusinessShell Component", () => {
     );
 
     // Navigation items in BusinessShell
-    expect(screen.getAllByText("Business Master").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Staff & Members").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Dashboard").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Outlets").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Cash Registers").length).toBeGreaterThan(0);

@@ -17,16 +17,16 @@ interface BatchCreatePermissionModalProps {
 }
 
 const MODULE_OPTIONS = [
-  { value: "dashboard", label: "Dashboard" },
-  { value: "users", label: "Users & Staff" },
-  { value: "roles", label: "Roles & RBAC" },
-  { value: "permissions", label: "Permissions" },
-  { value: "business", label: "Business & Company" },
-  { value: "outlet", label: "Outlets & Branches" },
-  { value: "pos", label: "POS & Register" },
-  { value: "inventory", label: "Inventory & Products" },
-  { value: "orders", label: "Sales & Orders" },
-  { value: "reports", label: "Reports & Financials" },
+  { value: "inventory", label: "Inventory Module (Stock, Warehouses, Orders)" },
+  { value: "finance", label: "Finance Module (Ledger, Treasury, AP/AR, Tax)" },
+  { value: "pos", label: "POS Module (Registers, Shifts, Checkout, PINs)" },
+  { value: "hr", label: "HR Module (Staff, Payroll, Benefits, Hiring)" },
+  { value: "users", label: "Users & Security" },
+  { value: "roles", label: "Roles & Delegations" },
+  { value: "permissions", label: "Permissions Matrix" },
+  { value: "businesses", label: "Business & Tenants" },
+  { value: "outlets", label: "Outlets & Locations" },
+  { value: "dashboard", label: "Dashboard & Analytics" },
 ];
 
 export function BatchCreatePermissionModal({

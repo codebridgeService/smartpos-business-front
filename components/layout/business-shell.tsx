@@ -134,7 +134,9 @@ export function BusinessShell({ children }: BusinessShellProps) {
         {/* Desktop Sidebar */}
         {layoutMode !== "horizontal" && (
           <div
-            className={`hidden lg:block relative shrink-0 transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-[width] ${
+            className={`hidden lg:block relative shrink-0 sticky ${
+              layoutMode === "without-header" ? "top-0 h-screen" : "top-16 h-[calc(100vh-4rem)]"
+            } transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-[width] ${
               layoutMode === "two-column"
                 ? "w-74"
                 : isEffectiveCollapsed
@@ -143,14 +145,14 @@ export function BusinessShell({ children }: BusinessShellProps) {
             }`}
           >
             {layoutMode === "two-column" ? (
-              <aside className={`hidden lg:flex w-full h-full border-r ${sidebarPreset.borderClass}`}>
+              <aside className={`hidden lg:flex w-full h-full overflow-hidden border-r ${sidebarPreset.borderClass}`}>
                 <TwoColumnSidebar />
               </aside>
             ) : (
               <aside
                 onMouseEnter={handleSidebarMouseEnter}
                 onMouseLeave={handleSidebarMouseLeave}
-                className={`hidden lg:flex flex-col w-full h-full ${
+                className={`hidden lg:flex flex-col w-full h-full overflow-hidden ${
                   isEffectiveCollapsed ? "px-2 py-3" : "p-3"
                 } border-r transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${sidebarPreset.colorClass} ${sidebarPreset.borderClass} ${sidebarPreset.textClass} ${
                   layoutMode === "detached" ? "m-3 rounded-3xl shadow-xl border" : ""

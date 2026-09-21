@@ -26,7 +26,7 @@ async function handleProxyRequest(
     const { path } = await context.params;
     const targetPath = Array.isArray(path) ? path.join("/") : "";
 
-    const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || "").replace(/\/+$/, "");
+    const baseUrl = (process.env.API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "http://api.smartpos.test/api/v1").replace(/\/+$/, "");
 
     const search = request.nextUrl.search;
     const targetUrl = `${baseUrl}/${targetPath}${search}`;
@@ -43,6 +43,7 @@ async function handleProxyRequest(
       method,
       headers,
       cache: "no-store",
+      signal: AbortSignal.timeout(30000),
     };
 
     if (method !== "GET" && method !== "HEAD") {

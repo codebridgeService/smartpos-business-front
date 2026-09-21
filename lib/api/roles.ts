@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import type { Role, LengthAwarePaginator, ApiListResponse } from "@/types";
+import type { Role, LengthAwarePaginator, ApiListResponse, User } from "@/types";
 
 export interface CreateRolePayload {
   name: string;
@@ -68,12 +68,13 @@ export const rolesApi = {
   },
 
   /**
-   * Auto-provision standard roles for a business
+   * Auto-provision standard roles for a business, optionally filtered by module
    * Endpoint: POST /roles/provision
    */
-  async provisionRoles(businessUuid?: string | null): Promise<any> {
+  async provisionRoles(businessUuid?: string | null, module?: string): Promise<any> {
     return apiClient.post("/roles/provision", {
       business_uuid: businessUuid || undefined,
+      module: module || undefined,
     });
   },
 
@@ -95,5 +96,22 @@ export const rolesApi = {
   async syncAllPermissions(roleUuid: string): Promise<Role> {
     const res = await apiClient.post<Role | { data: Role }>(`/roles/${roleUuid}/permissions/all`);
     return "data" in res && res.data ? res.data : (res as Role);
+  },
+
+  /**
+   * Get all users assigned to a specific role
+   * Endpoint: GET /roles/{role}/users
+   */
+  async getRoleUsers(roleUuidOrCode: string): Promise<User[]> {
+    const res = await apiClient.get<ApiListResponse<User> | { data: User[] } | User[]>(
+      `/roles/${roleUuidOrCode}/users?all=true`
+    );
+    if (Array.isArray(res)) {
+      return res;
+    }
+    if (res && "data" in res && Array.isArray(res.data)) {
+      return res.data;
+    }
+    return [];
   },
 };

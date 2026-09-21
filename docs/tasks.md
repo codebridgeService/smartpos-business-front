@@ -185,16 +185,16 @@ This document outlines the complete development roadmap, architectural milestone
   - [x] Update outlet configuration (`PUT /outlets/{outlet}`).
   - [x] Delete outlet action (`DELETE /outlets/{outlet}`).
 
-- [ ] **4.4 Staff Memberships & Access (`/businesses/{business}/staff`)**
-  - [ ] List staff members for business (`GET /businesses/{business}/users`).
-  - [ ] Add user to business modal (`POST /businesses/{business}/users` with role selection: `owner`, `manager`, `cashier`, `staff`, `admin`).
-  - [ ] Update membership details (`PUT /businesses/{business}/users/{businessUser}`).
-  - [ ] Suspend staff member toggle (`POST /businesses/{business}/users/{businessUser}/suspend`).
-  - [ ] Remove staff member action (`DELETE /businesses/{business}/users/{businessUser}`).
-  - [ ] Outlet Assignment sub-view:
-    - [ ] List outlets assigned to user (`GET .../outlets`).
-    - [ ] Assign outlet to user with `is_primary` flag (`POST .../outlets`).
-    - [ ] Revoke outlet assignment (`DELETE .../outlets/{outlet}`).
+- [x] **4.4 Staff Memberships & Access (`/businesses/{business}/staff`)**
+  - [x] List staff members for business (`GET /businesses/{business}/users`).
+  - [x] Add user to business modal (`POST /businesses/{business}/users` with role selection: `owner`, `manager`, `cashier`, `staff`, `admin`).
+  - [x] Update membership details (`PUT /businesses/{business}/users/{businessUser}`).
+  - [x] Suspend staff member toggle (`POST /businesses/{business}/users/{businessUser}/suspend`).
+  - [x] Remove staff member action (`DELETE /businesses/{business}/users/{businessUser}`).
+  - [x] Outlet Assignment sub-view:
+    - [x] List outlets assigned to user (`GET .../outlets`).
+    - [x] Assign outlet to user with `is_primary` flag (`POST .../outlets`).
+    - [x] Revoke outlet assignment (`DELETE .../outlets/{outlet}`).
 
 ---
 

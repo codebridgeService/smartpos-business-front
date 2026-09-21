@@ -46,7 +46,6 @@ import { useOutlet } from "@/context/outlet-context";
 import { useTheme } from "@/context/theme-context";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { BusinessSwitcher } from "./business-switcher";
 import { isAdmin, isOwner } from "@/lib/utils/roles";
 import { FeaturesAnnouncementsStore } from "@/lib/storage/features-announcements-store";
 import type { Announcement, AnnouncementRead } from "@/types/features-announcements";
@@ -301,13 +300,8 @@ export function BusinessNavbar({
             </div>
           </div>
 
-          {/* Right Action Stack: Business Tenant Switcher, Outlet Selector, Add New, POS Shortcut, Controls */}
+          {/* Right Action Stack: Outlet Selector, Add New, POS Shortcut, Controls */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-            {/* Multi-Tenant Business Switcher */}
-            <div className="flex items-center">
-              <BusinessSwitcher isDarkTheme={topBarPreset.isDark} />
-            </div>
-
             {/* Outlet / Store Location Selector Dropdown */}
             <div className="relative">
               <button

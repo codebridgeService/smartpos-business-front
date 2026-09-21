@@ -5,6 +5,7 @@ import { tokenStorage, authEvents } from "./token";
 export interface RequestOptions extends Omit<RequestInit, "body"> {
   params?: Record<string, string | number | boolean | undefined | null>;
   skipAuth?: boolean;
+  timeout?: number;
   _retry?: boolean;
 }
 
@@ -12,8 +13,10 @@ interface RefreshTokenResponse {
   access_token: string;
   refresh_token: string;
   token_type: string;
-  expires_in: string;
+  expires_in: string | number;
   refresh_expires_at?: string | null;
+  roles?: string[];
+  permissions?: string[];
 }
 
 // Queue mechanism for handling concurrent 401 requests during token refresh
@@ -69,6 +72,16 @@ async function performTokenRefresh(): Promise<string> {
     refresh_token: data.refresh_token,
   });
 
+  if (data.roles && Array.isArray(data.roles)) {
+    tokenStorage.setUserRoles(data.roles);
+  }
+
+  authEvents.emitRefreshed({
+    access_token: data.access_token,
+    roles: data.roles,
+    permissions: data.permissions,
+  });
+
   onTokenRefreshed(data.access_token);
   return data.access_token;
 }
@@ -77,7 +90,16 @@ async function performTokenRefresh(): Promise<string> {
  * Builds the full URL with query parameters
  */
 function buildUrl(endpoint: string, params?: RequestOptions["params"]): string {
-  const fullUrl = new URL(getApiUrl(endpoint));
+  const rawUrl = getApiUrl(endpoint);
+  const baseOrigin =
+    typeof window !== "undefined"
+      ? window.location.origin
+      : process.env.API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
+
+  const fullUrl =
+    rawUrl.startsWith("http://") || rawUrl.startsWith("https://")
+      ? new URL(rawUrl)
+      : new URL(rawUrl.startsWith("/") ? rawUrl : `/${rawUrl}`, baseOrigin);
 
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
@@ -99,7 +121,15 @@ async function request<T>(
   body?: unknown,
   options: RequestOptions = {}
 ): Promise<T> {
-  const { params, skipAuth = false, _retry = false, headers: customHeaders, ...restOptions } = options;
+  const {
+    params,
+    skipAuth = false,
+    _retry = false,
+    timeout = 30000,
+    headers: customHeaders,
+    signal: userSignal,
+    ...restOptions
+  } = options;
 
   const url = buildUrl(endpoint, params);
   const headers = new Headers(customHeaders);
@@ -137,12 +167,34 @@ async function request<T>(
     }
   }
 
-  const response = await fetch(url, {
-    method,
-    headers,
-    body: requestBody,
-    ...restOptions,
-  });
+  // Setup abort controller signal for request timeout
+  const timeoutSignal = AbortSignal.timeout(timeout);
+  let requestSignal: AbortSignal = timeoutSignal;
+
+  if (userSignal) {
+    // If caller provided their own signal, abort if either fires
+    if ("any" in AbortSignal && typeof (AbortSignal as any).any === "function") {
+      requestSignal = (AbortSignal as any).any([userSignal, timeoutSignal]);
+    } else {
+      requestSignal = userSignal;
+    }
+  }
+
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method,
+      headers,
+      body: requestBody,
+      signal: requestSignal,
+      ...restOptions,
+    });
+  } catch (err: unknown) {
+    if (err instanceof Error && (err.name === "TimeoutError" || err.name === "AbortError")) {
+      throw new ApiError(408, `Request timed out after ${timeout}ms`);
+    }
+    throw err;
+  }
 
   // Check for successful response
   if (response.ok) {

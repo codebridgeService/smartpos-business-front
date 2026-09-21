@@ -61,6 +61,27 @@ export const usersApi = {
   },
 
   /**
+   * Fetch all users matching a specific role (e.g. 'owner', 'manager', 'cashier')
+   * Endpoint: GET /users?role={role}&all=true
+   */
+  async getUsersByRole(role: string): Promise<User[]> {
+    const response = await apiClient.get<LengthAwarePaginator<User> | ApiListResponse<User> | { data: User[] } | User[]>("/users", {
+      params: {
+        role,
+        all: true,
+      },
+    });
+
+    if (Array.isArray(response)) {
+      return response;
+    }
+    if (response && "data" in response && Array.isArray(response.data)) {
+      return response.data;
+    }
+    return [];
+  },
+
+  /**
    * Get user details including loaded roles, permissions, and registered devices.
    * Endpoint: GET /users/{user}
    */

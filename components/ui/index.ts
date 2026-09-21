@@ -13,3 +13,4 @@ export * from "./skeleton";
 export * from "./theme-toggle";
 export * from "./avatar";
 export * from "./animated-number";
+export * from "./swipe-button";

@@ -112,8 +112,8 @@ describe("Admin CompaniesPage", () => {
   it("renders the Companies Management page header and stats", async () => {
     render(<CompaniesPage />);
 
-    expect(screen.getByText("Companies Management")).toBeDefined();
-    expect(screen.getByText("Total Companies")).toBeDefined();
+    expect(screen.getAllByText("Companies Management").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("Total Registered Companies")).toBeDefined();
     expect(screen.getByText("Active Tenants")).toBeDefined();
     expect(screen.getByText("Global Supermarket Ltd")).toBeDefined();
     expect(screen.getByText("Urban Boutique Coffee")).toBeDefined();

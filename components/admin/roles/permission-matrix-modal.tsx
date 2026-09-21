@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { SearchInput } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
-import { apiClient } from "@/lib/api";
+import { apiClient, permissionsApi, sortPermissionsByModuleAndCode } from "@/lib/api";
 import { useRoleStore } from "@/stores/useRoleStore";
 import { DEFAULT_PERMISSIONS } from "@/app/admin/permissions/page";
 import type { Role, Permission, LengthAwarePaginator, ApiListResponse } from "@/types";
@@ -53,58 +53,75 @@ export function PermissionMatrixModal({
   useEffect(() => {
     if (!isOpen || !role) return;
 
-    // 1. Initial seed from props
+    // 1. Initial seed from props and default permissions
     const current = new Set<string>();
+    const permMap = new Map<string, Permission>();
+
+    DEFAULT_PERMISSIONS.forEach((p) => {
+      if (p.uuid) permMap.set(p.uuid, p);
+    });
+
     if (role.permissions && Array.isArray(role.permissions)) {
       role.permissions.forEach((p) => {
-        if (p.uuid) current.add(p.uuid);
+        if (p.uuid) {
+          current.add(p.uuid);
+          if (!permMap.has(p.uuid)) {
+            permMap.set(p.uuid, p);
+          }
+        }
       });
     }
+
+    setAllPermissions(sortPermissionsByModuleAndCode(Array.from(permMap.values())));
     setSelectedUuids(current);
     setInitialUuids(new Set(current));
     setSearchQuery("");
     setSelectedModule("all");
 
-    // 2. Fetch fresh catalog and fresh role details in parallel
+    // 2. Fetch complete catalog (all pages) and fresh role details in parallel
     void (async () => {
       setIsLoadingPermissions(true);
       try {
-        const [permRes, roleRes] = await Promise.allSettled([
-          apiClient.get<LengthAwarePaginator<Permission> | ApiListResponse<Permission> | Permission[]>(
-            "/permissions?per_page=200"
-          ),
+        const [permListRes, roleRes] = await Promise.allSettled([
+          permissionsApi.getAllPermissions(),
           apiClient.get<Role | { data: Role }>(`/roles/${role.uuid}`),
         ]);
 
-        // Process catalog
-        if (permRes.status === "fulfilled" && permRes.value) {
-          const res = permRes.value;
-          let list: Permission[] = [];
-          if (Array.isArray(res)) {
-            list = res;
-          } else if ("data" in res && Array.isArray(res.data)) {
-            list = res.data;
-          }
-          if (list.length > 0) {
-            setAllPermissions(list);
-          }
+        const mergedMap = new Map<string, Permission>();
+
+        // Process full catalog
+        if (permListRes.status === "fulfilled" && Array.isArray(permListRes.value) && permListRes.value.length > 0) {
+          permListRes.value.forEach((p) => {
+            if (p.uuid) mergedMap.set(p.uuid, p);
+          });
+        } else {
+          DEFAULT_PERMISSIONS.forEach((p) => {
+            if (p.uuid) mergedMap.set(p.uuid, p);
+          });
         }
 
-        // Process role permissions
+        // Process latest role permissions from server
         if (roleRes.status === "fulfilled" && roleRes.value) {
           const resRole = roleRes.value;
           const roleData = ("data" in resRole && resRole.data ? resRole.data : resRole) as Role;
           if (roleData && roleData.permissions && Array.isArray(roleData.permissions)) {
             const fetched = new Set<string>();
             roleData.permissions.forEach((p) => {
-              if (p.uuid) fetched.add(p.uuid);
+              if (p.uuid) {
+                fetched.add(p.uuid);
+                if (!mergedMap.has(p.uuid)) {
+                  mergedMap.set(p.uuid, p);
+                }
+              }
             });
             setSelectedUuids(fetched);
             setInitialUuids(new Set(fetched));
           }
         }
+
+        setAllPermissions(sortPermissionsByModuleAndCode(Array.from(mergedMap.values())));
       } catch {
-        // Fallback to default permissions list
+        // Fallback to current seeded map
       } finally {
         setIsLoadingPermissions(false);
       }

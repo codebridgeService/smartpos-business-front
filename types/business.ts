@@ -93,6 +93,7 @@ export interface BusinessUserOutlet {
   assigned_at: string;
   created_at: string | null;
   updated_at: string | null;
+  outlet?: Outlet;
 }
 
 // ---------------------------------------------------------------------------
@@ -376,6 +377,11 @@ export interface StoreBusinessRequest {
   is_tax_inclusive?: boolean | null;
   timezone?: string | null;
   status?: BusinessStatus | null;
+  owner_name?: string | null;
+  owner_email?: string | null;
+  owner_phone?: string | null;
+  owner_role_code?: string | null;
+  owner_user_uuid?: string | null;
 }
 
 export interface StoreBusinessResponse {
@@ -392,7 +398,7 @@ export interface StoreBusinessResponse {
   };
 }
 
-export interface UpdateBusinessRequest extends Partial<StoreBusinessRequest> {}
+export interface UpdateBusinessRequest extends Partial<StoreBusinessRequest> { }
 
 export interface UpdateBusinessSettingRequest {
   receipt_prefix?: string;
@@ -418,7 +424,7 @@ export interface StoreBusinessUserRequest {
   status?: "active" | "suspended" | null;
 }
 
-export interface UpdateBusinessUserRequest extends Partial<Omit<StoreBusinessUserRequest, "user_uuid">> {}
+export interface UpdateBusinessUserRequest extends Partial<Omit<StoreBusinessUserRequest, "user_uuid">> { }
 
 export interface AssignBusinessUserOutletRequest {
   outlet_uuid: string;
@@ -446,7 +452,7 @@ export interface StoreOutletRequest {
   status?: "active" | "inactive" | null;
 }
 
-export interface UpdateOutletRequest extends Partial<StoreOutletRequest> {}
+export interface UpdateOutletRequest extends Partial<StoreOutletRequest> { }
 
 export interface StoreRegisterRequest {
   code: string;
@@ -459,7 +465,7 @@ export interface StoreRegisterRequest {
   status?: "active" | "inactive" | null;
 }
 
-export interface UpdateRegisterRequest extends Partial<StoreRegisterRequest> {}
+export interface UpdateRegisterRequest extends Partial<StoreRegisterRequest> { }
 
 export interface OpenRegisterSessionRequest {
   pos_device_uuid?: string | null;
@@ -572,7 +578,7 @@ export interface StoreWarehouseRequest {
   status?: "active" | "inactive" | null;
 }
 
-export interface UpdateWarehouseRequest extends Partial<StoreWarehouseRequest> {}
+export interface UpdateWarehouseRequest extends Partial<StoreWarehouseRequest> { }
 
 export interface StoreWarehouseLocationRequest {
   code: string;
@@ -585,4 +591,4 @@ export interface StoreWarehouseLocationRequest {
   status?: "active" | "inactive" | null;
 }
 
-export interface UpdateWarehouseLocationRequest extends Partial<StoreWarehouseLocationRequest> {}
+export interface UpdateWarehouseLocationRequest extends Partial<StoreWarehouseLocationRequest> { }
