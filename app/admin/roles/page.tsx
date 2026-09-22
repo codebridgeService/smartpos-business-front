@@ -29,6 +29,7 @@ import {
   DollarSign,
   ShoppingCart,
   Users2,
+  Hash,
 } from "lucide-react";
 import { useBusiness } from "@/context/business-context";
 import { useRoleStore, DEFAULT_SYSTEM_ROLES } from "@/stores/useRoleStore";
@@ -67,8 +68,8 @@ const getRoleConfig = (code: string, isSystem: boolean): RoleThemeConfig => {
   // 1. Super Admin / Owner
   if (c === "super_admin" || c === "owner") {
     return {
-      gradient: "from-purple-500/10 via-violet-500/5 to-transparent",
-      glow: "group-hover:shadow-purple-500/10",
+      gradient: "from-primary/10 via-primary/5 to-transparent",
+      glow: "group-hover:shadow-primary/10",
       iconBg: "bg-purple-100 dark:bg-purple-950/60",
       iconColor: "text-purple-600 dark:text-purple-400",
       borderHover: "hover:border-purple-300 dark:hover:border-purple-800",
@@ -92,14 +93,14 @@ const getRoleConfig = (code: string, isSystem: boolean): RoleThemeConfig => {
     c.includes("fulfillment")
   ) {
     return {
-      gradient: "from-blue-500/10 via-cyan-500/5 to-transparent",
-      glow: "group-hover:shadow-blue-500/10",
+      gradient: "from-primary/10 via-primary/5 to-transparent",
+      glow: "group-hover:shadow-primary/10",
       iconBg: "bg-blue-100 dark:bg-blue-950/60",
-      iconColor: "text-blue-600 dark:text-blue-400",
-      borderHover: "hover:border-blue-300 dark:hover:border-blue-800",
-      badgeBg: "bg-blue-50 dark:bg-blue-950/50",
-      badgeText: "text-blue-700 dark:text-blue-300",
-      badgeBorder: "border-blue-200 dark:border-blue-800/60",
+      iconColor: "text-primary",
+      borderHover: "hover:border-primary/40",
+      badgeBg: "bg-primary/10",
+      badgeText: "text-primary",
+      badgeBorder: "border-primary/20",
       tag: c === "inventory_admin" ? "Inventory Admin" : "Inventory Module",
       defaultDescription:
         "Stock warehousing, inventory counts, supplier purchase orders, product receiving, and order fulfillment workflows.",
@@ -119,8 +120,8 @@ const getRoleConfig = (code: string, isSystem: boolean): RoleThemeConfig => {
     c.includes("accountant")
   ) {
     return {
-      gradient: "from-rose-500/10 via-red-500/5 to-transparent",
-      glow: "group-hover:shadow-rose-500/10",
+      gradient: "from-primary/10 via-primary/5 to-transparent",
+      glow: "group-hover:shadow-primary/10",
       iconBg: "bg-rose-100 dark:bg-rose-950/60",
       iconColor: "text-rose-600 dark:text-rose-400",
       borderHover: "hover:border-rose-300 dark:hover:border-rose-800",
@@ -144,8 +145,8 @@ const getRoleConfig = (code: string, isSystem: boolean): RoleThemeConfig => {
     c.includes("reporting_accountant")
   ) {
     return {
-      gradient: "from-emerald-500/10 via-teal-500/5 to-transparent",
-      glow: "group-hover:shadow-emerald-500/10",
+      gradient: "from-primary/10 via-primary/5 to-transparent",
+      glow: "group-hover:shadow-primary/10",
       iconBg: "bg-emerald-100 dark:bg-emerald-950/60",
       iconColor: "text-emerald-600 dark:text-emerald-400",
       borderHover: "hover:border-emerald-300 dark:hover:border-emerald-800",
@@ -170,8 +171,8 @@ const getRoleConfig = (code: string, isSystem: boolean): RoleThemeConfig => {
     c.includes("employee_self_service")
   ) {
     return {
-      gradient: "from-violet-500/10 via-purple-500/5 to-transparent",
-      glow: "group-hover:shadow-violet-500/10",
+      gradient: "from-primary/10 via-primary/5 to-transparent",
+      glow: "group-hover:shadow-primary/10",
       iconBg: "bg-violet-100 dark:bg-violet-950/60",
       iconColor: "text-violet-600 dark:text-violet-400",
       borderHover: "hover:border-violet-300 dark:hover:border-violet-800",
@@ -187,8 +188,8 @@ const getRoleConfig = (code: string, isSystem: boolean): RoleThemeConfig => {
 
   // Default / System Administrator
   return {
-    gradient: "from-indigo-500/10 via-slate-500/5 to-transparent",
-    glow: "group-hover:shadow-indigo-500/10",
+    gradient: "from-primary/10 via-primary/5 to-transparent",
+    glow: "group-hover:shadow-primary/10",
     iconBg: "bg-indigo-100 dark:bg-indigo-950/60",
     iconColor: "text-indigo-600 dark:text-indigo-400",
     borderHover: "hover:border-indigo-300 dark:hover:border-indigo-800",
@@ -246,130 +247,135 @@ export default function AdminRolesPage() {
   const customRolesCount = roles.filter((r) => !r.is_system).length;
 
   return (
-    <div className="space-y-6 max-w-[1600px] mx-auto pb-12">
-      {/* 🚀 Header Section */}
-      <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800/90 p-6 md:p-8 shadow-sm transition-colors">
-        {/* Subtle decorative glow */}
-        <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-blue-500/5 dark:bg-blue-600/10 blur-3xl pointer-events-none" />
-        <div className="absolute right-1/3 -bottom-16 h-48 w-48 rounded-full bg-purple-500/5 dark:bg-purple-600/10 blur-3xl pointer-events-none" />
+    <div className="space-y-8 max-w-[1600px] mx-auto pb-12 px-2 sm:px-4 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
+      {/* 🚀 Ultra-Premium Glassmorphic Header */}
+      <div className="relative overflow-hidden rounded-[2rem] bg-background/70 backdrop-blur-3xl border border-white/50 dark:border-white/5 p-6 md:p-10 shadow-2xl shadow-blue-900/5 dark:shadow-black/40 transition-all">
+        {/* Dynamic Abstract Orbs */}
+        <div className="absolute -right-20 -top-20 h-96 w-96 rounded-full bg-gradient-to-br from-blue-400/20 to-purple-500/20 blur-3xl pointer-events-none animate-pulse duration-10000" />
+        <div className="absolute right-1/4 -bottom-32 h-72 w-72 rounded-full bg-gradient-to-tr from-emerald-400/20 to-teal-500/20 blur-3xl pointer-events-none animate-pulse duration-7000" />
 
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div>
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+          <div className="flex-1">
             {/* Breadcrumb */}
-            <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400 mb-3">
-              <Link href="/admin" className="hover:text-slate-900 dark:hover:text-zinc-100 transition-colors">
-                Admin
+            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-4">
+              <Link href="/admin" className="hover:text-primary transition-colors">
+                Admin Workspace
               </Link>
-              <ChevronRight className="h-3.5 w-3.5 text-slate-400 dark:text-zinc-600" />
-              <span className="text-slate-800 dark:text-zinc-200 font-semibold">Roles & RBAC</span>
+              <ChevronRight className="h-3.5 w-3.5 opacity-50" />
+              <span className="text-foreground bg-muted/50 px-2 py-1 rounded-md">Roles & RBAC</span>
             </div>
 
-            <div className="flex items-center gap-3.5">
-              <div className="h-12 w-12 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200/80 dark:border-blue-900/60 flex items-center justify-center shadow-xs">
-                <ShieldCheck className="h-6 w-6" />
+            <div className="flex items-start gap-5">
+              <div className="h-16 w-16 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0 transform -rotate-3 hover:rotate-0 transition-transform duration-300">
+                <ShieldCheck className="h-8 w-8 drop-shadow-md" />
               </div>
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
-                  Access Control & RBAC
+              <div className="pt-1">
+                <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-foreground bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-zinc-400">
+                  Access Control Engine
                 </h1>
-                <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-1 max-w-xl">
-                  Enterprise Role-Based Access Control, granular permission matrices, and employee authorization security.
+                <p className="text-sm text-muted-foreground mt-2 max-w-xl leading-relaxed">
+                  Enterprise-grade Role-Based Access Control (RBAC). Configure granular permission matrices and manage zero-trust employee authorization policies.
                 </p>
               </div>
             </div>
           </div>
 
           {/* Action Header Buttons */}
-          <div className="flex flex-wrap items-center gap-2.5 sm:self-end lg:self-center">
-            <Link href="/admin/permissions">
-              <button className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-white dark:bg-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 border border-slate-200 dark:border-zinc-700 transition-all active:scale-[0.98] shadow-xs">
-                <Key className="h-4 w-4 text-amber-500 dark:text-amber-400" />
-                <span>Permissions Directory</span>
+          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+            <Link href="/admin/permissions" className="flex-1 sm:flex-none">
+              <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs font-bold bg-card/80 hover:bg-card text-foreground border border-border/50 backdrop-blur-md transition-all active:scale-[0.98] shadow-sm hover:shadow-md">
+                <Key className="h-4 w-4 text-amber-500" />
+                <span>Permissions Library</span>
               </button>
             </Link>
 
             {activeTab === "roles" && (
               <>
                 <button
-                  onClick={() => void fetchRoles(selectedBusinessUuid, currentPage)}
-                  disabled={isLoading}
-                  title="Reload roles"
-                  className="p-2.5 rounded-xl bg-white dark:bg-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700 transition-all active:scale-[0.98] disabled:opacity-50 shadow-xs"
-                >
-                  <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin text-blue-500" : ""}`} />
-                </button>
-
-                <button
                   onClick={() => setIsProvisionModalOpen(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/80 transition-all active:scale-[0.98] shadow-xs"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs font-bold bg-purple-50/80 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-200/50 dark:border-purple-800/30 backdrop-blur-md transition-all active:scale-[0.98] shadow-sm hover:shadow-md"
                 >
-                  <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400 animate-pulse" />
-                  <span>Auto-Provision Roles</span>
+                  <Sparkles className="h-4 w-4 animate-pulse" />
+                  <span>Auto-Provision</span>
                 </button>
 
                 <button
                   onClick={() => setIsCreateModalOpen(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white transition-all active:scale-[0.98] shadow-sm shadow-blue-600/25"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-xs font-bold bg-primary hover:bg-primary/90 text-white transition-all active:scale-[0.98] shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 border border-white/10"
                 >
-                  <Plus className="h-4 w-4 stroke-[2.5]" />
-                  <span>Create Role</span>
+                  <Plus className="h-4 w-4 stroke-[3]" />
+                  <span>New Role</span>
+                </button>
+                
+                <button
+                  onClick={() => void fetchRoles(selectedBusinessUuid, currentPage)}
+                  disabled={isLoading}
+                  title="Reload roles"
+                  className="p-3 rounded-xl bg-card/80 hover:bg-card text-muted-foreground border border-border/50 backdrop-blur-md transition-all active:scale-[0.98] disabled:opacity-50 shadow-sm"
+                >
+                  <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin text-blue-500" : ""}`} />
                 </button>
               </>
             )}
           </div>
         </div>
 
-        {/* 📊 KPI Summary Bar */}
-        <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 mt-6 border-t border-slate-100 dark:border-zinc-800/80">
-          <div className="bg-slate-50/80 dark:bg-zinc-800/50 rounded-xl p-3.5 border border-slate-200/70 dark:border-zinc-700/60">
-            <div className="text-[11px] font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Total Roles</div>
-            <div className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{totalRolesCount}</div>
+        {/* 📊 KPI Summary Floating Bar */}
+        <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-8 border-t border-border/50">
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Total Roles</span>
+            <span className="text-3xl font-black text-foreground drop-shadow-sm">{totalRolesCount}</span>
           </div>
-          <div className="bg-slate-50/80 dark:bg-zinc-800/50 rounded-xl p-3.5 border border-slate-200/70 dark:border-zinc-700/60">
-            <div className="text-[11px] font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">System Templates</div>
-            <div className="text-2xl font-black text-blue-600 dark:text-blue-400 mt-0.5">{systemRolesCount}</div>
+          <div className="flex flex-col gap-1 border-l border-border/50 pl-4">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">System Templates</span>
+            <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400 drop-shadow-sm">{systemRolesCount}</span>
           </div>
-          <div className="bg-slate-50/80 dark:bg-zinc-800/50 rounded-xl p-3.5 border border-slate-200/70 dark:border-zinc-700/60">
-            <div className="text-[11px] font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Custom Tenant Roles</div>
-            <div className="text-2xl font-black text-purple-600 dark:text-purple-400 mt-0.5">{customRolesCount}</div>
+          <div className="flex flex-col gap-1 border-l border-border/50 pl-4">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Tenant Specific</span>
+            <span className="text-3xl font-black text-purple-600 dark:text-purple-400 drop-shadow-sm">{customRolesCount}</span>
           </div>
-          <div className="bg-slate-50/80 dark:bg-zinc-800/50 rounded-xl p-3.5 border border-slate-200/70 dark:border-zinc-700/60">
-            <div className="text-[11px] font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Security Engine</div>
-            <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-2 flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
-              RS256 JWT Active
+          <div className="flex flex-col gap-1 border-l border-border/50 pl-4">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Security Engine</span>
+            <div className="inline-flex items-center gap-2 mt-1 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 w-fit">
+              <div className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </div>
+              <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">JWT Strict</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* 🧭 Navigation Segmented Tabs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-2">
-        <div className="inline-flex p-1 bg-slate-100 dark:bg-zinc-900 rounded-xl border border-slate-200/80 dark:border-zinc-800/80">
+      {/* 🧭 Native iOS-style Segmented Control Tabs */}
+      <div className="flex justify-center mt-2">
+        <div className="inline-flex p-1.5 bg-secondary/50 backdrop-blur-xl rounded-2xl shadow-inner border border-border w-full max-w-2xl">
           <button
             onClick={() => setActiveTab("roles")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
               activeTab === "roles"
-                ? "bg-white dark:bg-zinc-800 text-slate-900 dark:text-white shadow-xs ring-1 ring-slate-200/80 dark:ring-zinc-700/60"
-                : "text-slate-500 hover:text-slate-900 dark:hover:text-zinc-300"
+                ? "bg-accent text-foreground shadow-sm ring-1 ring-border"
+                : "text-slate-500 hover:text-foreground hover:bg-card/40"
             }`}
           >
-            <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            <span>Roles & Permissions Matrix</span>
-            <span className="px-1.5 py-0.5 text-[10px] rounded-full bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 font-bold">
-              {roles.length}
-            </span>
+            <Shield className={`h-4 w-4 ${activeTab === "roles" ? "text-indigo-600 dark:text-indigo-400" : ""}`} />
+            <span>Roles Configuration</span>
+            {activeTab === "roles" && (
+              <span className="px-2 py-0.5 text-[10px] rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-black tracking-wider">
+                {roles.length}
+              </span>
+            )}
           </button>
           <button
             onClick={() => setActiveTab("users")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
               activeTab === "users"
-                ? "bg-white dark:bg-zinc-800 text-slate-900 dark:text-white shadow-xs ring-1 ring-slate-200/80 dark:ring-zinc-700/60"
-                : "text-slate-500 hover:text-slate-900 dark:hover:text-zinc-300"
+                ? "bg-accent text-foreground shadow-sm ring-1 ring-border"
+                : "text-slate-500 hover:text-foreground hover:bg-card/40"
             }`}
           >
-            <Layers className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-            <span>User Role Assignments</span>
+            <Users className={`h-4 w-4 ${activeTab === "users" ? "text-purple-600 dark:text-purple-400" : ""}`} />
+            <span>User Assignments</span>
           </button>
         </div>
       </div>
@@ -378,25 +384,26 @@ export default function AdminRolesPage() {
         <UserRoleAssignments />
       ) : (
         <>
-          {/* 🔍 Search & Filter Pills */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-zinc-900 p-3 rounded-2xl border border-slate-200/90 dark:border-zinc-800/80 shadow-xs">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+          {/* 🔍 Dynamic Command Bar (Search & Filters) */}
+          <div className="sticky top-4 z-30 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4 bg-card/80 backdrop-blur-xl p-3 sm:p-4 rounded-[1.5rem] border border-border/60 shadow-xl shadow-slate-200/20 dark:shadow-black/20">
+            {/* Search Input */}
+            <div className="relative flex-1 max-w-2xl group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
               <input
                 type="text"
-                placeholder="Search roles by name or code (e.g., owner, cashier)..."
+                placeholder="Search roles by name, module, or code..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 text-xs bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700/80 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                className="w-full pl-12 pr-4 py-3.5 text-sm font-medium bg-muted/50 border border-border/80 rounded-2xl text-foreground placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all hover:bg-white dark:hover:bg-zinc-800"
               />
             </div>
 
-            {/* Business Scope Dropdown & Filter Pills */}
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-3 flex-wrap">
+              {/* Tenant Dropdown */}
               {businesses.length > 0 && (
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-zinc-800/80 rounded-xl border border-slate-200 dark:border-zinc-700/80 shadow-2xs">
-                  <Building2 className="h-3.5 w-3.5 text-slate-500 dark:text-zinc-400 shrink-0" />
-                  <span className="text-[11px] font-semibold text-slate-500 dark:text-zinc-400">Business:</span>
+                <div className="flex items-center gap-2 px-4 py-3 bg-muted/50 hover:bg-accent rounded-2xl border border-border/80 transition-colors cursor-pointer">
+                  <Building2 className="h-4 w-4 text-indigo-500 shrink-0" />
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Tenant:</span>
                   <select
                     value={selectedBusinessUuid || ""}
                     onChange={(e) => {
@@ -404,11 +411,11 @@ export default function AdminRolesPage() {
                       setSelectedBusinessUuid(val);
                       void fetchRoles(val, 1);
                     }}
-                    className="text-xs font-semibold bg-transparent text-slate-800 dark:text-zinc-200 focus:outline-none cursor-pointer pr-1"
+                    className="text-sm font-bold bg-transparent text-foreground focus:outline-none cursor-pointer appearance-none pr-4"
                   >
-                    <option value="" className="dark:bg-zinc-900">All (Global & Tenants)</option>
+                    <option value="" className="dark:bg-zinc-900 font-medium">Global Core (All)</option>
                     {businesses.map((b) => (
-                      <option key={b.uuid} value={b.uuid} className="dark:bg-zinc-900">
+                      <option key={b.uuid} value={b.uuid} className="dark:bg-zinc-900 font-medium">
                         {b.name}
                       </option>
                     ))}
@@ -416,34 +423,34 @@ export default function AdminRolesPage() {
                 </div>
               )}
 
-              {/* Filter Pills */}
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+              {/* Minimalist Filter Pills */}
+              <div className="flex items-center gap-2 p-1.5 bg-muted/50 rounded-2xl border border-border/80 overflow-x-auto no-scrollbar">
                 <button
                   onClick={() => setFilterType("all")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                     filterType === "all"
-                      ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs"
-                      : "bg-slate-100 dark:bg-zinc-800/80 text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700"
+                      ? "bg-accent text-foreground shadow-sm ring-1 ring-border"
+                      : "text-slate-500 hover:text-foreground"
                   }`}
                 >
-                  All Roles ({roles.length})
+                  All ({roles.length})
                 </button>
                 <button
                   onClick={() => setFilterType("system")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                     filterType === "system"
-                      ? "bg-blue-600 text-white shadow-xs shadow-blue-500/20"
-                      : "bg-slate-100 dark:bg-zinc-800/80 text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700"
+                      ? "bg-blue-600 text-white shadow-md shadow-primary/20"
+                      : "text-slate-500 hover:text-primary"
                   }`}
                 >
-                  System ({systemRolesCount})
+                  System Templates ({systemRolesCount})
                 </button>
                 <button
                   onClick={() => setFilterType("custom")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                     filterType === "custom"
-                      ? "bg-purple-600 text-white shadow-xs shadow-purple-500/20"
-                      : "bg-slate-100 dark:bg-zinc-800/80 text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700"
+                      ? "bg-purple-600 text-white shadow-md shadow-purple-500/20"
+                      : "text-slate-500 hover:text-purple-600 dark:hover:text-purple-400"
                   }`}
                 >
                   Custom ({customRolesCount})
@@ -454,27 +461,29 @@ export default function AdminRolesPage() {
 
           {/* 💎 Ultra-Modern Roles Cards Grid */}
           {filteredRoles.length === 0 ? (
-            <div className="text-center py-16 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 shadow-sm">
-              <div className="h-12 w-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mx-auto text-zinc-400 mb-3">
-                <Search className="h-6 w-6" />
+            <div className="flex flex-col items-center justify-center py-24 px-4 bg-background/40 rounded-[2rem] border border-dashed border-border backdrop-blur-sm animate-in zoom-in-95 duration-500">
+              <div className="h-24 w-24 rounded-full bg-muted/80 flex items-center justify-center text-muted-foreground mb-6 relative">
+                <Search className="h-10 w-10 absolute z-10" />
+                <div className="absolute inset-0 rounded-full border-4 border-border animate-[spin_4s_linear_infinite]" />
               </div>
-              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">No roles found</h3>
-              <p className="text-xs text-zinc-500 mt-1 max-w-sm mx-auto">
-                No roles match &quot;{searchQuery}&quot;. Try adjusting your keywords or clearing the filter.
+              <h3 className="text-xl font-black text-foreground">Nothing in sight</h3>
+              <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto text-center leading-relaxed">
+                We couldn't find any roles matching <span className="font-bold text-foreground">"{searchQuery}"</span>. 
+                Try a different keyword or adjust your filters.
               </p>
               <button
                 onClick={() => {
                   setSearchQuery("");
                   setFilterType("all");
                 }}
-                className="mt-4 px-4 py-2 text-xs font-semibold rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 hover:bg-blue-100 transition-colors"
+                className="mt-6 px-6 py-3 text-sm font-bold rounded-xl bg-foreground text-background hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-900/20 dark:shadow-white/20"
               >
-                Reset Filters
+                Reset All Filters
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
-              {filteredRoles.map((role) => {
+            <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6">
+              {filteredRoles.map((role, idx) => {
                 const isSystem = Boolean(role.is_system);
                 const config = getRoleConfig(role.code, isSystem);
                 const permCount = role.permissions?.length ?? 0;
@@ -482,52 +491,45 @@ export default function AdminRolesPage() {
                 return (
                   <div
                     key={role.uuid}
-                    className={`group relative rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 p-5 sm:p-6 transition-all duration-300 hover:shadow-xl ${config.glow} ${config.borderHover} flex flex-col justify-between overflow-hidden`}
+                    style={{ animationDelay: `${idx * 50}ms`, animationFillMode: 'both' }}
+                    className={`group relative rounded-[2rem] bg-card/80 backdrop-blur-xl border border-border/60 p-6 lg:p-8 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl ${config.glow} ${config.borderHover} flex flex-col justify-between overflow-hidden animate-in fade-in slide-in-from-bottom-8`}
                   >
                     {/* Top ambient gradient flare */}
                     <div
-                      className={`absolute inset-x-0 top-0 h-28 bg-gradient-to-b ${config.gradient} pointer-events-none transition-opacity duration-300 group-hover:opacity-100 opacity-60`}
+                      className={`absolute inset-x-0 -top-10 h-40 bg-gradient-to-b ${config.gradient} blur-2xl pointer-events-none transition-opacity duration-500 opacity-50 group-hover:opacity-100`}
                     />
+                    
+                    {/* Decorative corner accent */}
+                    <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/10 dark:bg-black/10 rounded-full blur-2xl pointer-events-none transition-transform duration-700 group-hover:scale-150" />
 
-                    <div>
+                    <div className="relative z-10">
                       {/* Top Row: Icon + Role Title + Status Badge */}
-                      <div className="relative z-10 flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3.5">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-center gap-4">
                           <div
-                            className={`h-12 w-12 rounded-xl ${config.iconBg} ${config.iconColor} flex items-center justify-center shrink-0 ring-1 ring-black/5 dark:ring-white/10 shadow-sm transition-transform duration-300 group-hover:scale-105`}
+                            className={`h-14 w-14 rounded-2xl ${config.iconBg} ${config.iconColor} flex items-center justify-center shrink-0 ring-1 ring-black/5 dark:ring-white/10 shadow-lg transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}
                           >
                             {config.icon}
                           </div>
                           <div>
                             <div className="flex items-center gap-2 flex-wrap">
-                              <h3 className="text-base font-extrabold text-zinc-900 dark:text-zinc-100 tracking-tight">
+                              <h3 className="text-xl font-black text-foreground tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-slate-900 group-hover:to-slate-500 dark:group-hover:from-white dark:group-hover:to-zinc-400 transition-all">
                                 {role.name.replace(/_/g, " ")}
                               </h3>
-                              {isSystem ? (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
-                                  <Lock className="h-2.5 w-2.5 text-zinc-400" />
-                                  System Role
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60">
-                                  Custom Role
-                                </span>
-                              )}
                             </div>
-                            <div className="text-[11px] font-mono text-zinc-400 mt-1 flex items-center gap-2 flex-wrap">
-                              <span>
-                                code:{" "}
-                                <span className="text-zinc-800 dark:text-zinc-200 font-semibold bg-zinc-100 dark:bg-zinc-800/70 px-1.5 py-0.5 rounded">
-                                  {role.code}
-                                </span>
+                            <div className="text-xs font-mono text-muted-foreground mt-1.5 flex items-center gap-2 flex-wrap">
+                              <span className="flex items-center gap-1 text-muted-foreground font-bold bg-muted/80 px-2 py-0.5 rounded-md border border-border/50">
+                                <Hash className="h-3 w-3" />
+                                {role.code}
                               </span>
                               {role.business_uuid ? (
-                                <span className="text-[10px] font-sans font-semibold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/60 px-1.5 py-0.5 rounded border border-purple-200 dark:border-purple-800/50 flex items-center gap-1">
-                                  <Building2 className="h-2.5 w-2.5" />
+                                <span className="text-[10px] font-sans font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 px-2 py-0.5 rounded-md border border-purple-200/50 dark:border-purple-800/40 flex items-center gap-1.5">
+                                  <Building2 className="h-3 w-3" />
                                   {businesses.find((b) => b.uuid === role.business_uuid)?.name || "Tenant Scoped"}
                                 </span>
                               ) : (
-                                <span className="text-[10px] font-sans font-semibold text-slate-500 dark:text-zinc-400 bg-slate-100 dark:bg-zinc-800/70 px-1.5 py-0.5 rounded border border-slate-200/80 dark:border-zinc-700/50">
+                                <span className="text-[10px] font-sans font-bold text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-md border border-border/50 flex items-center gap-1">
+                                  <ShieldAlert className="h-3 w-3" />
                                   Global Scope
                                 </span>
                               )}
@@ -537,31 +539,34 @@ export default function AdminRolesPage() {
 
                         {/* Top Right Tag */}
                         <div
-                          className={`shrink-0 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase border ${config.badgeBg} ${config.badgeText} ${config.badgeBorder}`}
+                          className={`shrink-0 px-3 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase border ${config.badgeBg} ${config.badgeText} ${config.badgeBorder} shadow-sm backdrop-blur-sm transition-transform duration-300 group-hover:scale-105`}
                         >
                           {config.tag}
                         </div>
                       </div>
 
                       {/* Description */}
-                      <p className="relative z-10 text-xs text-zinc-600 dark:text-zinc-400 mt-4 leading-relaxed line-clamp-2">
+                      <p className="text-sm text-muted-foreground mt-5 leading-relaxed line-clamp-3 font-medium">
                         {config.defaultDescription}
                       </p>
 
                       {/* Attached Permissions Preview */}
                       {role.permissions && role.permissions.length > 0 && (
-                        <div className="relative z-10 mt-3.5 pt-3 border-t border-dashed border-zinc-200 dark:border-zinc-800 flex flex-wrap items-center gap-1.5">
-                          <span className="text-[10px] font-semibold text-zinc-400 mr-0.5">Attached:</span>
+                        <div className="mt-5 p-3 rounded-xl bg-slate-50/50 dark:bg-zinc-800/30 border border-border/50 flex flex-wrap items-center gap-2">
+                          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mr-1 flex items-center gap-1">
+                            <CheckCircle2 className="h-3 w-3" />
+                            Grants:
+                          </span>
                           {role.permissions.slice(0, 4).map((p) => (
                             <span
                               key={p.uuid || p.code}
-                              className="px-2 py-0.5 rounded-md text-[10px] font-mono bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700/60"
+                              className="px-2 py-1 rounded-lg text-[10px] font-mono font-semibold bg-card text-foreground border border-border shadow-sm hover:shadow-md transition-shadow cursor-default"
                             >
                               {p.code}
                             </span>
                           ))}
                           {role.permissions.length > 4 && (
-                            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.5 rounded-md border border-blue-200 dark:border-blue-900/60">
+                            <span className="px-2 py-1 text-[10px] font-black bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 text-primary rounded-lg border border-blue-200 dark:border-blue-800/40 shadow-sm">
                               +{role.permissions.length - 4} more
                             </span>
                           )}
@@ -570,39 +575,38 @@ export default function AdminRolesPage() {
                     </div>
 
                     {/* Bottom Action Bar */}
-                    <div className="relative z-10 pt-5 mt-5 border-t border-zinc-100 dark:border-zinc-800/90 flex items-center justify-between gap-2 flex-wrap">
+                    <div className="relative z-10 pt-6 mt-6 border-t border-border/50 flex items-center justify-between gap-4">
                       <button
                         onClick={() => setRoleForMatrix(role)}
-                        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-zinc-50 dark:bg-zinc-800/80 hover:bg-blue-50 dark:hover:bg-blue-950/50 text-zinc-700 dark:text-zinc-200 hover:text-blue-600 dark:hover:text-blue-400 border border-zinc-200 dark:border-zinc-700/80 hover:border-blue-300 dark:hover:border-blue-800 transition-all active:scale-[0.98]"
+                        className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-black bg-muted hover:bg-slate-900 hover:text-white dark:hover:bg-white dark:hover:text-slate-900 text-foreground transition-all active:scale-[0.98] shadow-sm hover:shadow-xl"
                       >
-                        <Key className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                        <Key className="h-4 w-4" />
                         <span>Permission Matrix</span>
-                        <span className="px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-black/10 dark:bg-white/20">
                           {permCount}
                         </span>
                       </button>
 
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-2">
                         <button
                           onClick={() => setRoleToEdit(role)}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                          className="h-10 w-10 flex items-center justify-center rounded-xl bg-card border border-border text-slate-500 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:border-blue-800 dark:hover:bg-blue-950/30 transition-all hover:shadow-md active:scale-95"
+                          title="Edit Role"
                         >
-                          <Edit3 className="h-3.5 w-3.5" />
-                          <span>Edit</span>
+                          <Edit3 className="h-4 w-4" />
                         </button>
 
                         <button
                           onClick={() => setRoleToDelete(role)}
                           disabled={isSystem}
-                          title={isSystem ? "System roles are protected from deletion" : "Delete custom role"}
-                          className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                          title={isSystem ? "System roles are protected" : "Delete custom role"}
+                          className={`h-10 w-10 flex items-center justify-center rounded-xl border transition-all active:scale-95 ${
                             isSystem
-                              ? "text-zinc-300 dark:text-zinc-600 cursor-not-allowed"
-                              : "text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40"
+                              ? "bg-muted/50 border-border text-muted-foreground cursor-not-allowed"
+                              : "bg-card border-border text-slate-500 hover:text-destructive hover:bg-destructive/10 hover:border-destructive/30 hover:shadow-md"
                           }`}
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
-                          <span>Delete</span>
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
                     </div>
@@ -685,7 +689,7 @@ export default function AdminRolesPage() {
         role={roleForMatrix}
         onSuccess={async (updatedUuids?: string[]) => {
           if (roleForMatrix && updatedUuids) {
-            await syncPermissions(roleForMatrix.uuid, updatedUuids).catch(() => {});
+            await syncPermissions(roleForMatrix.uuid, updatedUuids).catch(() => { });
           }
           await fetchRoles(selectedBusinessUuid, currentPage);
         }}

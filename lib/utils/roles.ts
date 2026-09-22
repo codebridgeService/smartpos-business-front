@@ -90,6 +90,31 @@ export function isAdmin(user: User | null): boolean {
 }
 
 /**
+ * Specifically verifies if the user has a 'cashier' or dedicated POS operator role.
+ * Does NOT include general store staff or inventory staff.
+ */
+export function isCashier(user: User | any): boolean {
+  if (!user) return false;
+  return hasRole(user, [
+    "cashier",
+    "pos",
+    "pos_operator",
+    "store_cashier",
+    "terminal_operator",
+    "pos_cashier",
+    "teller",
+  ]);
+}
+
+/**
+ * Specifically verifies if the user has a general store staff role.
+ */
+export function isStaff(user: User | any): boolean {
+  if (!user) return false;
+  return hasRole(user, ["staff", "store_staff", "employee"]);
+}
+
+/**
  * Checks if the user has a specific permission by code.
  */
 export function hasPermission(

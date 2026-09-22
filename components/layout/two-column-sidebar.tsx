@@ -71,7 +71,7 @@ export function TwoColumnSidebar() {
       items: [
         { label: "Admin Dashboard", href: "/admin/dashboard", icon: <LayoutGrid className="h-4 w-4" /> },
         { label: "Sales Dashboard", href: "/admin/dashboard?view=sales", icon: <TrendingUp className="h-4 w-4" /> },
-        { label: "POS Terminal", href: "/admin/pos", icon: <Calculator className="h-4 w-4 text-orange-500" />, badge: "Live", badgeVariant: "success" },
+        { label: "POS Terminal", href: "/pos", icon: <Calculator className="h-4 w-4 text-orange-500" />, badge: "Live", badgeVariant: "success" },
         { label: "Business Settings", href: businessSettingsHref, icon: <Settings className="h-4 w-4 text-blue-500" />, badge: activeBusiness?.code || "Tenant" },
         { label: "Business Master", href: "/businesses", icon: <Building2 className="h-4 w-4 text-emerald-500" /> },
       ],
@@ -99,8 +99,8 @@ export function TwoColumnSidebar() {
         { label: "Outlets & Branches", href: "/admin/businesses/outlets", icon: <Building2 className="h-4 w-4" />, badge: outlets.length > 0 ? `${outlets.length}` : undefined },
         { label: "Cash Registers", href: "/admin/businesses/registers", icon: <Calculator className="h-4 w-4" /> },
         { label: "POS Devices", href: "/admin/businesses/pos-devices", icon: <Tablet className="h-4 w-4" />, badge: "Hardware", badgeVariant: "neutral" },
-        { label: "Register Shifts", href: "/admin/pos/shifts", icon: <History className="h-4 w-4" /> },
-        { label: "Cash Drawer", href: "/admin/pos/drawer", icon: <Calculator className="h-4 w-4" /> },
+        { label: "Register Shifts", href: "/businesses/pos/shifts", icon: <History className="h-4 w-4" /> },
+        { label: "Cash Drawer", href: "/businesses/pos/drawer", icon: <Calculator className="h-4 w-4" /> },
       ],
     },
     {

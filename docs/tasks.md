@@ -194,48 +194,48 @@ This document outlines the complete development roadmap, architectural milestone
   - [x] Outlet Assignment sub-view:
     - [x] List outlets assigned to user (`GET .../outlets`).
     - [x] Assign outlet to user with `is_primary` flag (`POST .../outlets`).
-    - [x] Revoke outlet assignment (`DELETE .../outlets/{outlet}`).
+    - [x] Revoke outlet assignment (`DELETE /outlets/{outlet}`).
 
 ---
 
 ## 🛒 Phase 5: POS Register, Shifts & Cashier Operations
 
-- [ ] **5.1 Cash Registers Management (`/outlets/{outlet}/registers`)**
-  - [ ] List cash registers with active status and connected hardware (`GET /outlets/{outlet}/registers`).
-  - [ ] Create cash register modal (`POST /outlets/{outlet}/registers`) with default opening cash float and printer settings.
-  - [ ] Edit register details (`PUT /registers/{register}`).
-  - [ ] Delete register action (`DELETE /registers/{register}`).
+- [x] **5.1 Cash Registers Management (`/outlets/{outlet}/registers`)**
+  - [x] List cash registers with active status and connected hardware (`GET /outlets/{outlet}/registers`).
+  - [x] Create cash register modal (`POST /outlets/{outlet}/registers`) with default opening cash float and printer settings.
+  - [x] Edit register details (`PUT /registers/{register}`).
+  - [x] Delete register action (`DELETE /registers/{register}`).
 
-- [ ] **5.2 Register Shift Lifecycle (`/pos/shift`)**
-  - [ ] Active shift status widget in header (displays current cashier, opened time, opening balance).
-  - [ ] Shift check: `GET /outlets/{outlet}/registers/{register}/shifts/current`.
-  - [ ] **Open Shift Modal**:
-    - [ ] Enter opening cash float (`POST .../shifts/open`).
-    - [ ] Initialize associated cash drawer session.
-  - [ ] **Close Shift Modal**:
-    - [ ] Counted cash breakdown calculator.
-    - [ ] Input closing cash amount (`POST .../shifts/{registerSession}/close`).
-    - [ ] Show real-time variance calculation (`expected_cash` vs `closing_cash`).
-  - [ ] Register Shifts audit history log (`GET /outlets/{outlet}/registers/{register}/shifts`).
+- [x] **5.2 Register Shift Lifecycle (`/pos/shift`)**
+  - [x] Active shift status widget in header (displays current cashier, opened time, opening balance).
+  - [x] Shift check: `GET /outlets/{outlet}/registers/{register}/shifts/current`.
+  - [x] **Open Shift Modal**:
+    - [x] Enter opening cash float (`POST .../shifts/open`).
+    - [x] Initialize associated cash drawer session.
+  - [x] **Close Shift Modal**:
+    - [x] Counted cash breakdown calculator.
+    - [x] Input closing cash amount (`POST .../shifts/{registerSession}/close`).
+    - [x] Show real-time variance calculation (`expected_cash` vs `closing_cash`).
+  - [x] Register Shifts audit history log (`GET /outlets/{outlet}/registers/{register}/shifts`).
 
-- [ ] **5.3 Cash Drawer & Movements (`/pos/drawer`)**
-  - [ ] Real-time cash drawer balance card (`GET /outlets/{outlet}/registers/{register}/drawers/{cashDrawerSession}`).
-  - [ ] Cash movement history log (`GET .../drawers/{cashDrawerSession}/movements`).
-  - [ ] **Record Cash Movement Modal (`POST .../drawers/{cashDrawerSession}/movements`)**:
-    - [ ] Movement types: Cash In, Cash Out, Payout, Deposit, Float Adjustment, Sale, Refund.
-    - [ ] Amount input with reason and reference notes.
+- [x] **5.3 Cash Drawer & Movements (`/pos/drawer`)**
+  - [x] Real-time cash drawer balance card (`GET /outlets/{outlet}/registers/{register}/drawers/{cashDrawerSession}`).
+  - [x] Cash movement history log (`GET .../drawers/{cashDrawerSession}/movements`).
+  - [x] **Record Cash Movement Modal (`POST .../drawers/{cashDrawerSession}/movements`)**:
+    - [x] Movement types: Cash In, Cash Out, Payout, Deposit, Float Adjustment, Sale, Refund.
+    - [x] Amount input with reason and reference notes.
 
-- [ ] **5.4 Cashier Profiles & Terminal Lock Screen (`/pos/terminal`)**
-  - [ ] Cashier profile permissions manager (`GET/PUT .../cashier-profile`):
-    - [ ] Toggles for `can_sell`, `can_refund`, `can_void`, `can_discount`, and `max_discount_percent`.
-  - [ ] Start Cashier Session (`POST /outlets/{outlet}/cashier-sessions/start`).
-  - [ ] Current session watcher (`GET /outlets/{outlet}/cashier-sessions/current`).
-  - [ ] **Terminal Lock Screen**:
-    - [ ] Manual lock button (`POST .../lock`) and idle timeout auto-lock.
-    - [ ] Full-screen locked terminal overlay.
-    - [ ] Quick numeric keypad component for 4-to-6 digit PIN entry.
-    - [ ] Unlock session verification (`POST .../unlock` with PIN code).
-  - [ ] End Cashier Session action (`POST .../end`).
+- [x] **5.4 Cashier Profiles & Terminal Lock Screen (`/pos/terminal`)**
+  - [x] Cashier profile permissions manager (`GET/PUT .../cashier-profile`):
+    - [x] Toggles for `can_sell`, `can_refund`, `can_void`, `can_discount`, and `max_discount_percent`.
+  - [x] Start Cashier Session (`POST /outlets/{outlet}/cashier-sessions/start`).
+  - [x] Current session watcher (`GET /outlets/{outlet}/cashier-sessions/current`).
+  - [x] **Terminal Lock Screen**:
+    - [x] Manual lock button (`POST .../lock`) and idle timeout auto-lock.
+    - [x] Full-screen locked terminal overlay.
+    - [x] Quick numeric keypad component for 4-to-6 digit PIN entry.
+    - [x] Unlock session verification (`POST .../unlock` with PIN code).
+  - [x] End Cashier Session action (`POST .../end`).
 
 ---
 

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import Link from "next/link";
 import {
   Users,
   UserPlus,
@@ -486,11 +487,20 @@ export default function BusinessStaffPage() {
           </Button>
           <Button
             onClick={() => setIsAddModalOpen(true)}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg shadow-emerald-600/20"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg shadow-emerald-600/20 cursor-pointer"
           >
             <UserPlus className="w-4 h-4" />
             <span>Add Staff Member</span>
           </Button>
+          <Link href="/businesses/staff/create">
+            <Button
+              variant="outline"
+              className="border-emerald-600/40 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 font-semibold px-4 py-2 rounded-xl flex items-center gap-2 cursor-pointer"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>Create New User</span>
+            </Button>
+          </Link>
         </div>
       </div>
 
@@ -666,13 +676,14 @@ export default function BusinessStaffPage() {
               ? "No team members matched your filter criteria. Try resetting filters."
               : "Enrolled staff members will appear here. Add cashiers, managers, and admins to your store."}
           </p>
-          <Button
-            onClick={() => setIsAddModalOpen(true)}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold px-4 py-2"
-          >
-            <UserPlus className="w-4 h-4 mr-1.5" />
-            Add First Staff Member
-          </Button>
+          <Link href="/businesses/staff/create">
+            <Button
+              className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold px-4 py-2"
+            >
+              <UserPlus className="w-4 h-4 mr-1.5" />
+              Add First Staff Member
+            </Button>
+          </Link>
         </Card>
       ) : viewMode === "table" ? (
         /* TABLE VIEW */

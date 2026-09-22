@@ -83,6 +83,30 @@ export const ROUTE_FEATURE_MAP: Record<string, RouteFeatureConfig> = {
     module: "Operations",
     description: "Store branch settings, daily register shifts, and inventory overview.",
   },
+  "/businesses/pos": {
+    key: "pos.terminal",
+    name: "POS Terminal & Cashier Ops",
+    module: "POS & Registers",
+    description: "Multi-tenant cashier POS terminal, lock screen security, and shift management.",
+  },
+  "/businesses/pos/drawer": {
+    key: "pos.terminal",
+    name: "Cash Drawer & Movements",
+    module: "POS & Registers",
+    description: "Real-time cash drawer balance monitoring and cash movement audit logs.",
+  },
+  "/businesses/pos/shifts": {
+    key: "pos.terminal",
+    name: "Register Shifts",
+    module: "POS & Registers",
+    description: "Cashier shift reconciliation, opening float counts, and discrepancy audits.",
+  },
+  "/businesses/pos/cashier": {
+    key: "pos.terminal",
+    name: "Cashier Operations & Sessions",
+    module: "POS & Registers",
+    description: "Cashier profile permissions, active terminal sessions, and lock screen security.",
+  },
   "/pos": {
     key: "pos.terminal",
     name: "Point of Sale (POS) Terminal",

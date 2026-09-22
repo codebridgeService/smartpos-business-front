@@ -155,6 +155,7 @@ export const usePermissionStore = create<PermissionState>((set, get) => ({
 
     try {
       const items = await permissionsApi.getAllPermissions();
+
       const sorted = sortPermissionsByModuleAndCode(items);
 
       set({
