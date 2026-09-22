@@ -594,7 +594,7 @@ function PosCashierTerminalContent() {
 
   return (
     <div
-      className="min-h-screen flex flex-col bg-[#f4f7fa] dark:bg-zinc-950 select-none text-zinc-900 dark:text-zinc-50 font-sans"
+      className="min-h-screen flex flex-col bg-[#f4f7fa] dark:bg-zinc-950 select-none text-zinc-900 dark:text-zinc-50 font-sans animate-fade-in"
       onMouseMove={recordActivity}
       onKeyDown={recordActivity}
     >
@@ -893,12 +893,12 @@ function PosCashierTerminalContent() {
               return (
                 <div
                   key={product.id}
-                  className="product-card group relative p-4 rounded-2xl border border-zinc-200/90 dark:border-zinc-800/80 bg-white dark:bg-zinc-900 hover:border-orange-500 hover:shadow-xl hover:shadow-orange-500/10 hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between cursor-pointer"
+                  className="product-card smooth-card group relative p-4 rounded-2xl border border-zinc-200/90 dark:border-zinc-800/80 bg-white dark:bg-zinc-900 hover:border-orange-500 hover:shadow-xl hover:shadow-orange-500/10 flex flex-col justify-between cursor-pointer"
                   onClick={(e) => addToCart(product, e)}
                 >
                   {/* Selected Green Checkmark Badge */}
                   {inCart && (
-                    <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-xs z-10 animate-in zoom-in-50">
+                    <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-xs z-10 animate-scale-in">
                       <Check className="w-3 h-3 stroke-[3]" />
                     </div>
                   )}

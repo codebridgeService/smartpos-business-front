@@ -493,7 +493,7 @@ export function BusinessSidebar({
                 }`}
             >
               <div className="flex items-center gap-1.5">
-                <p className="text-xs font-bold truncate leading-tight">
+                <p className="text-xs font-bold truncate leading-tight text-slate-900 dark:text-zinc-100">
                   {activeBusiness?.name || "Business Portal"}
                 </p>
               </div>

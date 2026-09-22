@@ -235,7 +235,9 @@ export function BusinessShell({ children }: BusinessShellProps) {
             layoutWidth === "boxed" ? "max-w-7xl mx-auto" : ""
           }`}
         >
-          <PageFeatureGuard>{children}</PageFeatureGuard>
+          <div className="w-full flex-1 flex flex-col min-w-0 animate-fade-in">
+            <PageFeatureGuard>{children}</PageFeatureGuard>
+          </div>
         </main>
       </div>
 

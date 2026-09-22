@@ -303,10 +303,10 @@ export function AdminNavbar({
                 <div className="h-5 w-5 rounded-md bg-slate-900 text-white dark:bg-slate-700 flex items-center justify-center font-bold text-[10px] shrink-0">
                   <Store className="h-3 w-3 text-orange-400" />
                 </div>
-                <span className="truncate max-w-[90px] sm:max-w-[130px]">
+                <span className="truncate max-w-[90px] sm:max-w-[130px] text-slate-800 dark:text-zinc-100">
                   {activeOutlet?.name || activeBusiness?.name || "Store"}
                 </span>
-                <ChevronDown className={`h-3.5 w-3.5 shrink-0 ml-auto ${topBarPreset.isDark ? "text-white/70" : "text-slate-400"}`} />
+                <ChevronDown className={`h-3.5 w-3.5 shrink-0 ml-auto ${topBarPreset.isDark ? "text-white/70" : "text-slate-400 dark:text-zinc-400"}`} />
               </button>
 
               {isOutletMenuOpen && (

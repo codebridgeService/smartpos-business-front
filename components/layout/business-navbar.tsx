@@ -328,16 +328,16 @@ export function BusinessNavbar({
                   <Store className="h-3 w-3" />
                 </div>
                 <div className="flex flex-col text-left leading-tight max-w-[85px] sm:max-w-[125px]">
-                  <span className="truncate font-bold text-[11.5px]">
+                  <span className="truncate font-bold text-[11.5px] text-slate-800 dark:text-zinc-100">
                     {activeOutlet?.name || "All Outlets"}
                   </span>
                   {activeBusiness?.code && (
-                    <span className="text-[9.5px] text-slate-400 font-normal truncate">
+                    <span className="text-[9.5px] text-slate-400 dark:text-zinc-400 font-normal truncate">
                       {activeBusiness.code}
                     </span>
                   )}
                 </div>
-                <ChevronDown className={`h-3.5 w-3.5 shrink-0 ml-0.5 ${topBarPreset.isDark ? "text-white/70" : "text-slate-400"}`} />
+                <ChevronDown className={`h-3.5 w-3.5 shrink-0 ml-0.5 ${topBarPreset.isDark ? "text-white/70" : "text-slate-400 dark:text-zinc-400"}`} />
               </button>
 
               {isOutletMenuOpen && (

@@ -288,7 +288,7 @@ export default function BusinessOutletsPage({
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className="space-y-6 animate-fade-in">
       {/* 1. Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -461,7 +461,7 @@ export default function BusinessOutletsPage({
             return (
               <Card
                 key={outlet.uuid || outlet.id}
-                className="p-5 border-zinc-200/80 dark:border-zinc-800/80 hover:shadow-lg hover:border-orange-500/30 transition-all rounded-2xl bg-white dark:bg-zinc-900 flex flex-col justify-between"
+                className="smooth-card p-5 border-zinc-200/80 dark:border-zinc-800/80 hover:border-orange-500/30 rounded-2xl bg-white dark:bg-zinc-900 flex flex-col justify-between"
               >
                 <div>
                   {/* Top Bar: Code, Main Badge, Status */}

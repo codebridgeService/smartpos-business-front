@@ -13,12 +13,25 @@ export const env = {
   isDevelopment: process.env.NODE_ENV !== "production",
 } as const;
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_URL;
+
 /**
  * Returns full API URL for a given relative endpoint path
  * @example getApiUrl('/auth/login') -> 'https://smartpos-api.servicefixit.me/api/v1/auth/login'
  */
 export function getApiUrl(endpoint: string): string {
-  const base = env.apiBaseUrl.replace(/\/+$/, "");
+  if (endpoint.startsWith("http://") || endpoint.startsWith("https://")) {
+    return endpoint;
+  }
+
+  const baseUrl = API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_URL;
+  if (!baseUrl) {
+    throw new Error("NEXT_PUBLIC_API_BASE_URL is not configured");
+  }
+
+  const base = baseUrl.replace(/\/+$/, "");
   const path = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+
   return `${base}${path}`;
 }
+

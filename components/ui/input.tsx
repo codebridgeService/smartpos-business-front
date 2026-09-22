@@ -35,12 +35,12 @@ export const TextInput = forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             id={inputId}
-            className={`w-full rounded-xl border bg-white dark:bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 transition-all duration-150 focus:outline-none focus:ring-2 disabled:bg-zinc-100 dark:disabled:bg-zinc-800 disabled:cursor-not-allowed ${
+            className={`w-full rounded-xl border bg-white dark:bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] focus:outline-none focus:ring-4 disabled:bg-zinc-100 dark:disabled:bg-zinc-800 disabled:cursor-not-allowed ${
               leftIcon ? "pl-10" : ""
             } ${rightIcon ? "pr-10" : ""} ${
               error
                 ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                : "border-zinc-300 dark:border-zinc-700 focus:border-blue-500 focus:ring-blue-500/20"
+                : "border-zinc-300 dark:border-zinc-700 focus:border-blue-500 focus:ring-blue-500/15 dark:focus:ring-blue-500/20"
             } ${className}`}
             {...props}
           />
