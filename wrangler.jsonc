@@ -12,5 +12,12 @@
   },
   "observability": {
     "enabled": true
+  },
+  "vars": {
+    "NEXT_PUBLIC_API_BASE_URL": "https://smartpos-api.servicefixit.me/api/v1",
+    "NEXT_PUBLIC_APP_NAME": "SmartPOS Business",
+    "NEXT_PUBLIC_APP_ENV": "production",
+    "NEXT_PUBLIC_DEFAULT_DEVICE_TYPE": "browser",
+    "NEXT_PUBLIC_DEFAULT_PLATFORM": "web"
   }
 }
