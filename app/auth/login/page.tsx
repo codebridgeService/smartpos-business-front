@@ -8,7 +8,7 @@ import { TextInput, PasswordInput, Button, Alert } from "@/components/ui";
 import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/components/ui/toast";
 import { ApiError } from "@/lib/api";
-import { isOwner, isAdmin, hasRole } from "@/lib/utils/roles";
+import { isOwner, isAdmin, isCashier, hasRole } from "@/lib/utils/roles";
 import { LogIn, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
@@ -99,11 +99,14 @@ export default function LoginPage() {
         return;
       }
 
-      // 4. Role: Cashier / POS Operator -> /pos
-      if (hasRole(res.user, ["cashier", "pos"])) {
+      // 4. Role: Cashier ONLY -> /pos
+      if (isCashier(res.user) && !isOwner(res.user) && !isAdmin(res.user)) {
         if (
           redirectUrl &&
-          (redirectUrl === "/pos" || redirectUrl.startsWith("/pos/") || redirectUrl.startsWith("/businesses/pos"))
+          !redirectUrl.startsWith("/admin") &&
+          !redirectUrl.startsWith("/owner") &&
+          redirectUrl !== "/businesses" &&
+          (redirectUrl === "/pos" || redirectUrl.startsWith("/pos/"))
         ) {
           router.push(redirectUrl);
           return;
@@ -113,13 +116,13 @@ export default function LoginPage() {
         return;
       }
 
-      // 5. Fallback for any other valid redirect or default landing
+      // 5. Fallback for any other valid redirect or default landing (Staff, Store Associates -> /businesses)
       if (redirectUrl && !redirectUrl.startsWith("/auth/")) {
         router.push(redirectUrl);
         return;
       }
 
-      router.push("/admin/dashboard");
+      router.push("/businesses");
     } catch (err: unknown) {
       if (err instanceof ApiError) {
         if (err.isValidationError() && err.errors) {

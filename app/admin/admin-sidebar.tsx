@@ -358,17 +358,17 @@ export function AdminSidebar({
         },
         {
           label: "Cash Drawer & Shifts",
-          href: "/admin/pos/shifts",
+          href: "/businesses/pos/shifts",
           icon: <History className="h-4.5 w-4.5 shrink-0" />,
           children: [
             {
               label: "Register Shifts",
-              href: "/admin/pos/shifts",
+              href: "/businesses/pos/shifts",
               icon: <History className="h-3.5 w-3.5 shrink-0" />,
             },
             {
               label: "Cash Drawer",
-              href: "/admin/pos/drawer",
+              href: "/businesses/pos/drawer",
               icon: <Calculator className="h-3.5 w-3.5 shrink-0" />,
             },
           ],

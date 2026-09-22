@@ -186,7 +186,7 @@ export function AdminNavbar({
   // Quick navigation items for Search / Spotlight Modal
   const quickActions = [
     { label: "Admin Dashboard", href: "/admin/dashboard", icon: <LayoutDashboard className="h-4 w-4 text-orange-500" /> },
-    { label: "Point of Sale (POS)", href: "/admin/pos", icon: <ShoppingCart className="h-4 w-4 text-sky-500" /> },
+    { label: "POS Terminal", href: "/pos", icon: <ShoppingCart className="h-4 w-4 text-sky-500" /> },
     { label: "Business Master", href: "/businesses", icon: <Building2 className="h-4 w-4 text-amber-500" /> },
     { label: "Permissions Directory", href: "/admin/permissions", icon: <Key className="h-4 w-4 text-amber-500" /> },
     { label: "Roles & RBAC Management", href: "/admin/roles", icon: <ShieldCheck className="h-4 w-4 text-blue-500" /> },
@@ -719,7 +719,7 @@ export function AdminNavbar({
               ) : (
                 filteredQuickActions.map((action) => (
                   <Link
-                    key={action.href}
+                    key={`${action.href}-${action.label}`}
                     href={action.href}
                     onClick={() => setIsSearchOpen(false)}
                     className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 text-xs font-medium text-slate-700 dark:text-zinc-200 transition-colors"

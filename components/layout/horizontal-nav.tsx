@@ -133,7 +133,7 @@ export function HorizontalNav() {
       icon: <LayoutGrid className="h-4 w-4" />,
       children: [
         { label: "Sales Dashboard", href: "/admin/dashboard?view=sales", icon: <TrendingUp className="h-3.5 w-3.5" /> },
-        { label: "POS Terminal", href: "/admin/pos", icon: <Calculator className="h-3.5 w-3.5" />, badge: "Live", badgeVariant: "success" },
+        { label: "POS Terminal", href: "/pos", icon: <Calculator className="h-3.5 w-3.5" />, badge: "Live", badgeVariant: "success" },
       ],
     },
     {
@@ -206,7 +206,8 @@ export function HorizontalNav() {
       children: [
         { label: "Cash Registers", href: "/admin/businesses/registers", icon: <Calculator className="h-3.5 w-3.5" /> },
         { label: "POS Devices", href: "/admin/businesses/pos-devices", icon: <Tablet className="h-3.5 w-3.5" />, badge: "Hardware", badgeVariant: "neutral" },
-        { label: "Register Shifts", href: "/admin/pos/shifts", icon: <History className="h-3.5 w-3.5" /> },
+        { label: "Register Shifts", href: "/businesses/pos/shifts", icon: <History className="h-3.5 w-3.5" /> },
+        { label: "Cash Drawer", href: "/businesses/pos/drawer", icon: <Calculator className="h-3.5 w-3.5" /> },
         { label: "Feature Controls", href: "/admin/system/feature-controls", icon: <ShieldAlert className="h-3.5 w-3.5" />, badge: "Control", badgeVariant: "orange" },
         { label: "Change Log", href: "/admin/system/changelogs", icon: <GitCommit className="h-3.5 w-3.5 text-orange-500" />, badge: "v1.2.1", badgeVariant: "orange" },
       ],

@@ -11,6 +11,7 @@ import { BusinessSidebar } from "./business-sidebar";
 import { HorizontalNav } from "./horizontal-nav";
 import { TwoColumnSidebar } from "./two-column-sidebar";
 import { PageFeatureGuard } from "@/components/feature-handler";
+import { isCashier, isOwner, isAdmin } from "@/lib/utils/roles";
 
 export interface BusinessShellProps {
   children: React.ReactNode;
@@ -27,6 +28,30 @@ export function BusinessShell({ children }: BusinessShellProps) {
       router.push(`/auth/login?redirect=${encodeURIComponent(pathname)}`);
     }
   }, [isLoading, isAuthenticated, router, pathname]);
+
+  // Automatically open POS Terminal page for users with Cashier role
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user) {
+      const isOwnerUser = isOwner(user);
+      const isAdminUser = isAdmin(user);
+      const isCashierUser = isCashier(user);
+
+      // If user has a cashier role and is NOT an admin or business owner:
+      if (isCashierUser && !isOwnerUser && !isAdminUser) {
+        if (
+          pathname === "/businesses" ||
+          pathname === "/businesses/" ||
+          pathname === "/businesses/dashboard" ||
+          pathname === "/businesses/dashboard/" ||
+          pathname.startsWith("/businesses/settings") ||
+          pathname.startsWith("/businesses/roles") ||
+          pathname.startsWith("/businesses/permissions")
+        ) {
+          router.replace("/pos");
+        }
+      }
+    }
+  }, [isLoading, isAuthenticated, user, pathname, router]);
 
   // Sidebar Layout States
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);

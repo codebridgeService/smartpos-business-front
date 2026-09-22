@@ -80,7 +80,6 @@ describe("BusinessSidebar Component", () => {
     expect(screen.getByText("Staff & Members")).toBeDefined();
     expect(screen.getByText("Users Management")).toBeDefined();
     expect(screen.getByText("Units & Scaling")).toBeDefined();
-    expect(screen.getByText("Outlets & Branches")).toBeDefined();
     expect(screen.getByText("Cash Registers")).toBeDefined();
     expect(screen.getByText("POS Devices")).toBeDefined();
   });

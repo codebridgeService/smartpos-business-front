@@ -641,7 +641,7 @@ export function CreateBusinessModal({
                   const isSelected = (formData.owner_role_code || "owner") === r.code;
                   return (
                     <button
-                      key={r.code}
+                      key={r.uuid || r.code}
                       type="button"
                       onClick={() => handleRoleSelect(r.code, r.uuid)}
                       className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${

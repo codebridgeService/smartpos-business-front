@@ -136,11 +136,11 @@
   --popover: #ffffff;
   --popover-foreground: #0f172a;
 
-  --primary: #2563eb;
+  --primary: #f97316; /* Warm Orange / Amber from screenshot */
   --primary-foreground: #ffffff;
 
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
+  --secondary: #1e293b; /* Dark Navy for secondary buttons like the screenshot */
+  --secondary-foreground: #ffffff;
 
   --muted: #f1f5f9;
   --muted-foreground: #64748b;
@@ -177,10 +177,10 @@
   --popover: #0f172a;
   --popover-foreground: #f8fafc;
 
-  --primary: #3b82f6;
-  --primary-foreground: #ffffff;
+  --primary: #fb923c; /* Brighter Orange for dark mode */
+  --primary-foreground: #0f172a;
 
-  --secondary: #1e293b;
+  --secondary: #334155; /* Slate secondary for dark mode */
   --secondary-foreground: #f8fafc;
 
   --muted: #1e293b;
@@ -241,17 +241,17 @@
   --color-neutral-900: var(--neutral-900);
   --color-neutral-950: var(--neutral-950);
 
-  --color-brand-50: var(--primary-50);
-  --color-brand-100: var(--primary-100);
-  --color-brand-200: var(--primary-200);
-  --color-brand-300: var(--primary-300);
-  --color-brand-400: var(--primary-400);
-  --color-brand-500: var(--primary-500);
-  --color-brand-600: var(--primary-600);
-  --color-brand-700: var(--primary-700);
-  --color-brand-800: var(--primary-800);
-  --color-brand-900: var(--primary-900);
-  --color-brand-950: var(--primary-950);
+  --color-brand-50: var(--secondary-50);
+  --color-brand-100: var(--secondary-100);
+  --color-brand-200: var(--secondary-200);
+  --color-brand-300: var(--secondary-300);
+  --color-brand-400: var(--secondary-400);
+  --color-brand-500: var(--secondary-500);
+  --color-brand-600: var(--secondary-600);
+  --color-brand-700: var(--secondary-700);
+  --color-brand-800: var(--secondary-800);
+  --color-brand-900: var(--secondary-900);
+  --color-brand-950: var(--secondary-950);
 
   --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;

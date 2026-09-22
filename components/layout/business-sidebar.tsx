@@ -32,6 +32,7 @@ import {
   Sparkles,
   GitCommit,
   Scale,
+  Wallet,
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { useBusiness } from "@/context/business-context";
@@ -107,7 +108,7 @@ export function BusinessSidebar({
             },
             {
               label: "POS Terminal",
-              href: "/businesses/pos",
+              href: "/pos",
               icon: <Store className="h-3.5 w-3.5 shrink-0" />,
               badge: "LIVE",
               badgeVariant: "success",
@@ -151,70 +152,45 @@ export function BusinessSidebar({
       showDivider: true,
       items: [
         {
-          label: "Outlets & Branches",
-          href: "/businesses/outlets",
-          icon: <Building2 className="h-4.5 w-4.5 shrink-0" />,
-          badge: outlets.length > 0 ? `${outlets.length}` : undefined,
-          badgeVariant: "neutral",
-          children: [
-            {
-              label: "All Outlets",
-              href: "/businesses/outlets",
-              icon: <Building2 className="h-3.5 w-3.5 shrink-0" />,
-            },
-            ...outlets.map((outlet) => ({
-              label: outlet.name,
-              href: `/businesses/outlets/${outlet.uuid}`,
-              icon: <Store className="h-3.5 w-3.5 shrink-0" />,
-              badge:
-                activeOutlet?.uuid === outlet.uuid
-                  ? "Active"
-                  : outlet.is_main_outlet
-                    ? "Main"
-                    : undefined,
-              badgeVariant:
-                activeOutlet?.uuid === outlet.uuid
-                  ? ("success" as const)
-                  : ("orange" as const),
-              onClick: () => selectOutlet(outlet.uuid),
-            })),
-          ],
-        },
-        {
           label: "Cash Registers",
           href: "/businesses/outlets",
           icon: <Calculator className="h-4.5 w-4.5 shrink-0" />,
         },
         {
-          label: "POS Devices",
-          href: "/businesses/pos",
-          icon: <Tablet className="h-4.5 w-4.5 shrink-0" />,
-          badge: "Hardware",
-          badgeVariant: "neutral",
+          label: "POS Terminal",
+          href: "/pos",
+          icon: <Store className="h-4.5 w-4.5 shrink-0 text-orange-500" />,
+          badge: "Live",
+          badgeVariant: "success",
+        },
+        {
+          label: "Cashier Operations",
+          href: "/businesses/pos/cashier",
+          icon: <UserCheck className="h-4.5 w-4.5 shrink-0 text-sky-500" />,
         },
         {
           label: "Cash Drawer & Shifts",
-          href: "/businesses/pos?tab=shifts",
+          href: "/businesses/pos/shifts",
           icon: <History className="h-4.5 w-4.5 shrink-0" />,
           children: [
             {
               label: "Register Shifts",
-              href: "/businesses/pos?tab=shifts",
+              href: "/businesses/pos/shifts",
               icon: <History className="h-3.5 w-3.5 shrink-0" />,
             },
             {
               label: "Cash Drawer",
-              href: "/businesses/pos?tab=drawer",
-              icon: <Calculator className="h-3.5 w-3.5 shrink-0" />,
+              href: "/businesses/pos/drawer",
+              icon: <Wallet className="h-3.5 w-3.5 shrink-0" />,
             },
           ],
         },
         {
-          label: "POS Terminal",
-          href: "/businesses/pos",
-          icon: <Store className="h-4.5 w-4.5 shrink-0 text-orange-500" />,
-          badge: "Live",
-          badgeVariant: "success",
+          label: "POS Devices",
+          href: "/admin/businesses/pos-devices",
+          icon: <Tablet className="h-4.5 w-4.5 shrink-0" />,
+          badge: "Hardware",
+          badgeVariant: "neutral",
         },
       ],
     },

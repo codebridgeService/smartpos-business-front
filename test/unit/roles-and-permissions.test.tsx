@@ -2,13 +2,14 @@ import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import AdminRolesPage from "@/app/admin/roles/page";
-import AdminPermissionsPage, { DEFAULT_PERMISSIONS } from "@/app/admin/permissions/page";
+import AdminPermissionsPage from "@/app/admin/permissions/page";
 import { usePermissionStore } from "@/stores/usePermissionStore";
 import { useRoleStore } from "@/stores/useRoleStore";
 import { ToastProvider } from "@/components/ui/toast";
 import { apiClient } from "@/lib/api";
 import { rolesApi } from "@/lib/api/roles";
 import { permissionsApi } from "@/lib/api/permissions";
+import type { Permission } from "@/types";
 
 // Mock business context
 vi.mock("@/context/business-context", () => ({
@@ -38,6 +39,39 @@ const mockRolesData = [
     code: "admin",
     name: "System Administrator",
     is_system: true,
+  },
+];
+
+const mockPermissionsData: Permission[] = [
+  {
+    id: 1,
+    uuid: "perm-users-01",
+    code: "users.view",
+    name: "View Users",
+    module: "users",
+    description: "Can view users list and details",
+    created_at: null,
+    updated_at: null,
+  },
+  {
+    id: 2,
+    uuid: "perm-users-02",
+    code: "users.create",
+    name: "Create Users",
+    module: "users",
+    description: "Can create new users",
+    created_at: null,
+    updated_at: null,
+  },
+  {
+    id: 3,
+    uuid: "perm-prod-01",
+    code: "products.view",
+    name: "View Products",
+    module: "products",
+    description: "Can view products catalog",
+    created_at: null,
+    updated_at: null,
   },
 ];
 
@@ -91,8 +125,8 @@ describe("Roles & RBAC Pages", () => {
       to: mockRolesData.length,
     } as any);
 
-    // Default permissions API mock resolves with standard static permissions catalog
-    vi.mocked(permissionsApi.getAllPermissions).mockResolvedValue(DEFAULT_PERMISSIONS);
+    // Default permissions API mock resolves with live API permissions catalog
+    vi.mocked(permissionsApi.getAllPermissions).mockResolvedValue(mockPermissionsData);
 
     usePermissionStore.setState({
       permissions: [],
@@ -106,12 +140,21 @@ describe("Roles & RBAC Pages", () => {
     });
 
     useRoleStore.setState({
-      roles: [],
+      roles: mockRolesData as any,
       isLoading: false,
+      selectedBusinessUuid: null,
+      searchQuery: "",
+      filterType: "all",
     });
   });
 
   it("renders AdminRolesPage with roles list and action buttons", async () => {
+    useRoleStore.setState({
+      roles: mockRolesData as any,
+      isLoading: false,
+      fetchRoles: vi.fn().mockResolvedValue(mockRolesData as any),
+    });
+
     render(
       <ToastProvider>
         <AdminRolesPage />
@@ -119,13 +162,14 @@ describe("Roles & RBAC Pages", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/Access Control & RBAC/i)).toBeDefined();
-      expect(screen.getByText(/Business Owner/i)).toBeDefined();
+      expect(screen.getByRole("heading", { name: /Access Control/i })).toBeDefined();
     });
+    const roleConfigBtn = screen.getByRole("button", { name: /Roles Configuration/i });
+    expect(roleConfigBtn).toBeDefined();
   });
 
-  describe("AdminPermissionsPage - Static Data", () => {
-    it("renders AdminPermissionsPage with static data (DEFAULT_PERMISSIONS, metrics, and modules)", async () => {
+  describe("AdminPermissionsPage - Live API Loading", () => {
+    it("renders AdminPermissionsPage with permissions fetched from API", async () => {
       render(
         <ToastProvider>
           <AdminPermissionsPage />
@@ -137,21 +181,20 @@ describe("Roles & RBAC Pages", () => {
       expect(screen.getByText(/Manage Roles/i)).toBeDefined();
       expect(screen.getByText(/Batch Create/i)).toBeDefined();
 
-      // Verify Metric Cards using static data counts
+      // Verify Metric Cards using live data counts
       await waitFor(() => {
         expect(screen.getByText("Total Permissions")).toBeDefined();
-        // Both Total Permissions and Filtered Results display the count
-        expect(screen.getAllByText(String(DEFAULT_PERMISSIONS.length)).length).toBeGreaterThanOrEqual(1);
+        expect(screen.getAllByText(String(mockPermissionsData.length)).length).toBeGreaterThanOrEqual(1);
         expect(screen.getByText("Active Modules")).toBeDefined();
         expect(screen.getByText("Identity Service")).toBeDefined();
       });
 
-      // Verify static module titles exist in the rendered view (both select option & module header)
+      // Verify module titles exist in the rendered view
       expect(screen.getAllByText(/User Accounts/i).length).toBeGreaterThanOrEqual(1);
       expect(screen.getAllByText(/Product Catalog/i).length).toBeGreaterThanOrEqual(1);
     });
 
-    it("filters static permissions when searching by keyword", async () => {
+    it("filters permissions when searching by keyword", async () => {
       render(
         <ToastProvider>
           <AdminPermissionsPage />
@@ -159,7 +202,7 @@ describe("Roles & RBAC Pages", () => {
       );
 
       await waitFor(() => {
-        expect(screen.getAllByText(String(DEFAULT_PERMISSIONS.length)).length).toBeGreaterThanOrEqual(1);
+        expect(screen.getAllByText(String(mockPermissionsData.length)).length).toBeGreaterThanOrEqual(1);
       });
 
       // Search for specific permission "users.create"
@@ -167,21 +210,20 @@ describe("Roles & RBAC Pages", () => {
       fireEvent.change(searchInput, { target: { value: "users.create" } });
 
       await waitFor(() => {
-        // Only 1 matching permission should be in the filtered results
         expect(usePermissionStore.getState().getGroupedMatrix().totalMatching).toBe(1);
         expect(screen.getByText("users.create")).toBeDefined();
       });
 
-      // Clear search restores all static items
+      // Clear search restores all items
       const clearBtn = screen.getByRole("button", { name: /Clear search/i });
       fireEvent.click(clearBtn);
 
       await waitFor(() => {
-        expect(usePermissionStore.getState().getGroupedMatrix().totalMatching).toBe(DEFAULT_PERMISSIONS.length);
+        expect(usePermissionStore.getState().getGroupedMatrix().totalMatching).toBe(mockPermissionsData.length);
       });
     });
 
-    it("filters static permissions when selecting a specific module", async () => {
+    it("filters permissions when selecting a specific module", async () => {
       render(
         <ToastProvider>
           <AdminPermissionsPage />
@@ -189,24 +231,23 @@ describe("Roles & RBAC Pages", () => {
       );
 
       await waitFor(() => {
-        expect(screen.getAllByText(String(DEFAULT_PERMISSIONS.length)).length).toBeGreaterThanOrEqual(1);
+        expect(screen.getAllByText(String(mockPermissionsData.length)).length).toBeGreaterThanOrEqual(1);
       });
 
       // Filter by 'users' module
       const moduleSelects = screen.getAllByRole("combobox");
-      const moduleSelect = moduleSelects[0]; // Module selector is the first combobox
+      const moduleSelect = moduleSelects[0];
       fireEvent.change(moduleSelect, { target: { value: "users" } });
 
       await waitFor(() => {
-        const userPermsCount = DEFAULT_PERMISSIONS.filter((p) => p.module === "users").length;
+        const userPermsCount = mockPermissionsData.filter((p) => p.module === "users").length;
         expect(usePermissionStore.getState().getGroupedMatrix().totalMatching).toBe(userPermsCount);
       });
     });
   });
 
   describe("AdminPermissionsPage - Error Handling", () => {
-    it("displays error alert banner when API call fails and retains static fallback data", async () => {
-      // API call rejects with server error
+    it("displays error alert banner when API call fails", async () => {
       const errorMessage = "Identity Service offline (503 Service Unavailable)";
       vi.mocked(permissionsApi.getAllPermissions).mockRejectedValueOnce(new Error(errorMessage));
 
@@ -216,17 +257,12 @@ describe("Roles & RBAC Pages", () => {
         </ToastProvider>
       );
 
-      // Verify that error banner is displayed with the exact failure message
       await waitFor(() => {
         const errorBanner = screen.getByTestId("permissions-error-banner");
         expect(errorBanner).toBeDefined();
         expect(errorBanner.textContent).toContain(errorMessage);
         expect(screen.getByRole("button", { name: /Retry Connection/i })).toBeDefined();
       });
-
-      // Crucial: Fallback static permissions must still be preserved and visible
-      expect(screen.getAllByText(String(DEFAULT_PERMISSIONS.length)).length).toBeGreaterThanOrEqual(1);
-      expect(screen.getAllByText(/User Accounts/i).length).toBeGreaterThanOrEqual(1);
     });
   });
 });

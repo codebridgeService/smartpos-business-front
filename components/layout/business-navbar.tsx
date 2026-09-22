@@ -39,6 +39,8 @@ import {
   History,
   Tablet,
   Sparkles,
+  Wallet,
+  ArrowRight,
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { useBusiness } from "@/context/business-context";
@@ -46,6 +48,7 @@ import { useOutlet } from "@/context/outlet-context";
 import { useTheme } from "@/context/theme-context";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { ActiveShiftWidget } from "@/components/shifts";
 import { isAdmin, isOwner } from "@/lib/utils/roles";
 import { FeaturesAnnouncementsStore } from "@/lib/storage/features-announcements-store";
 import type { Announcement, AnnouncementRead } from "@/types/features-announcements";
@@ -57,12 +60,13 @@ interface QuickAddItem {
 }
 
 const BUSINESS_QUICK_ADD_ITEMS: QuickAddItem[] = [
-  { label: "Sale / POS", href: "/businesses/pos", icon: <ShoppingCart className="h-5 w-5" /> },
+  { label: "Sale / POS", href: "/pos", icon: <ShoppingCart className="h-5 w-5" /> },
+  { label: "Cash Drawer", href: "/businesses/pos/drawer", icon: <Wallet className="h-5 w-5" /> },
+  { label: "Register Shift", href: "/businesses/pos/shifts", icon: <History className="h-5 w-5" /> },
   { label: "Product", href: "/coming-soon?feature=create-product", icon: <PlusSquare className="h-5 w-5" /> },
   { label: "Category", href: "/coming-soon?feature=category", icon: <Boxes className="h-5 w-5" /> },
-  { label: "Register Shift", href: "/businesses/pos?tab=shifts", icon: <History className="h-5 w-5" /> },
   { label: "Outlet / Branch", href: "/businesses/outlets", icon: <Building2 className="h-5 w-5" /> },
-  { label: "Staff Member", href: "/businesses/staff", icon: <Users className="h-5 w-5" /> },
+  { label: "Staff Member", href: "/businesses/staff/create", icon: <Users className="h-5 w-5" /> },
   { label: "Customer", href: "/coming-soon?feature=customers", icon: <UserIcon className="h-5 w-5" /> },
   { label: "Stock Transfer", href: "/coming-soon?feature=stock-transfer", icon: <Truck className="h-5 w-5" /> },
   { label: "Purchase", href: "/businesses/purchase-transaction", icon: <ShoppingBag className="h-5 w-5" /> },
@@ -189,11 +193,14 @@ export function BusinessNavbar({
   const quickActions = [
     { label: "Business Dashboard", href: "/businesses/dashboard", icon: <LayoutDashboard className="h-4 w-4 text-orange-500" /> },
     { label: "Sales Dashboard", href: "/businesses/dashboard?view=sales", icon: <LayoutDashboard className="h-4 w-4 text-amber-500" /> },
-    { label: "POS Terminal (Cashier)", href: "/businesses/pos", icon: <ShoppingCart className="h-4 w-4 text-sky-500" /> },
+    { label: "POS Terminal (Cashier)", href: "/pos", icon: <ShoppingCart className="h-4 w-4 text-sky-500" /> },
+    { label: "POS", href: "/pos", icon: <ShoppingCart className="h-4 w-4 text-sky-500" /> },
+    { label: "Cashier Operations & Sessions", href: "/businesses/pos/cashier", icon: <UserCheck className="h-4 w-4 text-emerald-500" /> },
+    { label: "Cash Drawer & Movements", href: "/businesses/pos/drawer", icon: <Wallet className="h-4 w-4 text-orange-500" /> },
+    { label: "Register Shifts", href: "/businesses/pos/shifts", icon: <History className="h-4 w-4 text-blue-500" /> },
     { label: "Outlets & Store Locations", href: "/businesses/outlets", icon: <Building2 className="h-4 w-4 text-indigo-500" /> },
     { label: "Cash Registers", href: "/businesses/outlets", icon: <Calculator className="h-4 w-4 text-teal-500" /> },
-    { label: "POS Devices & Hardware", href: "/businesses/pos", icon: <Tablet className="h-4 w-4 text-amber-500" /> },
-    { label: "Register Shifts & Drawer", href: "/businesses/pos?tab=shifts", icon: <History className="h-4 w-4 text-blue-500" /> },
+    { label: "POS Devices & Hardware", href: "/admin/businesses/pos-devices", icon: <Tablet className="h-4 w-4 text-amber-500" /> },
     { label: "Manage Stock & Warehouses", href: "/businesses/warehouses", icon: <Boxes className="h-4 w-4 text-emerald-500" /> },
     { label: "Products Catalog", href: "/coming-soon?feature=products", icon: <Package className="h-4 w-4 text-purple-500" /> },
     { label: "Staff & Members", href: "/businesses/staff", icon: <Users className="h-4 w-4 text-pink-500" /> },
@@ -340,7 +347,7 @@ export function BusinessNavbar({
                       Branch Outlets ({outlets.length})
                     </span>
                     <Link
-                      href="/admin/businesses/outlets"
+                      href="/businesses/outlets"
                       onClick={() => setIsOutletMenuOpen(false)}
                       className="text-[10px] font-semibold text-orange-600 dark:text-orange-400 hover:underline"
                     >
@@ -361,11 +368,13 @@ export function BusinessNavbar({
                           onClick={() => {
                             selectOutlet(out.uuid);
                             setIsOutletMenuOpen(false);
+                            router.push(`/pos?outlet=${out.uuid}`);
                           }}
-                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-left transition-colors ${activeOutlet?.uuid === out.uuid
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-left transition-colors group cursor-pointer ${activeOutlet?.uuid === out.uuid
                             ? "bg-orange-50 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400 font-semibold"
                             : "text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800"
                             }`}
+                          title={`Open POS Terminal for ${out.name}`}
                         >
                           <div className="flex items-center gap-2 min-w-0">
                             <span
@@ -380,6 +389,10 @@ export function BusinessNavbar({
                                 Main
                               </span>
                             )}
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-600 dark:text-orange-400 opacity-80 group-hover:opacity-100 flex items-center gap-0.5">
+                              Open POS
+                              <ArrowRight className="h-2.5 w-2.5" />
+                            </span>
                             {activeOutlet?.uuid === out.uuid && (
                               <Check className="h-3.5 w-3.5 text-orange-500" />
                             )}
@@ -480,11 +493,11 @@ export function BusinessNavbar({
               )}
             </div>
 
-            {/* POS Terminal Quick Launch Button */}
+            {/* POS Terminal & Cashier Ops Quick Launch Button */}
             <Link
-              href="/admin/pos"
-              className="hidden xl:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#0e2238] hover:bg-[#163556] dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-semibold shadow-xs transition-all active:scale-95 group"
-              title="Launch POS Terminal"
+              href={activeOutlet ? `/pos?outlet=${activeOutlet.uuid}` : "/pos"}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#0e2238] hover:bg-[#163556] dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-semibold shadow-xs transition-all active:scale-95 group cursor-pointer"
+              title="Launch POS Terminal for Active Store"
             >
               <Monitor className="h-4 w-4 text-sky-400 shrink-0 group-hover:scale-110 transition-transform" />
               <span>POS</span>
@@ -546,6 +559,11 @@ export function BusinessNavbar({
                 1
               </span>
             </button>
+
+            {/* Active Shift Widget */}
+            <div className="hidden sm:block mr-2">
+              <ActiveShiftWidget />
+            </div>
 
             {/* Notifications Bell with Announcements Popover */}
             <div className="relative">
@@ -802,7 +820,7 @@ export function BusinessNavbar({
               ) : (
                 filteredQuickActions.map((action) => (
                   <Link
-                    key={action.href}
+                    key={`${action.href}-${action.label}`}
                     href={action.href}
                     onClick={() => setIsSearchOpen(false)}
                     className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 text-xs font-medium text-slate-700 dark:text-zinc-200 transition-colors"

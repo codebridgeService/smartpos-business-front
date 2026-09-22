@@ -7,7 +7,7 @@ import { useAuth } from "@/context/auth-context";
 import { useBusiness } from "@/context/business-context";
 import { useOutlet } from "@/context/outlet-context";
 import { DashboardShell } from "@/components/layout";
-import { isOwner, isAdmin, hasRole } from "@/lib/utils/roles";
+import { isOwner, isAdmin, isCashier, hasRole } from "@/lib/utils/roles";
 import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent, Badge } from "@/components/ui";
 import {
   Store,
@@ -37,9 +37,11 @@ export default function HomePage() {
         router.replace("/admin/dashboard");
       } else if (isOwner(user)) {
         router.replace("/businesses");
-      } else if (hasRole(user, ["cashier", "pos"])) {
+      } else if (isCashier(user)) {
+        // ONLY Cashier role auto opens /pos!
         router.replace("/pos");
       } else {
+        // Staff, Store Staff, Inventory Specialists go to /businesses
         router.replace("/businesses");
       }
     }

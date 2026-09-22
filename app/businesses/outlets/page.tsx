@@ -25,6 +25,7 @@ import {
   AlertTriangle,
   ArrowRight,
   Receipt,
+  ShoppingCart,
 } from "lucide-react";
 import { useBusiness } from "@/context/business-context";
 import {
@@ -56,8 +57,31 @@ export default function BusinessOutletsPage({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // View switch: Grid vs. Table
+  // View switch: Grid vs. Table (persisted in device storage)
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
+
+  useEffect(() => {
+    try {
+      const savedMode = localStorage.getItem("outlets_view_mode") as "grid" | "table" | null;
+      if (savedMode === "grid" || savedMode === "table") {
+        setViewMode(savedMode);
+      }
+    } catch {
+      // Ignore if localStorage unavailable
+    }
+  }, []);
+
+  const toggleViewMode = () => {
+    setViewMode((prev) => {
+      const nextMode = prev === "grid" ? "table" : "grid";
+      try {
+        localStorage.setItem("outlets_view_mode", nextMode);
+      } catch {
+        // Ignore
+      }
+      return nextMode;
+    });
+  };
 
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState("");
@@ -335,33 +359,26 @@ export default function BusinessOutletsPage({
             </div>
           </div>
 
-          {/* View Mode Toggle: Grid vs Table */}
-          <div className="flex items-center rounded-xl border border-zinc-200 dark:border-zinc-800 p-1 bg-zinc-50 dark:bg-zinc-800/50">
-            <button
-              type="button"
-              onClick={() => setViewMode("grid")}
-              className={`p-1.5 rounded-lg transition-colors ${
-                viewMode === "grid"
-                  ? "bg-white dark:bg-zinc-700 text-orange-500 shadow-2xs"
-                  : "text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
-              }`}
-              title="Grid Card View"
-            >
-              <LayoutGrid className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode("table")}
-              className={`p-1.5 rounded-lg transition-colors ${
-                viewMode === "table"
-                  ? "bg-white dark:bg-zinc-700 text-orange-500 shadow-2xs"
-                  : "text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
-              }`}
-              title="Dense Table View"
-            >
-              <List className="w-4 h-4" />
-            </button>
-          </div>
+          {/* View Mode Toggle: Single Click Button (Persisted) */}
+          <button
+            type="button"
+            onClick={toggleViewMode}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:border-orange-500/40 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-150 outline-none focus:outline-none shadow-2xs"
+            title={viewMode === "grid" ? "Dense Table View" : "Grid View"}
+            aria-label={viewMode === "grid" ? "Dense Table View" : "Grid View"}
+          >
+            {viewMode === "grid" ? (
+              <>
+                <List className="w-4 h-4 text-orange-500" />
+                <span>Table View</span>
+              </>
+            ) : (
+              <>
+                <LayoutGrid className="w-4 h-4 text-orange-500" />
+                <span>Grid View</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 
@@ -546,13 +563,24 @@ export default function BusinessOutletsPage({
 
                   {/* Quick Action Buttons */}
                   <div className="pt-2 flex items-center justify-between gap-2 border-t border-zinc-100 dark:border-zinc-800/60">
-                    <Link
-                      href={`/businesses/outlets/${outlet.uuid}`}
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-orange-500 hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
-                    >
-                      <span>Manage</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/pos?outlet=${outlet.uuid}`}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white shadow-2xs transition-all active:scale-95"
+                        title={`Open POS Terminal for ${outlet.name}`}
+                      >
+                        <ShoppingCart className="w-3.5 h-3.5" />
+                        <span>Open POS</span>
+                      </Link>
+
+                      <Link
+                        href={`/businesses/outlets/${outlet.uuid}`}
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-zinc-600 dark:text-zinc-300 hover:text-orange-500 dark:hover:text-orange-400 transition-colors"
+                      >
+                        <span>Manage</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
 
                     <div className="flex items-center gap-1">
                       <Button
@@ -705,6 +733,14 @@ export default function BusinessOutletsPage({
                       <td className="px-5 py-4 text-right">
                         <div className="inline-flex items-center gap-1.5">
                           <Link
+                            href={`/pos?outlet=${outlet.uuid}`}
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-orange-500/30 bg-orange-500/10 text-orange-600 dark:text-orange-400 hover:bg-orange-500 hover:text-white font-semibold text-xs transition-colors"
+                            title={`Open POS Terminal for ${outlet.name}`}
+                          >
+                            <ShoppingCart className="w-3.5 h-3.5" />
+                            <span>POS</span>
+                          </Link>
+                          <Link
                             href={`/businesses/outlets/${outlet.uuid}`}
                             className="p-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-600 hover:text-orange-500 hover:border-orange-500/40 transition-colors"
                             title="View Outlet Details"
@@ -715,7 +751,7 @@ export default function BusinessOutletsPage({
                             type="button"
                             onClick={() => openEditModal(outlet)}
                             className="p-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-600 hover:text-zinc-900 dark:hover:text-white transition-colors"
-                            title="Edit Outlet"
+                            title="Edit Outlet Configuration"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>

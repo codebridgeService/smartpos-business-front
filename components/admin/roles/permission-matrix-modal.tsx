@@ -21,7 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { apiClient, permissionsApi, sortPermissionsByModuleAndCode } from "@/lib/api";
 import { useRoleStore } from "@/stores/useRoleStore";
-import { DEFAULT_PERMISSIONS } from "@/app/admin/permissions/page";
+import { usePermissionStore } from "@/stores/usePermissionStore";
 import type { Role, Permission, LengthAwarePaginator, ApiListResponse } from "@/types";
 
 interface PermissionMatrixModalProps {
@@ -40,7 +40,7 @@ export function PermissionMatrixModal({
   const toast = useToast();
   const { syncPermissions, syncAllPermissions } = useRoleStore();
 
-  const [allPermissions, setAllPermissions] = useState<Permission[]>(DEFAULT_PERMISSIONS);
+  const [allPermissions, setAllPermissions] = useState<Permission[]>(() => usePermissionStore.getState().permissions);
   const [selectedUuids, setSelectedUuids] = useState<Set<string>>(new Set());
   const [initialUuids, setInitialUuids] = useState<Set<string>>(new Set());
   const [isLoadingPermissions, setIsLoadingPermissions] = useState(false);
@@ -53,11 +53,11 @@ export function PermissionMatrixModal({
   useEffect(() => {
     if (!isOpen || !role) return;
 
-    // 1. Initial seed from props and default permissions
+    // 1. Initial seed from props and store permissions
     const current = new Set<string>();
     const permMap = new Map<string, Permission>();
 
-    DEFAULT_PERMISSIONS.forEach((p) => {
+    usePermissionStore.getState().permissions.forEach((p) => {
       if (p.uuid) permMap.set(p.uuid, p);
     });
 
@@ -95,7 +95,7 @@ export function PermissionMatrixModal({
             if (p.uuid) mergedMap.set(p.uuid, p);
           });
         } else {
-          DEFAULT_PERMISSIONS.forEach((p) => {
+          usePermissionStore.getState().permissions.forEach((p) => {
             if (p.uuid) mergedMap.set(p.uuid, p);
           });
         }

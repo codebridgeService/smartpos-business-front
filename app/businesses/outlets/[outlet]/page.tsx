@@ -28,6 +28,7 @@ import {
   ExternalLink,
   Laptop,
   Check,
+  ShoppingCart,
 } from "lucide-react";
 import { useBusiness } from "@/context/business-context";
 import { outletsApi, UpdateOutletRequest } from "@/lib/api/outlets";
@@ -244,6 +245,15 @@ export default function OutletDetailPage({
         </div>
 
         <div className="flex items-center gap-2.5">
+          <Link href={`/pos?outlet=${outlet.uuid}`}>
+            <Button
+              className="bg-orange-500 hover:bg-orange-600 text-white font-semibold flex items-center gap-2 shadow-xs cursor-pointer active:scale-95"
+              title={`Launch POS Terminal for ${outlet.name}`}
+            >
+              <ShoppingCart className="w-4 h-4" />
+              <span>Launch POS</span>
+            </Button>
+          </Link>
           <Button
             variant="outline"
             onClick={fetchOutlet}
