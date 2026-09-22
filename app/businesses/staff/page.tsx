@@ -455,7 +455,7 @@ export default function BusinessStaffPage() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300 pb-12">
+    <div className="space-y-6 animate-fade-in pb-12">
       {/* 1. Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -506,7 +506,7 @@ export default function BusinessStaffPage() {
 
       {/* 2. KPI Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 sm:gap-4">
-        <Card className="border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs rounded-2xl p-4 bg-gradient-to-br from-white to-zinc-50/50 dark:from-zinc-900 dark:to-zinc-900/60">
+        <Card className="smooth-card border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs rounded-2xl p-4 bg-gradient-to-br from-white to-zinc-50/50 dark:from-zinc-900 dark:to-zinc-900/60">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Total Staff</span>
             <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
@@ -521,7 +521,7 @@ export default function BusinessStaffPage() {
           </div>
         </Card>
 
-        <Card className="border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs rounded-2xl p-4 bg-gradient-to-br from-white to-zinc-50/50 dark:from-zinc-900 dark:to-zinc-900/60">
+        <Card className="smooth-card border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs rounded-2xl p-4 bg-gradient-to-br from-white to-zinc-50/50 dark:from-zinc-900 dark:to-zinc-900/60">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Active</span>
             <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
@@ -536,7 +536,7 @@ export default function BusinessStaffPage() {
           </div>
         </Card>
 
-        <Card className="border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs rounded-2xl p-4 bg-gradient-to-br from-white to-zinc-50/50 dark:from-zinc-900 dark:to-zinc-900/60">
+        <Card className="smooth-card border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs rounded-2xl p-4 bg-gradient-to-br from-white to-zinc-50/50 dark:from-zinc-900 dark:to-zinc-900/60">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Suspended</span>
             <div className="p-2 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400">
@@ -551,7 +551,7 @@ export default function BusinessStaffPage() {
           </div>
         </Card>
 
-        <Card className="border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs rounded-2xl p-4 bg-gradient-to-br from-white to-zinc-50/50 dark:from-zinc-900 dark:to-zinc-900/60">
+        <Card className="smooth-card border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs rounded-2xl p-4 bg-gradient-to-br from-white to-zinc-50/50 dark:from-zinc-900 dark:to-zinc-900/60">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Outlets</span>
             <div className="p-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
@@ -855,7 +855,7 @@ export default function BusinessStaffPage() {
             return (
               <Card
                 key={userKey}
-                className="border-zinc-200/80 dark:border-zinc-800/80 rounded-2xl overflow-hidden shadow-2xs hover:shadow-md transition-all p-5 bg-white dark:bg-zinc-900 flex flex-col justify-between"
+                className="smooth-card border-zinc-200/80 dark:border-zinc-800/80 rounded-2xl overflow-hidden shadow-2xs p-5 bg-white dark:bg-zinc-900 flex flex-col justify-between"
               >
                 <div>
                   {/* Top Header */}

@@ -90,26 +90,17 @@ async function performTokenRefresh(): Promise<string> {
  * Builds the full URL with query parameters
  */
 function buildUrl(endpoint: string, params?: RequestOptions["params"]): string {
-  const rawUrl = getApiUrl(endpoint);
-  const baseOrigin =
-    typeof window !== "undefined"
-      ? window.location.origin
-      : process.env.API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
-
-  const fullUrl =
-    rawUrl.startsWith("http://") || rawUrl.startsWith("https://")
-      ? new URL(rawUrl)
-      : new URL(rawUrl.startsWith("/") ? rawUrl : `/${rawUrl}`, baseOrigin);
+  const url = new URL(getApiUrl(endpoint));
 
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        fullUrl.searchParams.append(key, String(value));
+        url.searchParams.append(key, String(value));
       }
     });
   }
 
-  return fullUrl.toString();
+  return url.toString();
 }
 
 /**
@@ -179,6 +170,8 @@ async function request<T>(
       requestSignal = userSignal;
     }
   }
+
+  console.log("SmartPOS API request:", url);
 
   let response: Response;
   try {

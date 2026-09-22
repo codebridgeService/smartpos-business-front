@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { apiClient, RequestOptions } from "@/lib/api/client";
+import { apiClient } from "@/lib/api/client";
+import { getApiUrl } from "@/lib/config/env";
 import { ApiError, parseApiError } from "@/lib/api/errors";
 import { authApi } from "@/lib/api/auth";
 import { productsApi } from "@/lib/api/products";
@@ -13,6 +14,20 @@ describe("Unified API Client & Security Suite", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  describe("getApiUrl URL resolution", () => {
+    it("returns absolute API URL for relative endpoint with leading slash", () => {
+      expect(getApiUrl("/auth/login")).toBe("https://smartpos-api.servicefixit.me/api/v1/auth/login");
+    });
+
+    it("returns absolute API URL for relative endpoint without leading slash", () => {
+      expect(getApiUrl("auth/refresh")).toBe("https://smartpos-api.servicefixit.me/api/v1/auth/refresh");
+    });
+
+    it("preserves already absolute URLs", () => {
+      expect(getApiUrl("https://example.com/custom")).toBe("https://example.com/custom");
+    });
   });
 
   describe("ApiError class", () => {
@@ -89,14 +104,16 @@ describe("Unified API Client & Security Suite", () => {
   });
 
   describe("apiClient HTTP methods & Auth Token Injection", () => {
-    it("automatically adds Bearer token from tokenStorage", async () => {
+    it("automatically adds Bearer token and targets absolute API URL", async () => {
       tokenStorage.setTokens({
         access_token: "test_access_token_123",
         refresh_token: "test_refresh_token_123",
       });
 
+      let capturedUrl: string | undefined;
       let capturedHeaders: Headers | undefined;
       vi.spyOn(global, "fetch").mockImplementation(async (input, init) => {
+        capturedUrl = String(input);
         capturedHeaders = new Headers(init?.headers);
         return new Response(JSON.stringify({ success: true }), {
           status: 200,
@@ -104,8 +121,11 @@ describe("Unified API Client & Security Suite", () => {
         });
       });
 
-      const result = await apiClient.get<{ success: boolean }>("/test-endpoint");
+      const result = await apiClient.get<{ success: boolean }>("/test-endpoint", {
+        params: { search: "coffee", page: 1 },
+      });
       expect(result.success).toBe(true);
+      expect(capturedUrl).toBe("https://smartpos-api.servicefixit.me/api/v1/test-endpoint?search=coffee&page=1");
       expect(capturedHeaders?.get("Authorization")).toBe("Bearer test_access_token_123");
       expect(capturedHeaders?.get("Accept")).toBe("application/json");
     });

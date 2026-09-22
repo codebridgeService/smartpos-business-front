@@ -298,7 +298,7 @@ function BusinessDashboardContent() {
   }
 
   return (
-    <div className="space-y-6 w-full pb-16 select-none">
+    <div className="space-y-6 w-full pb-16 select-none animate-fade-in">
       {/* 1. Page Header: Welcome & Date Range Filter */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -312,7 +312,7 @@ function BusinessDashboardContent() {
 
         <button
           type="button"
-          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-xs font-semibold text-slate-700 dark:text-zinc-300 shadow-2xs hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors self-start sm:self-auto"
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-xs font-semibold text-slate-700 dark:text-zinc-300 shadow-2xs hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors self-start sm:self-auto cursor-pointer"
         >
           <Calendar className="h-4 w-4 text-slate-400" />
           <span>01 Jan 2024 - 07 Jan 2024</span>
@@ -336,7 +336,7 @@ function BusinessDashboardContent() {
           <button
             type="button"
             onClick={() => setIsAlertDismissed(true)}
-            className="text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 p-1 rounded-lg transition-colors"
+            className="text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 p-1 rounded-lg transition-colors cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>
@@ -346,7 +346,7 @@ function BusinessDashboardContent() {
       {/* 3. Primary Metrics (4 Colored Gradient Cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Sales (Orange) */}
-        <div className="relative overflow-hidden p-5 rounded-2xl bg-gradient-to-br from-orange-400 via-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/15">
+        <div className="smooth-card relative overflow-hidden p-5 rounded-2xl bg-gradient-to-br from-orange-400 via-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/15">
           <div className="flex items-center justify-between">
             <div className="h-11 w-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white shadow-inner">
               <FileText className="h-6 w-6" />
@@ -364,7 +364,7 @@ function BusinessDashboardContent() {
         </div>
 
         {/* Total Sales Return (Deep Navy #0e2238) */}
-        <div className="relative overflow-hidden p-5 rounded-2xl bg-[#0e2238] text-white shadow-md">
+        <div className="smooth-card relative overflow-hidden p-5 rounded-2xl bg-[#0e2238] text-white shadow-md">
           <div className="flex items-center justify-between">
             <div className="h-11 w-11 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-white shadow-inner">
               <RefreshCw className="h-5 w-5 text-sky-400" />
@@ -382,7 +382,7 @@ function BusinessDashboardContent() {
         </div>
 
         {/* Total Purchase (Teal #0d9488) */}
-        <div className="relative overflow-hidden p-5 rounded-2xl bg-teal-600 text-white shadow-md shadow-teal-600/15">
+        <div className="smooth-card relative overflow-hidden p-5 rounded-2xl bg-teal-600 text-white shadow-md shadow-teal-600/15">
           <div className="flex items-center justify-between">
             <div className="h-11 w-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white shadow-inner">
               <ShoppingBag className="h-6 w-6" />
@@ -400,7 +400,7 @@ function BusinessDashboardContent() {
         </div>
 
         {/* Total Purchase Return (Blue #2563eb) */}
-        <div className="relative overflow-hidden p-5 rounded-2xl bg-blue-600 text-white shadow-md shadow-blue-600/15">
+        <div className="smooth-card relative overflow-hidden p-5 rounded-2xl bg-blue-600 text-white shadow-md shadow-blue-600/15">
           <div className="flex items-center justify-between">
             <div className="h-11 w-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white shadow-inner">
               <RotateCcw className="h-6 w-6" />
@@ -421,7 +421,7 @@ function BusinessDashboardContent() {
       {/* 4. Secondary Financial KPI Cards (4 White Cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Profit */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
+        <div className="smooth-card p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
           <div className="flex items-start justify-between">
             <div>
               <div className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
@@ -444,7 +444,7 @@ function BusinessDashboardContent() {
         </div>
 
         {/* Invoice Due */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
+        <div className="smooth-card p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
           <div className="flex items-start justify-between">
             <div>
               <div className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
@@ -467,7 +467,7 @@ function BusinessDashboardContent() {
         </div>
 
         {/* Total Expenses */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
+        <div className="smooth-card p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
           <div className="flex items-start justify-between">
             <div>
               <div className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
@@ -490,7 +490,7 @@ function BusinessDashboardContent() {
         </div>
 
         {/* Total Payment */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
+        <div className="smooth-card p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
           <div className="flex items-start justify-between">
             <div>
               <div className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">

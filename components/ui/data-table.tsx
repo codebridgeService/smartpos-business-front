@@ -34,7 +34,7 @@ export function DataTable<T extends Record<string, any>>({
   className = "",
 }: DataTableProps<T>) {
   return (
-    <div className={`w-full overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm ${className}`}>
+    <div className={`w-full overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs transition-shadow duration-200 ${className}`}>
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse text-sm">
           <thead>
@@ -81,7 +81,7 @@ export function DataTable<T extends Record<string, any>>({
               data.map((row, rowIdx) => (
                 <tr
                   key={row.id || row.uuid || rowIdx}
-                  className="hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40 transition-colors"
+                  className="hover:bg-zinc-50/80 dark:hover:bg-zinc-800/50 transition-colors duration-150"
                 >
                   {columns.map((col) => (
                     <td

@@ -61,13 +61,13 @@ export function Modal({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-black/60 backdrop-blur-md transition-opacity animate-fade-in"
         onClick={() => closeOnOutsideClick && onClose()}
       />
 
       {/* Modal Card */}
       <div
-        className={`relative w-full ${sizeClasses[size]} bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden z-10 transition-all transform animate-in fade-in zoom-in-95 duration-150`}
+        className={`relative w-full ${sizeClasses[size]} bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 rounded-3xl shadow-2xl overflow-hidden z-10 animate-scale-in`}
       >
         {/* Header */}
         {(title || description) && (

@@ -94,7 +94,7 @@ export default function BusinessRolesPage() {
   const customCount = roles.filter((r) => !r.is_system).length;
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className="space-y-6 animate-fade-in">
       {/* 1. Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -148,7 +148,7 @@ export default function BusinessRolesPage() {
 
       {/* 2. Stats Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="p-4 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-2xl flex items-center justify-between">
+        <Card className="smooth-card p-4 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-2xl flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Total Roles</span>
             <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mt-1">{roles.length}</h3>
@@ -158,7 +158,7 @@ export default function BusinessRolesPage() {
           </div>
         </Card>
 
-        <Card className="p-4 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-2xl flex items-center justify-between">
+        <Card className="smooth-card p-4 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-2xl flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Custom Business Roles</span>
             <h3 className="text-xl font-bold text-orange-600 dark:text-orange-400 mt-1">{customCount}</h3>
@@ -168,7 +168,7 @@ export default function BusinessRolesPage() {
           </div>
         </Card>
 
-        <Card className="p-4 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-2xl flex items-center justify-between">
+        <Card className="smooth-card p-4 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-2xl flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">System Templates</span>
             <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mt-1">{systemCount}</h3>
@@ -260,7 +260,7 @@ export default function BusinessRolesPage() {
             return (
               <Card
                 key={role.uuid}
-                className="p-5 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-2xl flex flex-col justify-between hover:shadow-lg hover:border-purple-500/30 transition-all shadow-2xs"
+                className="smooth-card p-5 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-2xl flex flex-col justify-between hover:border-purple-500/30 shadow-2xs"
               >
                 <div>
                   {/* Top Bar: Icon & Type Badge */}

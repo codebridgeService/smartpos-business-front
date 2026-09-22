@@ -84,7 +84,7 @@ export function BusinessSwitcher({ isDarkTheme = false, onOpenCreateModal }: Bus
         <ChevronDown
           className={`h-3.5 w-3.5 shrink-0 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
-          } ${isDarkTheme ? "text-white/70" : "text-slate-400 dark:text-zinc-500"}`}
+          } ${isDarkTheme ? "text-white/70" : "text-slate-400 dark:text-zinc-400"}`}
         />
       </button>
 

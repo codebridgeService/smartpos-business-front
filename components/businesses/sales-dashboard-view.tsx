@@ -171,7 +171,7 @@ export function SalesDashboardView() {
       {!isCollapsed && (
         <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
           {/* Weekly Earning Card (Left Wide Card, 6 cols) */}
-          <div className="md:col-span-6 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex items-center justify-between">
+          <div className="md:col-span-6 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs smooth-card flex items-center justify-between">
             <div className="space-y-1">
               <span className="text-xs sm:text-sm font-bold text-orange-500 tracking-tight">
                 Weekly Earning
@@ -252,7 +252,7 @@ export function SalesDashboardView() {
           </div>
 
           {/* No of Total Sales (Solid Orange Card, 3 cols) */}
-          <div className="md:col-span-3 p-6 rounded-2xl bg-[#f97316] text-white shadow-md shadow-orange-500/20 relative flex flex-col justify-between overflow-hidden">
+          <div className="md:col-span-3 p-6 rounded-2xl bg-[#f97316] text-white shadow-md shadow-orange-500/20 smooth-card relative flex flex-col justify-between overflow-hidden">
             <div className="flex items-start justify-between">
               {/* Stack of Coins Icon */}
               <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
@@ -268,7 +268,7 @@ export function SalesDashboardView() {
 
               <button
                 type="button"
-                className="h-7 w-7 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors"
+                className="h-7 w-7 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors cursor-pointer active:scale-95"
                 title="Refresh Total Sales"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
@@ -284,21 +284,20 @@ export function SalesDashboardView() {
           </div>
 
           {/* No of Purchased Goods (Deep Navy Card, 3 cols) */}
-          <div className="md:col-span-3 p-6 rounded-2xl bg-[#0b192c] text-white shadow-md relative flex flex-col justify-between overflow-hidden">
+          <div className="md:col-span-3 p-6 rounded-2xl bg-[#0b192c] text-white shadow-md smooth-card relative flex flex-col justify-between overflow-hidden">
             <div className="flex items-start justify-between">
               {/* Shopping Goods Icon */}
               <div className="h-12 w-12 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="h-7 w-7 text-amber-400" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M6 2 L18 2 L20 7 L4 7 Z" fill="currentColor" fillOpacity="0.2" />
-                  <path d="M4 7 L5 20 C5 21 6 22 7 22 L17 22 C18 22 19 21 19 20 L20 7" />
-                  <circle cx="12" cy="14" r="2.5" />
-                  <path d="M12 11.5 L12 16.5" />
+                <svg viewBox="0 0 24 24" className="h-7 w-7 text-white" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M6 2 L18 2 L20 7 L4 7 Z" fill="currentColor" fillOpacity="0.3" />
+                  <rect x="4" y="7" width="16" height="14" rx="2" strokeWidth="2" />
+                  <path d="M10 11 C10 12.5 11 13.5 12 13.5 C13 13.5 14 12.5 14 11" strokeWidth="2" strokeLinecap="round" />
                 </svg>
               </div>
 
               <button
                 type="button"
-                className="h-7 w-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/80 hover:text-white transition-colors"
+                className="h-7 w-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer active:scale-95"
                 title="Refresh Purchased Goods"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
@@ -318,7 +317,7 @@ export function SalesDashboardView() {
       {/* 3. Middle Section: Best Seller (Left, 4-5 cols) & Recent Transactions (Right, 7-8 cols) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Best Seller Card */}
-        <div className="lg:col-span-4 p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
+        <div className="lg:col-span-4 p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs smooth-card flex flex-col justify-between">
           <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 dark:border-zinc-800">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white">Best Seller</h3>
             <Link href="/coming-soon?feature=best-sellers">
