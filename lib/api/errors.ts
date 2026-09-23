@@ -126,3 +126,25 @@ export async function parseApiError(response: Response): Promise<ApiError> {
 
   return new ApiError(status, message, errors, data);
 }
+
+/**
+ * Type guard to safely identify ApiError instances across module, chunk, and bundling boundaries.
+ */
+export function isApiError(err: unknown): err is ApiError {
+  if (err instanceof ApiError) return true;
+  if (typeof err === "object" && err !== null) {
+    const candidate = err as Record<string, unknown>;
+    if (
+      candidate.name === "ApiError" &&
+      typeof candidate.status === "number" &&
+      typeof candidate.message === "string"
+    ) {
+      // Re-link prototype if lost across chunk or serialization boundaries
+      if (typeof candidate.isValidationError !== "function") {
+        Object.setPrototypeOf(candidate, ApiError.prototype);
+      }
+      return true;
+    }
+  }
+  return false;
+}

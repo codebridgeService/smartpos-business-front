@@ -7,7 +7,7 @@ import { AuthShell } from "@/components/layout";
 import { TextInput, PasswordInput, Button, Alert } from "@/components/ui";
 import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/components/ui/toast";
-import { ApiError } from "@/lib/api";
+import { isApiError } from "@/lib/api";
 import { UserPlus, ArrowLeft } from "lucide-react";
 
 export default function RegisterPage() {
@@ -75,7 +75,8 @@ export default function RegisterPage() {
       toast.success(`Account created! Welcome, ${res.user.name}`);
       router.push("/");
     } catch (err: unknown) {
-      if (err instanceof ApiError) {
+      console.error("[Register Error]:", err);
+      if (isApiError(err)) {
         if (err.isValidationError() && err.errors) {
           const mapped: Record<string, string> = {};
           Object.entries(err.errors).forEach(([field, msgs]) => {
@@ -85,6 +86,8 @@ export default function RegisterPage() {
         } else {
           setErrorBanner(err.message || "Registration failed. Please try again.");
         }
+      } else if (err instanceof Error && err.message) {
+        setErrorBanner(err.message);
       } else {
         setErrorBanner("An unexpected error occurred. Please try again.");
       }
