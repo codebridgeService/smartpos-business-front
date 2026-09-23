@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { AuthShell } from "@/components/layout";
 import { TextInput, PasswordInput, Button, Alert } from "@/components/ui";
-import { apiClient, ApiError } from "@/lib/api";
+import { apiClient, isApiError } from "@/lib/api";
 import { useToast } from "@/components/ui/toast";
 import type {
   ForgotPasswordSendCodeResponse,
@@ -54,12 +54,15 @@ export default function ForgotPasswordPage() {
       toast.success(res.message || "Verification code sent to your email.");
       setStep("verify_otp");
     } catch (err: unknown) {
-      if (err instanceof ApiError) {
+      console.error("[ForgotPassword SendCode Error]:", err);
+      if (isApiError(err)) {
         if (err.isValidationError() && err.errors?.email) {
           setFieldErrors({ email: err.errors.email[0] });
         } else {
           setErrorBanner(err.message);
         }
+      } else if (err instanceof Error && err.message) {
+        setErrorBanner(err.message);
       } else {
         setErrorBanner("Failed to send verification code. Please try again.");
       }
@@ -94,7 +97,8 @@ export default function ForgotPasswordPage() {
       setOtpUuid(res.otp_uuid);
       setStep("new_password");
     } catch (err: unknown) {
-      if (err instanceof ApiError) {
+      console.error("[ForgotPassword VerifyCode Error]:", err);
+      if (isApiError(err)) {
         if (err.status === 429) {
           setErrorBanner("Too many failed attempts. Please request a new code.");
         } else if (err.isValidationError() && err.errors?.code) {
@@ -102,6 +106,8 @@ export default function ForgotPasswordPage() {
         } else {
           setErrorBanner(err.message);
         }
+      } else if (err instanceof Error && err.message) {
+        setErrorBanner(err.message);
       } else {
         setErrorBanner("Invalid verification code.");
       }
@@ -148,7 +154,8 @@ export default function ForgotPasswordPage() {
       toast.success(res.message || "Password reset successfully!");
       setStep("success");
     } catch (err: unknown) {
-      if (err instanceof ApiError) {
+      console.error("[ForgotPassword ResetPassword Error]:", err);
+      if (isApiError(err)) {
         if (err.isValidationError() && err.errors) {
           const mapped: Record<string, string> = {};
           Object.entries(err.errors).forEach(([field, msgs]) => {
@@ -158,6 +165,8 @@ export default function ForgotPasswordPage() {
         } else {
           setErrorBanner(err.message);
         }
+      } else if (err instanceof Error && err.message) {
+        setErrorBanner(err.message);
       } else {
         setErrorBanner("Failed to reset password. Please try again.");
       }

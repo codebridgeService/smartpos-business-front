@@ -164,8 +164,9 @@ async function request<T>(
 
   if (userSignal) {
     // If caller provided their own signal, abort if either fires
-    if ("any" in AbortSignal && typeof (AbortSignal as any).any === "function") {
-      requestSignal = (AbortSignal as any).any([userSignal, timeoutSignal]);
+    const abortSignalWithAny = AbortSignal as unknown as { any?: (signals: AbortSignal[]) => AbortSignal };
+    if (typeof abortSignalWithAny.any === "function") {
+      requestSignal = abortSignalWithAny.any([userSignal, timeoutSignal]);
     } else {
       requestSignal = userSignal;
     }
@@ -185,6 +186,20 @@ async function request<T>(
   } catch (err: unknown) {
     if (err instanceof Error && (err.name === "TimeoutError" || err.name === "AbortError")) {
       throw new ApiError(408, `Request timed out after ${timeout}ms`);
+    }
+    if (err instanceof ApiError) {
+      throw err;
+    }
+    if (
+      err instanceof TypeError ||
+      (err instanceof Error && /fetch|network|load failed/i.test(err.message))
+    ) {
+      throw new ApiError(
+        0,
+        "Unable to connect to the SmartPOS server. Please check your internet connection or verify the service status.",
+        undefined,
+        { originalError: err instanceof Error ? err.message : String(err) }
+      );
     }
     throw err;
   }
@@ -213,7 +228,7 @@ async function request<T>(
   if (response.status === 401 && !_retry && !isAuthEndpoint) {
     if (isRefreshing) {
       // Wait in line until refresh completes
-      return new Promise<T>((resolve, reject) => {
+      return new Promise<T>((resolve) => {
         subscribeTokenRefresh((newToken: string) => {
           options._retry = true;
           options.headers = {

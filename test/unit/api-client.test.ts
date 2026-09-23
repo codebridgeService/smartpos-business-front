@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { apiClient } from "@/lib/api/client";
 import { getApiUrl } from "@/lib/config/env";
-import { ApiError, parseApiError } from "@/lib/api/errors";
+import { ApiError, parseApiError, isApiError } from "@/lib/api/errors";
 import { authApi } from "@/lib/api/auth";
 import { productsApi } from "@/lib/api/products";
 import { tokenStorage } from "@/lib/api/token";
@@ -69,6 +69,33 @@ describe("Unified API Client & Security Suite", () => {
       expect(err502.isServerError()).toBe(true);
       expect(err503.isServerError()).toBe(true);
       expect(new ApiError(400, "Bad Request").isServerError()).toBe(false);
+    });
+  });
+
+  describe("isApiError type guard", () => {
+    it("returns true for instances of ApiError", () => {
+      const err = new ApiError(401, "Unauthorized");
+      expect(isApiError(err)).toBe(true);
+    });
+
+    it("returns true for duck-typed objects with ApiError structure and restores prototype", () => {
+      const detached = {
+        name: "ApiError",
+        status: 422,
+        message: "Validation Error",
+        errors: { field: ["Required"] },
+      };
+      expect(isApiError(detached)).toBe(true);
+      expect((detached as unknown as ApiError).isValidationError()).toBe(true);
+      expect((detached as unknown as ApiError).getFieldError("field")).toBe("Required");
+    });
+
+    it("returns false for standard Error or non-object values", () => {
+      expect(isApiError(new Error("Generic"))).toBe(false);
+      expect(isApiError(new TypeError("Failed to fetch"))).toBe(false);
+      expect(isApiError(null)).toBe(false);
+      expect(isApiError(undefined)).toBe(false);
+      expect(isApiError("error string")).toBe(false);
     });
   });
 
@@ -165,6 +192,21 @@ describe("Unified API Client & Security Suite", () => {
       await apiClient.post("/items", { name: "Latte", price: 3.5 });
       expect(capturedHeaders?.get("Content-Type")).toBe("application/json");
       expect(JSON.parse(capturedBody!)).toEqual({ name: "Latte", price: 3.5 });
+    });
+
+    it("converts network TypeError (Failed to fetch) into ApiError with status 0", async () => {
+      vi.spyOn(global, "fetch").mockRejectedValue(new TypeError("Failed to fetch"));
+
+      await expect(apiClient.get("/test-network-error")).rejects.toThrow(ApiError);
+      try {
+        await apiClient.get("/test-network-error");
+      } catch (err) {
+        expect(isApiError(err)).toBe(true);
+        if (isApiError(err)) {
+          expect(err.status).toBe(0);
+          expect(err.message).toContain("Unable to connect to the SmartPOS server");
+        }
+      }
     });
   });
 

@@ -7,8 +7,8 @@ import { AuthShell } from "@/components/layout";
 import { TextInput, PasswordInput, Button, Alert } from "@/components/ui";
 import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/components/ui/toast";
-import { ApiError } from "@/lib/api";
-import { isOwner, isAdmin, isCashier, hasRole } from "@/lib/utils/roles";
+import { isApiError } from "@/lib/api";
+import { isOwner, isAdmin, isCashier } from "@/lib/utils/roles";
 import { LogIn, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
@@ -124,7 +124,8 @@ export default function LoginPage() {
 
       router.push("/businesses");
     } catch (err: unknown) {
-      if (err instanceof ApiError) {
+      console.error("[Login Error]:", err);
+      if (isApiError(err)) {
         if (err.isValidationError() && err.errors) {
           const mapped: Record<string, string> = {};
           Object.entries(err.errors).forEach(([field, msgs]) => {
@@ -134,6 +135,8 @@ export default function LoginPage() {
         } else {
           setErrorBanner(err.message || "Failed to sign in. Please check your credentials.");
         }
+      } else if (err instanceof Error && err.message) {
+        setErrorBanner(err.message);
       } else {
         setErrorBanner("An unexpected error occurred. Please try again.");
       }

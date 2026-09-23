@@ -13,7 +13,7 @@ export const env = {
   isDevelopment: process.env.NODE_ENV !== "production",
 } as const;
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 /**
  * Returns full API URL for a given relative endpoint path
@@ -24,7 +24,7 @@ export function getApiUrl(endpoint: string): string {
     return endpoint;
   }
 
-  const baseUrl = API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_URL;
+  const baseUrl = API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
   if (!baseUrl) {
     throw new Error("NEXT_PUBLIC_API_BASE_URL is not configured");
   }
