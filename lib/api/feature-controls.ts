@@ -201,8 +201,12 @@ export async function getAnnouncements(params?: {
  * Fetch announcements targeted to current user (Cashier / Staff / Manager / Owner)
  */
 export async function getMyAnnouncements(): Promise<AnnouncementItem[]> {
-  const res = await apiClient.get<ApiResponse<AnnouncementItem[]>>('/announcements/my');
-  return res.data || [];
+  try {
+    const res = await apiClient.get<ApiResponse<AnnouncementItem[]>>('/announcements/my');
+    return res.data || [];
+  } catch {
+    return [];
+  }
 }
 
 /**

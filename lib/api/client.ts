@@ -172,8 +172,6 @@ async function request<T>(
     }
   }
 
-  console.log("SmartPOS API request:", url);
-
   let response: Response;
   try {
     response = await fetch(url, {
