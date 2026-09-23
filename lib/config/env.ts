@@ -3,8 +3,10 @@
  * Centralizes and validates access to environment variables.
  */
 
+const DEFAULT_API_BASE_URL = "https://smartpos-api.servicefixit.me/api/v1";
+
 export const env = {
-  apiBaseUrl: (process.env.NEXT_PUBLIC_API_BASE_URL || "").replace(/\/+$/, ""),
+  apiBaseUrl: (process.env.NEXT_PUBLIC_API_BASE_URL || DEFAULT_API_BASE_URL).replace(/\/+$/, ""),
   appName: process.env.NEXT_PUBLIC_APP_NAME || "SmartPOS Business",
   appEnv: process.env.NEXT_PUBLIC_APP_ENV || "development",
   defaultDeviceType: process.env.NEXT_PUBLIC_DEFAULT_DEVICE_TYPE || "browser",
@@ -12,8 +14,6 @@ export const env = {
   isProduction: process.env.NODE_ENV === "production",
   isDevelopment: process.env.NODE_ENV !== "production",
 } as const;
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 /**
  * Returns full API URL for a given relative endpoint path
@@ -24,11 +24,7 @@ export function getApiUrl(endpoint: string): string {
     return endpoint;
   }
 
-  const baseUrl = API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
-  if (!baseUrl) {
-    throw new Error("NEXT_PUBLIC_API_BASE_URL is not configured");
-  }
-
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || env.apiBaseUrl || DEFAULT_API_BASE_URL;
   const base = baseUrl.replace(/\/+$/, "");
   const path = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
 
