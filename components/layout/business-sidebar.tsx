@@ -295,7 +295,7 @@ export function BusinessSidebar({
           label: "Change Log",
           href: "/businesses/system",
           icon: <GitCommit className="h-4.5 w-4.5 shrink-0 text-orange-500" />,
-          badge: "v1.2.1",
+          badge: "v1.2.2",
           badgeVariant: "orange",
         },
         {
@@ -459,6 +459,126 @@ export function BusinessSidebar({
     );
   };
 
+  const getItemIconTheme = (label: string) => {
+    switch (label) {
+      case "Dashboard":
+        return {
+          idle: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+          open: "bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/40 shadow-xs shadow-blue-500/20",
+        };
+      case "Outlets":
+        return {
+          idle: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20",
+          open: "bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border-cyan-500/40 shadow-xs shadow-cyan-500/20",
+        };
+      case "Cash Registers":
+        return {
+          idle: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+          open: "bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40 shadow-xs shadow-amber-500/20",
+        };
+      case "POS Terminal":
+        return {
+          idle: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+          open: "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/40 shadow-xs shadow-emerald-500/20",
+        };
+      case "Cashier Operations":
+        return {
+          idle: "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20",
+          open: "bg-sky-500/20 text-sky-600 dark:text-sky-400 border-sky-500/40 shadow-xs shadow-sky-500/20",
+        };
+      case "Cash Drawer & Shifts":
+        return {
+          idle: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+          open: "bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40 shadow-xs shadow-amber-500/20",
+        };
+      case "POS Devices":
+        return {
+          idle: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+          open: "bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/40 shadow-xs shadow-purple-500/20",
+        };
+      case "Manage Stock":
+        return {
+          idle: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+          open: "bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/40 shadow-xs shadow-purple-500/20",
+        };
+      case "Products Catalog":
+        return {
+          idle: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20",
+          open: "bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border-indigo-500/40 shadow-xs shadow-indigo-500/20",
+        };
+      case "Category & Brands":
+        return {
+          idle: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20",
+          open: "bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border-cyan-500/40 shadow-xs shadow-cyan-500/20",
+        };
+      case "Units & Scaling":
+        return {
+          idle: "bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20",
+          open: "bg-teal-500/20 text-teal-600 dark:text-teal-400 border-teal-500/40 shadow-xs shadow-teal-500/20",
+        };
+      case "Stock Adjustment":
+        return {
+          idle: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+          open: "bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40 shadow-xs shadow-amber-500/20",
+        };
+      case "Stock Transfer":
+        return {
+          idle: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+          open: "bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/40 shadow-xs shadow-blue-500/20",
+        };
+      case "Staff & Members":
+        return {
+          idle: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20",
+          open: "bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border-indigo-500/40 shadow-xs shadow-indigo-500/20",
+        };
+      case "Users Management":
+        return {
+          idle: "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20",
+          open: "bg-sky-500/20 text-sky-600 dark:text-sky-400 border-sky-500/40 shadow-xs shadow-sky-500/20",
+        };
+      case "Roles & RBAC":
+        return {
+          idle: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+          open: "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/40 shadow-xs shadow-emerald-500/20",
+        };
+      case "Permissions Directory":
+        return {
+          idle: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+          open: "bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40 shadow-xs shadow-amber-500/20",
+        };
+      case "General Settings":
+        return {
+          idle: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+          open: "bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/40 shadow-xs shadow-blue-500/20",
+        };
+      case "App & Hardware":
+        return {
+          idle: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+          open: "bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/40 shadow-xs shadow-purple-500/20",
+        };
+      case "Financial Settings":
+        return {
+          idle: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+          open: "bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40 shadow-xs shadow-amber-500/20",
+        };
+      case "Change Log":
+        return {
+          idle: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20",
+          open: "bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-500/40 shadow-xs shadow-orange-500/20",
+        };
+      case "Logout":
+        return {
+          idle: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
+          open: "bg-rose-500/20 text-rose-600 dark:text-rose-400 border-rose-500/40 shadow-xs shadow-rose-500/20",
+        };
+      default:
+        return {
+          idle: "bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-300 border-slate-200/60 dark:border-zinc-700/60",
+          open: "bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-500/40 shadow-xs shadow-orange-500/20",
+        };
+    }
+  };
+
   const businessInitial = activeBusiness?.name ? activeBusiness.name.charAt(0).toUpperCase() : "B";
 
   return (
@@ -581,6 +701,8 @@ export function BusinessSidebar({
                       item.href !== "#logout" &&
                       pathname.startsWith(item.href + "/"));
 
+                  const iconTheme = getItemIconTheme(item.label);
+
                   return (
                     <div key={item.label} className="space-y-0.5 relative group">
                       {item.isAction ? (
@@ -592,11 +714,12 @@ export function BusinessSidebar({
                             } ${inactiveStyle}`}
                         >
                           <div className={`flex items-center ${isCollapsed ? "justify-center w-full" : "w-full min-w-0"}`}>
-                            <span
-                              className={`shrink-0 flex items-center justify-center w-5 h-5 transition-colors ${inactiveIcon}`}
+                            {/* Color-coded Icon Box */}
+                            <div
+                              className={`w-7 h-7 rounded-xl flex items-center justify-center border transition-all duration-200 shrink-0 ${iconTheme.idle} group-hover:scale-105`}
                             >
                               {item.icon}
-                            </span>
+                            </div>
                             <div
                               className={`flex items-center justify-between min-w-0 flex-1 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden whitespace-nowrap ${isCollapsed
                                 ? "max-w-0 opacity-0 -translate-x-2 pointer-events-none ml-0"
@@ -623,12 +746,16 @@ export function BusinessSidebar({
                             }`}
                         >
                           <div className={`flex items-center ${isCollapsed ? "justify-center w-full" : "w-full min-w-0"}`}>
-                            <span
-                              className={`transition-colors shrink-0 flex items-center justify-center w-5 h-5 ${isTopLevelActive || isAnyChildActive ? activeIcon : inactiveIcon
-                                }`}
+                            {/* Color-coded Icon Box */}
+                            <div
+                              className={`w-7 h-7 rounded-xl flex items-center justify-center border transition-all duration-200 shrink-0 ${
+                                isTopLevelActive || isOpen
+                                  ? iconTheme.open
+                                  : `${iconTheme.idle} group-hover:scale-105`
+                              }`}
                             >
                               {item.icon}
-                            </span>
+                            </div>
                             <div
                               className={`flex items-center justify-between min-w-0 flex-1 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden whitespace-nowrap ${isCollapsed
                                 ? "max-w-0 opacity-0 -translate-x-2 pointer-events-none ml-0"
@@ -669,12 +796,16 @@ export function BusinessSidebar({
                             } ${isTopLevelActive ? activeStyle : inactiveStyle}`}
                         >
                           <div className={`flex items-center ${isCollapsed ? "justify-center w-full" : "w-full min-w-0"}`}>
-                            <span
-                              className={`transition-colors shrink-0 flex items-center justify-center w-5 h-5 ${isTopLevelActive ? activeIcon : inactiveIcon
-                                }`}
+                            {/* Color-coded Icon Box */}
+                            <div
+                              className={`w-7 h-7 rounded-xl flex items-center justify-center border transition-all duration-200 shrink-0 ${
+                                isTopLevelActive
+                                  ? iconTheme.open
+                                  : `${iconTheme.idle} group-hover:scale-105`
+                              }`}
                             >
                               {item.icon}
-                            </span>
+                            </div>
                             <div
                               className={`flex items-center justify-between min-w-0 flex-1 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden whitespace-nowrap ${isCollapsed
                                 ? "max-w-0 opacity-0 -translate-x-2 pointer-events-none ml-0"
@@ -696,7 +827,7 @@ export function BusinessSidebar({
                       {hasChildren && (
                         <div
                           className={`transition-all duration-300 ease-in-out overflow-hidden ${isOpen && !isCollapsed
-                            ? "max-h-96 opacity-100 pl-9 pr-2 space-y-0.5 py-1"
+                            ? "max-h-96 opacity-100 pl-8 pr-2 space-y-0.5 py-1"
                             : "max-h-0 opacity-0 pointer-events-none py-0"
                             }`}
                         >
@@ -707,7 +838,7 @@ export function BusinessSidebar({
                               }
                               const currentHref =
                                 typeof window !== "undefined" && window.location.search
-                                  ? `${pathname}${window.location.search}`
+                                    ? `${pathname}${window.location.search}`
                                   : pathname;
                               return currentHref === child.href;
                             })();
@@ -721,9 +852,9 @@ export function BusinessSidebar({
                                   if (child.onClick) child.onClick();
                                   if (onItemClick) onItemClick();
                                 }}
-                                className={`flex items-center justify-between px-3 py-2 rounded-xl text-[13.5px] transition-all duration-150 ease-out hover:translate-x-1 ${isChildActive
+                                className={`group flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all duration-150 cursor-pointer ${isChildActive
                                   ? isDarkSidebar
-                                    ? "bg-white/20 text-white font-medium"
+                                    ? "bg-white/20 text-white font-medium shadow-xs"
                                     : currentAccent.activeLight
                                   : isDarkSidebar
                                     ? "text-white/70 hover:text-white hover:bg-white/10 font-normal"
@@ -731,12 +862,24 @@ export function BusinessSidebar({
                                   }`}
                               >
                                 <div className="flex items-center gap-2.5 min-w-0">
-                                  <span
-                                    className={`w-1.5 h-1.5 rounded-full shrink-0 transition-all duration-200 ${isChildActive
-                                      ? "bg-orange-500 ring-4 ring-orange-200/80 dark:ring-orange-950 scale-110"
-                                      : "bg-slate-300 dark:bg-zinc-600"
+                                  {child.icon ? (
+                                    <span
+                                      className={`shrink-0 transition-colors ${
+                                        isChildActive
+                                          ? "text-orange-500 dark:text-orange-400"
+                                          : "text-slate-400 dark:text-zinc-500 group-hover:text-slate-700 dark:group-hover:text-zinc-200"
                                       }`}
-                                  />
+                                    >
+                                      {child.icon}
+                                    </span>
+                                  ) : (
+                                    <span
+                                      className={`w-1.5 h-1.5 rounded-full shrink-0 transition-all duration-200 ${isChildActive
+                                        ? "bg-orange-500 ring-4 ring-orange-200/80 dark:ring-orange-950 scale-110"
+                                        : "bg-slate-300 dark:bg-zinc-600"
+                                        }`}
+                                    />
+                                  )}
                                   <span
                                     className={`truncate ${isChildActive ? "font-semibold text-orange-600 dark:text-orange-400" : ""
                                       }`}
@@ -744,7 +887,12 @@ export function BusinessSidebar({
                                     {child.label}
                                   </span>
                                 </div>
-                                {child.badge && renderBadge(child.badge, child.badgeVariant, isChildActive)}
+                                <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                                  {isChildActive && (
+                                    <span className="h-1.5 w-1.5 rounded-full bg-orange-500 shadow-xs" />
+                                  )}
+                                  {child.badge && renderBadge(child.badge, child.badgeVariant, isChildActive)}
+                                </div>
                               </Link>
                             );
                           })}

@@ -1,9 +1,32 @@
-import { SystemChangelog, CreateChangelogPayload, ChangelogComponent } from "@/types/changelog";
+import {
+  SystemChangelog,
+  CreateChangelogPayload,
+  UpdateChangelogPayload,
+  ChangelogComponent,
+} from "@/types/changelog";
 
 const API_BASE = process.env.NEXT_PUBLIC_BUSINESS_API_URL || "http://localhost:8002/api/v1";
 const STORAGE_KEY = "smartpos_system_changelogs_cache";
 
 export const INITIAL_CHANGELOGS: SystemChangelog[] = [
+  {
+    id: 5,
+    version: "v1.2.2",
+    title: "Sidebar Hover Expansion, Zero-Blur UI & Select Key Deduplication",
+    component: "FRONTEND",
+    change_type: "IMPROVEMENT",
+    summary: "Refined navigation with interactive hover-to-expand Admin & Business sidebars, eliminated all backdrop/layout blurs across modals and navigation for high visual clarity, and resolved React duplicate key warnings in dropdown selects.",
+    changes_list: [
+      "Sidebar Hover Expansion: Smoothly auto-expands the sidebar on mouse hover when collapsed, keeping navigation open without collapse flickers.",
+      "Dedicated Toggle Icons: Distinct open and close sidebar toggle icons with accessible tooltip guidance.",
+      "Zero-Blur Clean Aesthetics: Removed all backdrop-blur and layout-blur filters across modals, headers, and dashboard shells.",
+      "Select & Role Deduplication: Composite index keying in Select component and deduplicated role choices (owner, admin, manager, cashier) in user modals.",
+    ],
+    author_name: "SmartPOS Frontend Engineering",
+    author_email: "frontend@smartpos.local",
+    is_published: true,
+    published_at: new Date().toISOString(),
+  },
   {
     id: 4,
     version: "v1.2.1",
@@ -20,7 +43,7 @@ export const INITIAL_CHANGELOGS: SystemChangelog[] = [
     author_name: "SmartPOS Engineering",
     author_email: "dev@smartpos.local",
     is_published: true,
-    published_at: new Date().toISOString(),
+    published_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
   },
   {
     id: 3,
@@ -85,7 +108,15 @@ function getStoredLogs(): SystemChangelog[] {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_CHANGELOGS));
       return INITIAL_CHANGELOGS;
     }
-    return JSON.parse(raw);
+    const parsed: SystemChangelog[] = JSON.parse(raw);
+    const existingIds = new Set(parsed.map((p) => p.id));
+    const missing = INITIAL_CHANGELOGS.filter((i) => !existingIds.has(i.id));
+    if (missing.length > 0) {
+      const merged = [...missing, ...parsed].sort((a, b) => b.id - a.id);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+      return merged;
+    }
+    return parsed;
   } catch {
     return INITIAL_CHANGELOGS;
   }
@@ -180,6 +211,52 @@ export const ChangelogApi = {
     const updated = [newLog, ...stored];
     saveStoredLogs(updated);
     return newLog;
+  },
+
+  async updateChangelog(id: number, payload: UpdateChangelogPayload): Promise<SystemChangelog> {
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("auth_access_token") : null;
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const res = await fetch(`${API_BASE}/changelogs/${id}`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data) {
+          const stored = getStoredLogs();
+          const updated = stored.map((item) => (item.id === id ? { ...item, ...json.data } : item));
+          saveStoredLogs(updated);
+          return json.data;
+        }
+      }
+    } catch {
+      // Local fallback
+    }
+
+    const stored = getStoredLogs();
+    let updatedLog: SystemChangelog | null = null;
+    const updated = stored.map((item) => {
+      if (item.id === id) {
+        updatedLog = {
+          ...item,
+          ...payload,
+          changes_list: payload.changes_list ?? item.changes_list,
+          updated_at: new Date().toISOString(),
+        } as SystemChangelog;
+        return updatedLog;
+      }
+      return item;
+    });
+    saveStoredLogs(updated);
+    return updatedLog || (payload as SystemChangelog);
   },
 
   async deleteChangelog(id: number): Promise<boolean> {

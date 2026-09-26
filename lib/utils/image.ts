@@ -128,3 +128,70 @@ export function convertImageToWebP(
     reader.readAsDataURL(file);
   });
 }
+
+/**
+ * Normalizes and resolves an avatar image URL from user profile data.
+ * Prioritizes `avatar_url`, handles relative storage paths, fixes potential localhost
+ * mismatches with remote API endpoints, and returns null if no valid image is present.
+ */
+export function getAvatarUrl(
+  avatarUrl?: string | null,
+  avatar?: string | null
+): string | null {
+  // Prefer avatar_url if provided and valid, otherwise fallback to avatar
+  let raw =
+    avatarUrl && typeof avatarUrl === "string" && avatarUrl.trim()
+      ? avatarUrl.trim()
+      : avatar && typeof avatar === "string" && avatar.trim()
+      ? avatar.trim()
+      : null;
+
+  if (!raw) return null;
+
+  const apiBase =
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    "https://smartpos-api.servicefixit.me/api/v1";
+  const backendOrigin = apiBase.replace(/\/api\/v1\/?$/, "");
+
+  // If URL points to localhost while backend origin is remote (e.g. backend APP_URL misconfiguration)
+  if (
+    backendOrigin &&
+    !backendOrigin.includes("localhost") &&
+    !backendOrigin.includes("127.0.0.1")
+  ) {
+    if (
+      raw.startsWith("http://localhost") ||
+      raw.startsWith("http://127.0.0.1") ||
+      raw.startsWith("https://localhost")
+    ) {
+      try {
+        const parsed = new URL(raw);
+        raw = `${backendOrigin}${parsed.pathname}${parsed.search}`;
+      } catch {
+        // Keep raw if invalid URL
+      }
+    }
+  }
+
+  // If already an absolute URL or blob/data URI
+  if (
+    raw.startsWith("http://") ||
+    raw.startsWith("https://") ||
+    raw.startsWith("data:") ||
+    raw.startsWith("blob:")
+  ) {
+    return raw;
+  }
+
+  // Handle relative paths
+  if (raw.startsWith("/")) {
+    return backendOrigin ? `${backendOrigin}${raw}` : raw;
+  }
+
+  if (raw.startsWith("storage/")) {
+    return backendOrigin ? `${backendOrigin}/${raw}` : `/${raw}`;
+  }
+
+  return backendOrigin ? `${backendOrigin}/storage/${raw}` : `/storage/${raw}`;
+}
+

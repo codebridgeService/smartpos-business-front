@@ -63,6 +63,8 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
   const [isSidebarHovered, setIsSidebarHovered] = useState(false);
   const sidebarOpenTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const sidebarCloseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isHoverSuppressedRef = useRef(false);
+  const hoverSuppressionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const {
     layoutMode,
@@ -78,16 +80,21 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
   const isEffectiveCollapsed = isMini && !isSidebarHovered;
 
   const handleSidebarMouseEnter = () => {
+    if (isHoverSuppressedRef.current) return;
+
     if (sidebarCloseTimeoutRef.current) {
       clearTimeout(sidebarCloseTimeoutRef.current);
       sidebarCloseTimeoutRef.current = null;
     }
+
     if (isMini && !isSidebarHovered) {
       if (!sidebarOpenTimeoutRef.current) {
         sidebarOpenTimeoutRef.current = setTimeout(() => {
-          setIsSidebarHovered(true);
+          if (!isHoverSuppressedRef.current) {
+            setIsSidebarHovered(true);
+          }
           sidebarOpenTimeoutRef.current = null;
-        }, 50); // fast and snappy 50ms prevents accidental flicker
+        }, 30);
       }
     }
   };
@@ -97,20 +104,46 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
       clearTimeout(sidebarOpenTimeoutRef.current);
       sidebarOpenTimeoutRef.current = null;
     }
-    if (isMini) {
+
+    if (isMini && isSidebarHovered) {
       if (!sidebarCloseTimeoutRef.current) {
+        // Safe 350ms delay: moving across elements, scrollbars, or submenus never causes accidental collapse
         sidebarCloseTimeoutRef.current = setTimeout(() => {
           setIsSidebarHovered(false);
           sidebarCloseTimeoutRef.current = null;
-        }, 150); // 150ms gentle exit delay
+        }, 350);
       }
     }
+  };
+
+  const handleToggleCollapse = () => {
+    if (sidebarOpenTimeoutRef.current) {
+      clearTimeout(sidebarOpenTimeoutRef.current);
+      sidebarOpenTimeoutRef.current = null;
+    }
+    if (sidebarCloseTimeoutRef.current) {
+      clearTimeout(sidebarCloseTimeoutRef.current);
+      sidebarCloseTimeoutRef.current = null;
+    }
+
+    const nextCollapsed = !isAdminSidebarCollapsed;
+    setIsAdminSidebarCollapsed(nextCollapsed);
+    setIsSidebarHovered(false);
+
+    // Temporarily suppress hover for 500ms so the cursor over the button doesn't immediately re-open it
+    isHoverSuppressedRef.current = true;
+    if (hoverSuppressionTimeoutRef.current) clearTimeout(hoverSuppressionTimeoutRef.current);
+    hoverSuppressionTimeoutRef.current = setTimeout(() => {
+      isHoverSuppressedRef.current = false;
+      hoverSuppressionTimeoutRef.current = null;
+    }, 500);
   };
 
   useEffect(() => {
     return () => {
       if (sidebarOpenTimeoutRef.current) clearTimeout(sidebarOpenTimeoutRef.current);
       if (sidebarCloseTimeoutRef.current) clearTimeout(sidebarCloseTimeoutRef.current);
+      if (hoverSuppressionTimeoutRef.current) clearTimeout(hoverSuppressionTimeoutRef.current);
     };
   }, []);
 
@@ -173,10 +206,7 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
       {layoutMode !== "without-header" && (
         <AdminNavbar
           isCollapsed={showAdminSidebar && isEffectiveCollapsed}
-          onToggleCollapse={() => {
-            setIsAdminSidebarCollapsed(!isAdminSidebarCollapsed);
-            setIsSidebarHovered(false);
-          }}
+          onToggleCollapse={handleToggleCollapse}
           onOpenMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           onSidebarMouseEnter={handleSidebarMouseEnter}
           onSidebarMouseLeave={handleSidebarMouseLeave}
@@ -197,6 +227,8 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
         {/* Sidebar for Desktop */}
         {layoutMode !== "horizontal" && (
           <div
+            onMouseEnter={handleSidebarMouseEnter}
+            onMouseLeave={handleSidebarMouseLeave}
             className={`hidden lg:block sticky top-16 shrink-0 ${
               layoutMode === "detached" ? "h-[calc(100vh-4rem-1.5rem)] my-3 ml-3" : "h-[calc(100vh-4rem)]"
             } transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-[width] z-30 ${
@@ -224,10 +256,7 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
               {showAdminSidebar ? (
                 <AdminSidebar
                   isCollapsed={isEffectiveCollapsed}
-                  onToggleCollapse={() => {
-                    setIsAdminSidebarCollapsed(!isAdminSidebarCollapsed);
-                    setIsSidebarHovered(false);
-                  }}
+                  onToggleCollapse={handleToggleCollapse}
                 />
               ) : (
                 <div className="space-y-1 flex-1 min-h-0 sidebar-scrollbar overflow-y-auto">

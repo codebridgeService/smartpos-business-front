@@ -30,7 +30,9 @@ import {
   ShoppingCart,
   Users2,
   Hash,
+  X,
 } from "lucide-react";
+import { useToast } from "@/components/ui/toast";
 import { useBusiness } from "@/context/business-context";
 import { useRoleStore, DEFAULT_SYSTEM_ROLES } from "@/stores/useRoleStore";
 import type { Role, LengthAwarePaginator, ApiListResponse } from "@/types";
@@ -233,7 +235,9 @@ export default function AdminRolesPage() {
     fetchRoles,
     getFilteredRoles,
     syncPermissions,
+    createRole,
   } = useRoleStore();
+
 
   useEffect(() => {
     void fetchRoles(selectedBusinessUuid, currentPage);
@@ -299,14 +303,15 @@ export default function AdminRolesPage() {
                   <span>Auto-Provision</span>
                 </button>
 
-                <button
-                  onClick={() => setIsCreateModalOpen(true)}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-xs font-bold bg-primary hover:bg-primary/90 text-white transition-all active:scale-[0.98] shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 border border-white/10"
-                >
-                  <Plus className="h-4 w-4 stroke-[3]" />
-                  <span>New Role</span>
-                </button>
-                
+                <Link href="/admin/roles/create" className="flex-1 sm:flex-none">
+                  <button
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white transition-all active:scale-[0.98] shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 border border-white/10"
+                  >
+                    <Plus className="h-4 w-4 stroke-[3]" />
+                    <span>New Role</span>
+                  </button>
+                </Link>
+
                 <button
                   onClick={() => void fetchRoles(selectedBusinessUuid, currentPage)}
                   disabled={isLoading}
@@ -352,11 +357,10 @@ export default function AdminRolesPage() {
         <div className="inline-flex p-1.5 bg-secondary/50 backdrop-blur-xl rounded-2xl shadow-inner border border-border w-full max-w-2xl">
           <button
             onClick={() => setActiveTab("roles")}
-            className={`flex-1 flex items-center justify-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
-              activeTab === "roles"
+            className={`flex-1 flex items-center justify-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${activeTab === "roles"
                 ? "bg-accent text-foreground shadow-sm ring-1 ring-border"
                 : "text-slate-500 hover:text-foreground hover:bg-card/40"
-            }`}
+              }`}
           >
             <Shield className={`h-4 w-4 ${activeTab === "roles" ? "text-indigo-600 dark:text-indigo-400" : ""}`} />
             <span>Roles Configuration</span>
@@ -368,11 +372,10 @@ export default function AdminRolesPage() {
           </button>
           <button
             onClick={() => setActiveTab("users")}
-            className={`flex-1 flex items-center justify-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
-              activeTab === "users"
+            className={`flex-1 flex items-center justify-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${activeTab === "users"
                 ? "bg-accent text-foreground shadow-sm ring-1 ring-border"
                 : "text-slate-500 hover:text-foreground hover:bg-card/40"
-            }`}
+              }`}
           >
             <Users className={`h-4 w-4 ${activeTab === "users" ? "text-purple-600 dark:text-purple-400" : ""}`} />
             <span>User Assignments</span>
@@ -427,31 +430,28 @@ export default function AdminRolesPage() {
               <div className="flex items-center gap-2 p-1.5 bg-muted/50 rounded-2xl border border-border/80 overflow-x-auto no-scrollbar">
                 <button
                   onClick={() => setFilterType("all")}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-                    filterType === "all"
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${filterType === "all"
                       ? "bg-accent text-foreground shadow-sm ring-1 ring-border"
                       : "text-slate-500 hover:text-foreground"
-                  }`}
+                    }`}
                 >
                   All ({roles.length})
                 </button>
                 <button
                   onClick={() => setFilterType("system")}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-                    filterType === "system"
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${filterType === "system"
                       ? "bg-blue-600 text-white shadow-md shadow-primary/20"
                       : "text-slate-500 hover:text-primary"
-                  }`}
+                    }`}
                 >
                   System Templates ({systemRolesCount})
                 </button>
                 <button
                   onClick={() => setFilterType("custom")}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-                    filterType === "custom"
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${filterType === "custom"
                       ? "bg-purple-600 text-white shadow-md shadow-purple-500/20"
                       : "text-slate-500 hover:text-purple-600 dark:hover:text-purple-400"
-                  }`}
+                    }`}
                 >
                   Custom ({customRolesCount})
                 </button>
@@ -468,7 +468,7 @@ export default function AdminRolesPage() {
               </div>
               <h3 className="text-xl font-black text-foreground">Nothing in sight</h3>
               <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto text-center leading-relaxed">
-                We couldn't find any roles matching <span className="font-bold text-foreground">"{searchQuery}"</span>. 
+                We couldn't find any roles matching <span className="font-bold text-foreground">"{searchQuery}"</span>.
                 Try a different keyword or adjust your filters.
               </p>
               <button
@@ -498,7 +498,7 @@ export default function AdminRolesPage() {
                     <div
                       className={`absolute inset-x-0 -top-10 h-40 bg-gradient-to-b ${config.gradient} blur-2xl pointer-events-none transition-opacity duration-500 opacity-50 group-hover:opacity-100`}
                     />
-                    
+
                     {/* Decorative corner accent */}
                     <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/10 dark:bg-black/10 rounded-full blur-2xl pointer-events-none transition-transform duration-700 group-hover:scale-150" />
 
@@ -600,11 +600,10 @@ export default function AdminRolesPage() {
                           onClick={() => setRoleToDelete(role)}
                           disabled={isSystem}
                           title={isSystem ? "System roles are protected" : "Delete custom role"}
-                          className={`h-10 w-10 flex items-center justify-center rounded-xl border transition-all active:scale-95 ${
-                            isSystem
+                          className={`h-10 w-10 flex items-center justify-center rounded-xl border transition-all active:scale-95 ${isSystem
                               ? "bg-muted/50 border-border text-muted-foreground cursor-not-allowed"
                               : "bg-card border-border text-slate-500 hover:text-destructive hover:bg-destructive/10 hover:border-destructive/30 hover:shadow-md"
-                          }`}
+                            }`}
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -650,7 +649,7 @@ export default function AdminRolesPage() {
 
       {/* Modals */}
       <CreateRoleModal
-        isOpen={isCreateModalOpen}
+        isOpen={false}
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={async () => {
           await fetchRoles(selectedBusinessUuid, currentPage);

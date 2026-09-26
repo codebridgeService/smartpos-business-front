@@ -1,8 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import {
+  Eye,
   EyeOff,
+  Key,
   ShieldCheck,
   Phone,
   Mail,
@@ -23,6 +26,7 @@ import {
 } from 'lucide-react';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
+import { TextInput } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/toast';
 import { useAuth } from '@/context/auth-context';
@@ -89,6 +93,10 @@ export function SecurityView() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({});
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
 
   // Phone / Email form state
@@ -167,10 +175,31 @@ export function SecurityView() {
   // Password Submit
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPassword !== confirmPassword) {
-      toast.error('New passwords do not match');
+    setPasswordErrors({});
+
+    const newErrors: Record<string, string> = {};
+
+    if (!currentPassword) {
+      newErrors.current_password = 'Current password is required.';
+    }
+
+    if (!newPassword) {
+      newErrors.password = 'New password is required.';
+    } else if (newPassword.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters long.';
+    }
+
+    if (!confirmPassword) {
+      newErrors.password_confirmation = 'Please confirm your new password.';
+    } else if (newPassword !== confirmPassword) {
+      newErrors.password_confirmation = 'New passwords do not match.';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setPasswordErrors(newErrors);
       return;
     }
+
     setIsSavingPassword(true);
     try {
       await apiClient.post('/auth/change-password', {
@@ -179,15 +208,31 @@ export function SecurityView() {
         password_confirmation: confirmPassword,
       });
       toast.success('Password updated successfully');
-      setLastPasswordChange(new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ', ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      setLastPasswordChange(
+        new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) +
+        ', ' +
+        new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      );
       setIsPasswordModalOpen(false);
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
+      setPasswordErrors({});
     } catch (err: any) {
-      toast.success('Password updated successfully');
-      setLastPasswordChange(new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ', ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-      setIsPasswordModalOpen(false);
+      const fieldErrors = err?.data?.errors;
+      if (fieldErrors && typeof fieldErrors === 'object') {
+        const formatted: Record<string, string> = {};
+        Object.entries(fieldErrors).forEach(([field, messages]) => {
+          formatted[field] = Array.isArray(messages) ? messages[0] : String(messages);
+        });
+        setPasswordErrors(formatted);
+      }
+
+      const msg =
+        err?.data?.message ||
+        err?.message ||
+        'Failed to update password. Please check your credentials.';
+      toast.error(msg);
     } finally {
       setIsSavingPassword(false);
     }
@@ -568,60 +613,124 @@ export function SecurityView() {
       {isPasswordModalOpen && (
         <Modal
           isOpen={isPasswordModalOpen}
-          onClose={() => setIsPasswordModalOpen(false)}
+          onClose={() => {
+            setIsPasswordModalOpen(false);
+            setPasswordErrors({});
+            setCurrentPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
+          }}
           title="Change Account Password"
           description="Update your password to maintain rigorous account security."
         >
           <form onSubmit={handlePasswordSubmit} className="space-y-4 pt-2">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">
-                Current Password
-              </label>
-              <input
-                type="password"
-                required
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-zinc-700 rounded-lg bg-slate-50 dark:bg-zinc-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#F26522]"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">
-                New Password
-              </label>
-              <input
-                type="password"
-                required
-                minLength={8}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Minimum 8 characters"
-                className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-zinc-700 rounded-lg bg-slate-50 dark:bg-zinc-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#F26522]"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">
-                Confirm New Password
-              </label>
-              <input
-                type="password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Re-type new password"
-                className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-zinc-700 rounded-lg bg-slate-50 dark:bg-zinc-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#F26522]"
-              />
+            <TextInput
+              id="security-current-password"
+              type={showCurrentPassword ? "text" : "password"}
+              label="Current Password"
+              value={currentPassword}
+              onChange={(e) => {
+                setCurrentPassword(e.target.value);
+                if (passwordErrors.current_password) {
+                  setPasswordErrors((prev) => ({ ...prev, current_password: "" }));
+                }
+              }}
+              error={passwordErrors.current_password}
+              leftIcon={<Key className="h-4 w-4" />}
+              placeholder="••••••••"
+              rightIcon={
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  className="hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+                  aria-label={showCurrentPassword ? "Hide current password" : "Show current password"}
+                >
+                  {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              }
+            />
+
+            <div className="flex justify-end -mt-2">
+              <Link
+                href={user?.email ? `/auth/forgot-password?email=${encodeURIComponent(user.email)}` : "/auth/forgot-password"}
+                className="text-xs font-medium text-[#F26522] hover:underline transition-colors"
+                onClick={() => setIsPasswordModalOpen(false)}
+              >
+                Forgot your password?
+              </Link>
             </div>
 
+            <TextInput
+              id="security-new-password"
+              type={showNewPassword ? "text" : "password"}
+              label="New Password"
+              value={newPassword}
+              onChange={(e) => {
+                setNewPassword(e.target.value);
+                if (passwordErrors.password) {
+                  setPasswordErrors((prev) => ({ ...prev, password: "" }));
+                }
+              }}
+              error={passwordErrors.password}
+              leftIcon={<Key className="h-4 w-4" />}
+              placeholder="Minimum 8 characters"
+              rightIcon={
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+                  aria-label={showNewPassword ? "Hide new password" : "Show new password"}
+                >
+                  {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              }
+            />
+
+            <TextInput
+              id="security-confirm-password"
+              type={showConfirmPassword ? "text" : "password"}
+              label="Confirm New Password"
+              value={confirmPassword}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                if (passwordErrors.password_confirmation) {
+                  setPasswordErrors((prev) => ({ ...prev, password_confirmation: "" }));
+                }
+              }}
+              error={passwordErrors.password_confirmation}
+              leftIcon={<Key className="h-4 w-4" />}
+              placeholder="Re-type new password"
+              rightIcon={
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+                  aria-label={showConfirmPassword ? "Hide confirmation password" : "Show confirmation password"}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              }
+            />
+
             <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-zinc-800">
-              <Button variant="ghost" size="sm" type="button" onClick={() => setIsPasswordModalOpen(false)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
+                onClick={() => {
+                  setIsPasswordModalOpen(false);
+                  setPasswordErrors({});
+                  setCurrentPassword('');
+                  setNewPassword('');
+                  setConfirmPassword('');
+                }}
+              >
                 Cancel
               </Button>
               <button
                 type="submit"
                 disabled={isSavingPassword}
-                className="px-5 py-2 rounded-lg bg-[#F26522] hover:bg-[#d9531e] text-white text-xs font-semibold shadow-xs transition-colors"
+                className="px-5 py-2 rounded-lg bg-[#F26522] hover:bg-[#d9531e] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSavingPassword ? 'Updating...' : 'Save Password'}
               </button>

@@ -209,7 +209,7 @@ export function HorizontalNav() {
         { label: "Register Shifts", href: "/businesses/pos/shifts", icon: <History className="h-3.5 w-3.5" /> },
         { label: "Cash Drawer", href: "/businesses/pos/drawer", icon: <Calculator className="h-3.5 w-3.5" /> },
         { label: "Feature Controls", href: "/admin/system/feature-controls", icon: <ShieldAlert className="h-3.5 w-3.5" />, badge: "Control", badgeVariant: "orange" },
-        { label: "Change Log", href: "/admin/system/changelogs", icon: <GitCommit className="h-3.5 w-3.5 text-orange-500" />, badge: "v1.2.1", badgeVariant: "orange" },
+        { label: "Change Log", href: "/admin/system/changelogs", icon: <GitCommit className="h-3.5 w-3.5 text-orange-500" />, badge: "v1.2.2", badgeVariant: "orange" },
       ],
     },
     {

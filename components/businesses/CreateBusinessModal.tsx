@@ -154,7 +154,7 @@ export function CreateBusinessModal({
   const loadRoles = useCallback(async () => {
     setIsLoadingRoles(true);
     try {
-      const res = await rolesApi.getRoles({ per_page: 50 });
+      const res = await rolesApi.getRoles({ per_page: 50, is_system: true });
       let roles: Role[] = [];
       if (Array.isArray(res)) {
         roles = res;
@@ -162,7 +162,7 @@ export function CreateBusinessModal({
         roles = res.data;
       }
       if (roles.length > 0) {
-        setAvailableRoles(roles);
+        setAvailableRoles(roles.filter((r) => Boolean(r.is_system)));
       }
     } catch {
       // Fallback to static list if offline
@@ -322,16 +322,17 @@ export function CreateBusinessModal({
     }
   };
 
-  // Compile combined role list (API roles + Fallbacks)
-  const displayRoles = availableRoles.length > 0
-    ? availableRoles.map((r) => {
+  // Compile combined role list: only System Roles from Identity API (or fallbacks)
+  const systemRoles = availableRoles.filter((r) => Boolean(r.is_system));
+  const displayRoles = systemRoles.length > 0
+    ? systemRoles.map((r) => {
         const fallback = FALLBACK_OWNER_ROLES.find((f) => f.code === r.code);
         return {
           uuid: r.uuid,
           code: r.code,
           name: r.name,
-          badge: r.is_system ? "System Role" : "Custom Role",
-          desc: fallback?.desc || `Role for ${r.name} with configured privileges.`,
+          badge: "System Role",
+          desc: fallback?.desc || `System role for ${r.name} with configured privileges.`,
           permissionsCount: r.permissions?.length ?? 0,
         };
       })
@@ -637,11 +638,11 @@ export function CreateBusinessModal({
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {displayRoles.map((r) => {
+                {displayRoles.map((r, idx) => {
                   const isSelected = (formData.owner_role_code || "owner") === r.code;
                   return (
                     <button
-                      key={r.uuid || r.code}
+                      key={r.uuid ? `${r.uuid}-${idx}` : `${r.code}-${idx}`}
                       type="button"
                       onClick={() => handleRoleSelect(r.code, r.uuid)}
                       className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${

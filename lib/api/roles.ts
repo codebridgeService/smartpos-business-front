@@ -22,12 +22,14 @@ export const rolesApi = {
     page?: number;
     per_page?: number;
     business_uuid?: string | null;
+    is_system?: boolean;
   }): Promise<LengthAwarePaginator<Role> | ApiListResponse<Role> | Role[]> {
     return apiClient.get<LengthAwarePaginator<Role> | ApiListResponse<Role> | Role[]>("/roles", {
       params: {
         page: params?.page ?? 1,
         per_page: params?.per_page ?? 20,
         business_uuid: params?.business_uuid || undefined,
+        is_system: params?.is_system !== undefined ? (params.is_system ? 1 : 0) : undefined,
       },
     });
   },

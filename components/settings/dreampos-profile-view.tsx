@@ -15,6 +15,7 @@ import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { apiClient } from "@/lib/api";
+import { getAvatarUrl } from "../../lib/utils/image";
 import { AvatarUploadModal } from "./avatar-upload-modal";
 import { DeleteAvatarModal } from "./delete-avatar-modal";
 
@@ -24,6 +25,7 @@ export function DreamPosProfileView() {
 
   const [isAvatarUploadOpen, setIsAvatarUploadOpen] = useState(false);
   const [isAvatarDeleteOpen, setIsAvatarDeleteOpen] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   // Form Fields matching screenshot
@@ -122,7 +124,12 @@ export function DreamPosProfileView() {
     }
   };
 
-  const avatarSrc = user?.avatar || (user as unknown as { avatar_url?: string })?.avatar_url;
+  const avatarSrc = getAvatarUrl(user?.avatar_url, user?.avatar);
+
+  // Reset error state when avatar changes
+  useEffect(() => {
+    setImageError(false);
+  }, [avatarSrc]);
 
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 p-6 sm:p-8 shadow-xs">
@@ -144,12 +151,13 @@ export function DreamPosProfileView() {
               onClick={() => setIsAvatarUploadOpen(true)}
               className="group relative h-28 w-28 rounded-2xl border-2 border-dashed border-zinc-200 dark:border-zinc-700 hover:border-orange-400 bg-zinc-50/70 dark:bg-zinc-800/40 flex flex-col items-center justify-center cursor-pointer transition-all overflow-hidden shrink-0"
             >
-              {avatarSrc ? (
+              {avatarSrc && !imageError ? (
                 <>
                   <img
                     src={avatarSrc}
                     alt={user?.name || "Avatar"}
                     className="h-full w-full object-cover"
+                    onError={() => setImageError(true)}
                   />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white text-[10px] font-medium">
                     Change
@@ -176,7 +184,7 @@ export function DreamPosProfileView() {
                   Upload Image
                 </Button>
 
-                {avatarSrc && (
+                {avatarSrc && !imageError && (
                   <Button
                     type="button"
                     variant="outline"

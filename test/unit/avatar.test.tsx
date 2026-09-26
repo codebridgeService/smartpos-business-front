@@ -2,6 +2,7 @@ import React from "react";
 import { describe, it, expect } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { Avatar } from "@/components/ui/avatar";
+import { getAvatarUrl } from "@/lib/utils/image";
 
 describe("Avatar Component", () => {
   it("renders initials fallback when src is not provided", () => {
@@ -62,5 +63,31 @@ describe("Avatar Component", () => {
     expect(wrapper.title).toContain("Status: active");
     expect(wrapper.title).toContain("Last Login:");
     expect(wrapper.title).toContain(`IP: ${ip}`);
+  });
+});
+
+describe("getAvatarUrl utility", () => {
+  it("returns null when no avatar or avatar_url is provided", () => {
+    expect(getAvatarUrl(null, null)).toBeNull();
+    expect(getAvatarUrl("", "")).toBeNull();
+    expect(getAvatarUrl(undefined, undefined)).toBeNull();
+  });
+
+  it("returns avatar_url directly when it is a full https URL", () => {
+    const url = "https://example.com/avatar.webp";
+    expect(getAvatarUrl(url, "avatars/old.webp")).toBe(url);
+  });
+
+  it("resolves relative storage path when avatar_url is not provided", () => {
+    const resolved = getAvatarUrl(null, "avatars/photo.jpg");
+    expect(resolved).toContain("avatars/photo.jpg");
+    expect(resolved?.startsWith("http")).toBe(true);
+  });
+
+  it("rewrites localhost avatar_url to API host origin if API host is remote", () => {
+    const localhostUrl = "http://localhost/storage/avatars/user.webp";
+    const resolved = getAvatarUrl(localhostUrl, null);
+    expect(resolved).not.toContain("localhost");
+    expect(resolved).toContain("storage/avatars/user.webp");
   });
 });

@@ -11,27 +11,8 @@ import {
   Globe,
   Receipt,
   UserCheck,
-  PackagePlus,
-  ClockAlert,
-  TrendingDown,
-  FolderTree,
-  GitFork,
-  Award,
-  Scale,
-  SlidersHorizontal,
   BadgeCheck,
-  Barcode,
-  QrCode,
-  Layers,
-  TrendingUp,
-  ArrowLeftRight,
-  Calculator,
-  Tablet,
-  History,
-  Settings,
-  ShieldAlert,
   ChevronRight,
-  Store,
   Key,
   Boxes,
   Users,
@@ -42,6 +23,25 @@ import {
   Nut,
   LogOut,
   GitCommit,
+  MessageSquare,
+  Calendar,
+  Mail,
+  CheckSquare,
+  Folder,
+  PanelLeftClose,
+  Moon,
+  Landmark,
+  Percent,
+  Coins,
+  HardDrive,
+  Ban,
+  RotateCcw,
+  Sliders,
+  Calculator,
+  Tablet,
+  ShieldAlert,
+  Layers,
+  SlidersHorizontal,
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { useOutlet } from "@/context/outlet-context";
@@ -97,12 +97,6 @@ export function AdminSidebar({
     });
   };
 
-  // Navigation sections matching Dreams POS Admin Specification:
-  // Main:
-  // - Dashboard (direct link)
-  // - Super Admin (dropdown folder containing: Dashboard, Companies, Subscriptions, Packages, Domain, Purchase Transaction)
-  // - Application (dropdown folder)
-  // - Layouts (dropdown folder)
   const sections: AdminNavSection[] = [
     {
       title: "Main",
@@ -168,27 +162,27 @@ export function AdminSidebar({
             {
               label: "Chat",
               href: "/coming-soon?feature=chat",
-              icon: <Boxes className="h-3.5 w-3.5 shrink-0" />,
+              icon: <MessageSquare className="h-3.5 w-3.5 shrink-0" />,
             },
             {
               label: "Calendar",
               href: "/coming-soon?feature=calendar",
-              icon: <Boxes className="h-3.5 w-3.5 shrink-0" />,
+              icon: <Calendar className="h-3.5 w-3.5 shrink-0" />,
             },
             {
               label: "Email",
               href: "/coming-soon?feature=email",
-              icon: <Boxes className="h-3.5 w-3.5 shrink-0" />,
+              icon: <Mail className="h-3.5 w-3.5 shrink-0" />,
             },
             {
               label: "To Do",
               href: "/coming-soon?feature=todo",
-              icon: <Boxes className="h-3.5 w-3.5 shrink-0" />,
+              icon: <CheckSquare className="h-3.5 w-3.5 shrink-0" />,
             },
             {
               label: "File Manager",
               href: "/coming-soon?feature=file-manager",
-              icon: <Boxes className="h-3.5 w-3.5 shrink-0" />,
+              icon: <Folder className="h-3.5 w-3.5 shrink-0" />,
             },
           ],
         },
@@ -200,17 +194,17 @@ export function AdminSidebar({
             {
               label: "Default",
               href: "/coming-soon?feature=layout-default",
-              icon: <Layers className="h-3.5 w-3.5 shrink-0" />,
+              icon: <LayoutGrid className="h-3.5 w-3.5 shrink-0" />,
             },
             {
               label: "Mini Sidebar",
               href: "/coming-soon?feature=layout-mini",
-              icon: <Layers className="h-3.5 w-3.5 shrink-0" />,
+              icon: <PanelLeftClose className="h-3.5 w-3.5 shrink-0" />,
             },
             {
               label: "Dark Mode",
               href: "/coming-soon?feature=layout-dark",
-              icon: <Layers className="h-3.5 w-3.5 shrink-0" />,
+              icon: <Moon className="h-3.5 w-3.5 shrink-0" />,
             },
           ],
         },
@@ -245,101 +239,12 @@ export function AdminSidebar({
       ],
     },
     {
-      title: "Inventory",
-      showDivider: true,
-      items: [
-        {
-          label: "Products",
-          href: "/coming-soon?feature=products",
-          icon: <Package className="h-4.5 w-4.5 shrink-0" />,
-        },
-        {
-          label: "Create Product",
-          href: "/coming-soon?feature=create-product",
-          icon: <PackagePlus className="h-4.5 w-4.5 shrink-0" />,
-        },
-        {
-          label: "Expired Products",
-          href: "/coming-soon?feature=expired-products",
-          icon: <ClockAlert className="h-4.5 w-4.5 shrink-0" />,
-        },
-        {
-          label: "Low Stocks",
-          href: "/coming-soon?feature=low-stocks",
-          icon: <TrendingDown className="h-4.5 w-4.5 shrink-0" />,
-          badge: "Alert",
-          badgeVariant: "warning",
-        },
-        {
-          label: "Category",
-          href: "/coming-soon?feature=category",
-          icon: <FolderTree className="h-4.5 w-4.5 shrink-0" />,
-        },
-        {
-          label: "Sub Category",
-          href: "/coming-soon?feature=sub-category",
-          icon: <GitFork className="h-4.5 w-4.5 shrink-0" />,
-        },
-        {
-          label: "Brands",
-          href: "/coming-soon?feature=brands",
-          icon: <Award className="h-4.5 w-4.5 shrink-0" />,
-        },
-        {
-          label: "Units",
-          href: "/coming-soon?feature=units",
-          icon: <Scale className="h-4.5 w-4.5 shrink-0" />,
-        },
-        {
-          label: "Variant Attributes",
-          href: "/coming-soon?feature=variant-attributes",
-          icon: <SlidersHorizontal className="h-4.5 w-4.5 shrink-0" />,
-        },
-        {
-          label: "Warranties",
-          href: "/coming-soon?feature=warranties",
-          icon: <BadgeCheck className="h-4.5 w-4.5 shrink-0" />,
-        },
-        {
-          label: "Print Barcode",
-          href: "/coming-soon?feature=print-barcode",
-          icon: <Barcode className="h-4.5 w-4.5 shrink-0" />,
-        },
-        {
-          label: "Print QR Code",
-          href: "/coming-soon?feature=print-qr-code",
-          icon: <QrCode className="h-4.5 w-4.5 shrink-0" />,
-        },
-      ],
-    },
-    {
-      title: "Stock",
-      showDivider: true,
-      items: [
-        {
-          label: "Manage Stock",
-          href: "/admin/warehouses",
-          icon: <Layers className="h-4.5 w-4.5 shrink-0" />,
-        },
-        {
-          label: "Stock Adjustment",
-          href: "/coming-soon?feature=stock-adjustment",
-          icon: <TrendingUp className="h-4.5 w-4.5 shrink-0" />,
-        },
-        {
-          label: "Stock Transfer",
-          href: "/coming-soon?feature=stock-transfer",
-          icon: <ArrowLeftRight className="h-4.5 w-4.5 shrink-0" />,
-        },
-      ],
-    },
-    {
-      title: "Store & Operations",
+      title: "Platform & Operations",
       showDivider: true,
       items: [
         {
           label: "Business Master",
-          href: "/businesses",
+          href: "/admin/businesses",
           icon: <Building2 className="h-4.5 w-4.5 shrink-0" />,
           badge: "Multi-Tenant",
           badgeVariant: "orange",
@@ -357,26 +262,9 @@ export function AdminSidebar({
           badgeVariant: "neutral",
         },
         {
-          label: "Cash Drawer & Shifts",
-          href: "/businesses/pos/shifts",
-          icon: <History className="h-4.5 w-4.5 shrink-0" />,
-          children: [
-            {
-              label: "Register Shifts",
-              href: "/businesses/pos/shifts",
-              icon: <History className="h-3.5 w-3.5 shrink-0" />,
-            },
-            {
-              label: "Cash Drawer",
-              href: "/businesses/pos/drawer",
-              icon: <Calculator className="h-3.5 w-3.5 shrink-0" />,
-            },
-          ],
-        },
-        {
           label: "Feature Controls",
           href: "/admin/system/feature-controls",
-          icon: <ShieldAlert className="h-4.5 w-4.5 shrink-0" />,
+          icon: <Sliders className="h-4.5 w-4.5 shrink-0" />,
           badge: "Control",
           badgeVariant: "orange",
         },
@@ -389,7 +277,7 @@ export function AdminSidebar({
           label: "Change Log",
           href: "/admin/system/changelogs",
           icon: <GitCommit className="h-4.5 w-4.5 shrink-0 text-orange-500" />,
-          badge: "v1.2.1",
+          badge: "v1.2.2",
           badgeVariant: "orange",
         },
       ],
@@ -401,7 +289,7 @@ export function AdminSidebar({
         {
           label: "General Settings",
           href: "/admin/settings?tab=profile",
-          icon: <Settings className="h-4.5 w-4.5 shrink-0" />,
+          icon: <SlidersHorizontal className="h-4.5 w-4.5 shrink-0" />,
           children: [
             { label: "Profile", href: "/admin/settings?tab=profile", icon: <UserCheck className="h-3.5 w-3.5 shrink-0" /> },
             { label: "Security", href: "/admin/settings?tab=security", icon: <ShieldAlert className="h-3.5 w-3.5 shrink-0" /> },
@@ -438,8 +326,8 @@ export function AdminSidebar({
           href: "/admin/settings?tab=email-settings",
           icon: <Monitor className="h-4.5 w-4.5 shrink-0" />,
           children: [
-            { label: "Email SMTP Server", href: "/admin/settings?tab=email-settings", icon: <Boxes className="h-3.5 w-3.5 shrink-0" /> },
-            { label: "SMS Gateways", href: "/admin/settings?tab=sms-gateways", icon: <Smartphone className="h-3.5 w-3.5 shrink-0" /> },
+            { label: "Email SMTP Server", href: "/admin/settings?tab=email-settings", icon: <Mail className="h-3.5 w-3.5 shrink-0" /> },
+            { label: "SMS Gateways", href: "/admin/settings?tab=sms-gateways", icon: <MessageSquare className="h-3.5 w-3.5 shrink-0" /> },
             { label: "OTP & 2FA Governance", href: "/admin/settings?tab=otp-settings", icon: <ShieldAlert className="h-3.5 w-3.5 shrink-0" /> },
             { label: "Data Privacy & GDPR", href: "/admin/settings?tab=gdpr-compliance", icon: <BadgeCheck className="h-3.5 w-3.5 shrink-0" /> },
           ],
@@ -450,9 +338,9 @@ export function AdminSidebar({
           icon: <CircleDollarSign className="h-4.5 w-4.5 shrink-0" />,
           children: [
             { label: "Payment Gateways", href: "/admin/settings?tab=payment-gateways", icon: <CreditCard className="h-3.5 w-3.5 shrink-0" /> },
-            { label: "Bank Accounts", href: "/admin/settings?tab=bank-accounts", icon: <Building2 className="h-3.5 w-3.5 shrink-0" /> },
-            { label: "Tax Rates & Surcharges", href: "/admin/settings?tab=tax-rates", icon: <Receipt className="h-3.5 w-3.5 shrink-0" /> },
-            { label: "Currencies & Rates", href: "/admin/settings?tab=currencies", icon: <CircleDollarSign className="h-3.5 w-3.5 shrink-0" /> },
+            { label: "Bank Accounts", href: "/admin/settings?tab=bank-accounts", icon: <Landmark className="h-3.5 w-3.5 shrink-0" /> },
+            { label: "Tax Rates & Surcharges", href: "/admin/settings?tab=tax-rates", icon: <Percent className="h-3.5 w-3.5 shrink-0" /> },
+            { label: "Currencies & Rates", href: "/admin/settings?tab=currencies", icon: <Coins className="h-3.5 w-3.5 shrink-0" /> },
           ],
         },
         {
@@ -460,9 +348,9 @@ export function AdminSidebar({
           href: "/admin/settings?tab=storage-settings",
           icon: <Nut className="h-4.5 w-4.5 shrink-0" />,
           children: [
-            { label: "Storage & File System", href: "/admin/settings?tab=storage-settings", icon: <Layers className="h-3.5 w-3.5 shrink-0" /> },
-            { label: "Banned IP Addresses", href: "/admin/settings?tab=ban-ip", icon: <ShieldAlert className="h-3.5 w-3.5 shrink-0" /> },
-            { label: "Clear Cache & Re-index", href: "/admin/settings?tab=clear-cache", icon: <History className="h-3.5 w-3.5 shrink-0" /> },
+            { label: "Storage & File System", href: "/admin/settings?tab=storage-settings", icon: <HardDrive className="h-3.5 w-3.5 shrink-0" /> },
+            { label: "Banned IP Addresses", href: "/admin/settings?tab=ban-ip", icon: <Ban className="h-3.5 w-3.5 shrink-0" /> },
+            { label: "Clear Cache & Re-index", href: "/admin/settings?tab=clear-cache", icon: <RotateCcw className="h-3.5 w-3.5 shrink-0" /> },
           ],
         },
         {
@@ -520,13 +408,16 @@ export function AdminSidebar({
   const sidebarPreset = getSidebarPreset();
   const isDarkSidebar = sidebarPreset.isDark;
 
-  const accentThemeMap: Record<string, {
-    activeLight: string;
-    activeDark: string;
-    icon: string;
-    chevronLight: string;
-    chevronDark: string;
-  }> = {
+  const accentThemeMap: Record<
+    string,
+    {
+      activeLight: string;
+      activeDark: string;
+      icon: string;
+      chevronLight: string;
+      chevronDark: string;
+    }
+  > = {
     orange: {
       activeLight: "bg-[#FFF6EE] dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 font-medium shadow-xs",
       activeDark: "bg-orange-500 text-white font-medium shadow-md shadow-orange-500/25",
@@ -578,62 +469,190 @@ export function AdminSidebar({
     },
   };
 
-  const currentAccent = accentThemeMap[themeColor] || accentThemeMap.orange;
+  const currentAccent = accentThemeMap[themeColor] || accentThemeMap.blue;
   const activeStyle = isDarkSidebar ? currentAccent.activeDark : currentAccent.activeLight;
   const inactiveStyle = isDarkSidebar
     ? "text-white/80 hover:bg-white/10 hover:text-white font-normal"
     : "text-slate-700 dark:text-zinc-300 font-normal hover:bg-slate-100/60 dark:hover:bg-zinc-800/40 hover:text-slate-900 dark:hover:text-zinc-100";
-  const inactiveIcon = isDarkSidebar ? "text-white/70 group-hover:text-white" : "text-slate-400 dark:text-zinc-500 group-hover:text-slate-700 dark:group-hover:text-zinc-200";
-  const activeIcon = isDarkSidebar ? "text-white" : currentAccent.icon;
   const chevronActive = isDarkSidebar ? currentAccent.chevronDark : currentAccent.chevronLight;
-  const chevronInactive = isDarkSidebar ? "bg-white/10 text-white/70 group-hover:text-white" : "bg-slate-100 dark:bg-zinc-800 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-zinc-200";
+  const chevronInactive = isDarkSidebar
+    ? "bg-white/10 text-white/70 group-hover:text-white"
+    : "bg-slate-100 dark:bg-zinc-800 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-zinc-200";
 
   // Helper for badge styling
   const renderBadge = (badge: string, variant?: string, isActive?: boolean) => {
+    if (variant === "orange") {
+      return (
+        <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-orange-500/20 text-orange-400 border border-orange-500/30">
+          {badge}
+        </span>
+      );
+    }
+    if (variant === "warning") {
+      return (
+        <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-400 border border-amber-500/30">
+          {badge}
+        </span>
+      );
+    }
+    if (variant === "success") {
+      return (
+        <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+          {badge}
+        </span>
+      );
+    }
+    if (variant === "danger") {
+      return (
+        <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-rose-500/20 text-rose-400 border border-rose-500/30">
+          {badge}
+        </span>
+      );
+    }
     if (isDarkSidebar) {
       return (
-        <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md ${isActive ? "bg-white/25 text-white" : "bg-white/15 text-white"
-          }`}>
+        <span
+          className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md border ${
+            isActive
+              ? "bg-white/20 text-white border-white/30"
+              : "bg-white/10 text-white/80 border-white/15"
+          }`}
+        >
           {badge}
         </span>
       );
     }
     return (
       <span
-        className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md ${isActive
-          ? "bg-orange-500/15 text-orange-600 dark:text-orange-300"
-          : variant === "warning"
-            ? "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300"
-            : variant === "success"
-              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
-              : variant === "orange"
-                ? "bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300"
-                : variant === "danger"
-                  ? "bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300"
-                  : "bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-300"
-          }`}
+        className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md border ${
+          isActive
+            ? "bg-blue-500/15 text-blue-600 dark:text-blue-300 border-blue-500/20"
+            : "bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-300 border-slate-200 dark:border-zinc-700"
+        }`}
       >
         {badge}
       </span>
     );
   };
 
+  const getItemIconTheme = (label: string) => {
+    switch (label) {
+      case "Dashboard":
+        return {
+          idle: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+          open: "bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/40 shadow-xs shadow-blue-500/20",
+        };
+      case "Super Admin":
+        return {
+          idle: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+          open: "bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40 shadow-xs shadow-amber-500/20",
+        };
+      case "Application":
+        return {
+          idle: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20",
+          open: "bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border-indigo-500/40 shadow-xs shadow-indigo-500/20",
+        };
+      case "Layouts":
+        return {
+          idle: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20",
+          open: "bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border-cyan-500/40 shadow-xs shadow-cyan-500/20",
+        };
+      case "Roles & Security":
+        return {
+          idle: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+          open: "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/40 shadow-xs shadow-emerald-500/20",
+        };
+      case "Business Master":
+        return {
+          idle: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20",
+          open: "bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-500/40 shadow-xs shadow-orange-500/20",
+        };
+      case "Cash Registers":
+        return {
+          idle: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+          open: "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/40 shadow-xs shadow-emerald-500/20",
+        };
+      case "POS Devices":
+        return {
+          idle: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20",
+          open: "bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border-indigo-500/40 shadow-xs shadow-indigo-500/20",
+        };
+      case "Feature Controls":
+        return {
+          idle: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20",
+          open: "bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-500/40 shadow-xs shadow-orange-500/20",
+        };
+      case "Announcements":
+        return {
+          idle: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+          open: "bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40 shadow-xs shadow-amber-500/20",
+        };
+      case "Change Log":
+        return {
+          idle: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+          open: "bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/40 shadow-xs shadow-purple-500/20",
+        };
+      case "General Settings":
+        return {
+          idle: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+          open: "bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/40 shadow-xs shadow-blue-500/20",
+        };
+      case "Website Settings":
+        return {
+          idle: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20",
+          open: "bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border-cyan-500/40 shadow-xs shadow-cyan-500/20",
+        };
+      case "App Settings":
+        return {
+          idle: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+          open: "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/40 shadow-xs shadow-emerald-500/20",
+        };
+      case "System Settings":
+        return {
+          idle: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+          open: "bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/40 shadow-xs shadow-purple-500/20",
+        };
+      case "Financial Settings":
+        return {
+          idle: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+          open: "bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40 shadow-xs shadow-amber-500/20",
+        };
+      case "Other Settings":
+        return {
+          idle: "bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20",
+          open: "bg-slate-500/20 text-slate-600 dark:text-slate-400 border-slate-500/40 shadow-xs",
+        };
+      case "Logout":
+        return {
+          idle: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
+          open: "bg-rose-500/20 text-rose-600 dark:text-rose-400 border-rose-500/40 shadow-xs shadow-rose-500/20",
+        };
+      default:
+        return {
+          idle: "bg-slate-500/10 text-slate-600 dark:text-zinc-400 border-slate-500/20",
+          open: "bg-slate-500/20 text-slate-600 dark:text-zinc-300 border-slate-500/40 shadow-xs",
+        };
+    }
+  };
+
   return (
     <div className={`flex flex-col h-full select-none overflow-hidden ${className}`}>
-      {/* Navigation Sections starting directly at top matching Dreams POS design */}
-      <div className={`flex-1 min-h-0 sidebar-scrollbar py-1 pb-10 space-y-1 ${isCollapsed ? "" : "pr-0.5"}`}>
+      {/* Navigation Sections */}
+      <div className={`flex-1 min-h-0 sidebar-scrollbar overflow-y-auto py-1 space-y-1 ${isCollapsed ? "" : "pr-0.5"}`}>
         {sections.map((section, sIdx) => {
           return (
             <div key={sIdx} className="space-y-0.5">
               {/* Section Header */}
               <div
-                className={`transition-all duration-300 ease-in-out overflow-hidden ${isCollapsed
-                  ? "max-h-0 opacity-0 py-0"
-                  : "max-h-8 opacity-100 px-3 pt-3 pb-1.5"
-                  }`}
+                className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                  isCollapsed ? "max-h-0 opacity-0 py-0" : "max-h-8 opacity-100 px-3 pt-3 pb-1.5"
+                }`}
               >
-                <div className={`text-[11px] font-bold uppercase tracking-wider whitespace-nowrap ${isDarkSidebar ? "text-white/50" : "text-slate-400 dark:text-zinc-500"
-                  }`}>
+                <div
+                  className={`text-[11px] font-bold uppercase tracking-wider whitespace-nowrap ${
+                    isDarkSidebar ? "text-white/50" : "text-slate-400 dark:text-zinc-500"
+                  }`}
+                >
                   {section.title}
                 </div>
               </div>
@@ -648,21 +667,49 @@ export function AdminSidebar({
                   const isOpen = openDropdowns[item.label] ?? false;
 
                   const isSettingsGroupActive =
-                    (item.label === "General Settings" && (activeKey.includes("tab=profile") || activeKey.includes("tab=security") || activeKey.includes("tab=notifications") || activeKey.includes("tab=connected-apps"))) ||
-                    (item.label === "Website Settings" && (activeKey.includes("tab=system-info") || activeKey.includes("tab=company-settings") || activeKey.includes("tab=localization") || activeKey.includes("tab=prefixes") || activeKey.includes("tab=preferences"))) ||
-                    (item.label === "App Settings" && (activeKey.includes("tab=pos-pin") || activeKey.includes("tab=invoice-settings") || activeKey.includes("tab=printers") || activeKey.includes("tab=pos-settings") || activeKey.includes("tab=custom-fields"))) ||
-                    (item.label === "System Settings" && (activeKey.includes("tab=email-settings") || activeKey.includes("tab=sms-gateways") || activeKey.includes("tab=otp-settings") || activeKey.includes("tab=gdpr-compliance"))) ||
-                    (item.label === "Financial Settings" && (activeKey.includes("tab=payment-gateways") || activeKey.includes("tab=bank-accounts") || activeKey.includes("tab=tax-rates") || activeKey.includes("tab=currencies"))) ||
-                    (item.label === "Other Settings" && (activeKey.includes("tab=storage-settings") || activeKey.includes("tab=ban-ip") || activeKey.includes("tab=clear-cache") || activeKey.includes("tab=other")));
+                    (item.label === "General Settings" &&
+                      (activeKey.includes("tab=profile") ||
+                        activeKey.includes("tab=security") ||
+                        activeKey.includes("tab=notifications") ||
+                        activeKey.includes("tab=connected-apps"))) ||
+                    (item.label === "Website Settings" &&
+                      (activeKey.includes("tab=system-info") ||
+                        activeKey.includes("tab=company-settings") ||
+                        activeKey.includes("tab=localization") ||
+                        activeKey.includes("tab=prefixes") ||
+                        activeKey.includes("tab=preferences"))) ||
+                    (item.label === "App Settings" &&
+                      (activeKey.includes("tab=pos-pin") ||
+                        activeKey.includes("tab=invoice-settings") ||
+                        activeKey.includes("tab=printers") ||
+                        activeKey.includes("tab=pos-settings") ||
+                        activeKey.includes("tab=custom-fields"))) ||
+                    (item.label === "System Settings" &&
+                      (activeKey.includes("tab=email-settings") ||
+                        activeKey.includes("tab=sms-gateways") ||
+                        activeKey.includes("tab=otp-settings") ||
+                        activeKey.includes("tab=gdpr-compliance"))) ||
+                    (item.label === "Financial Settings" &&
+                      (activeKey.includes("tab=payment-gateways") ||
+                        activeKey.includes("tab=bank-accounts") ||
+                        activeKey.includes("tab=tax-rates") ||
+                        activeKey.includes("tab=currencies"))) ||
+                    (item.label === "Other Settings" &&
+                      (activeKey.includes("tab=storage-settings") ||
+                        activeKey.includes("tab=ban-ip") ||
+                        activeKey.includes("tab=clear-cache") ||
+                        activeKey.includes("tab=other")));
 
                   const isTopLevelActive = hasChildren
-                    ? ((activeKey || pathname) === item.href || (!isOpen && (isAnyChildActive || isSettingsGroupActive)))
+                    ? (activeKey || pathname) === item.href ||
+                      (!isOpen && (isAnyChildActive || isSettingsGroupActive))
                     : (activeKey || pathname) === item.href ||
-                    (item.href !== "/admin/dashboard" &&
-                      item.href !== "/admin/pos" &&
-                      item.href !== "#" &&
-                      item.href !== "#logout" &&
-                      pathname.startsWith(item.href + "/"));
+                      (item.href !== "/admin/dashboard" &&
+                        item.href !== "#" &&
+                        item.href !== "#logout" &&
+                        pathname.startsWith(item.href + "/"));
+
+                  const iconTheme = getItemIconTheme(item.label);
 
                   return (
                     <div key={item.label} className="space-y-0.5 relative group">
@@ -671,19 +718,23 @@ export function AdminSidebar({
                           type="button"
                           onClick={() => handleActionClick(item)}
                           title={isCollapsed ? item.label : undefined}
-                          className={`group flex items-center rounded-2xl text-[14px] transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] text-left cursor-pointer w-full h-11 focus:outline-none ${isCollapsed ? "justify-center px-0" : "px-3"
-                            } ${inactiveStyle}`}
+                          className={`group flex items-center rounded-2xl text-[14px] transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] text-left cursor-pointer w-full h-11 focus:outline-none ${
+                            isCollapsed ? "justify-center px-0" : "px-3"
+                          } ${inactiveStyle}`}
                         >
                           <div className={`flex items-center ${isCollapsed ? "justify-center w-full" : "w-full min-w-0"}`}>
-                            <span className={`shrink-0 flex items-center justify-center w-5 h-5 transition-colors ${inactiveIcon
-                              }`}>
-                              {item.icon}
-                            </span>
+                            {/* Color-coded Icon Box */}
                             <div
-                              className={`flex items-center justify-between min-w-0 flex-1 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden whitespace-nowrap ${isCollapsed
-                                ? "max-w-0 opacity-0 -translate-x-2 pointer-events-none ml-0"
-                                : "max-w-[200px] opacity-100 translate-x-0 ml-3"
-                                }`}
+                              className={`w-7 h-7 rounded-xl flex items-center justify-center border transition-all duration-200 shrink-0 ${iconTheme.idle} group-hover:scale-105`}
+                            >
+                              {item.icon}
+                            </div>
+                            <div
+                              className={`flex items-center justify-between min-w-0 flex-1 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden whitespace-nowrap ${
+                                isCollapsed
+                                  ? "max-w-0 opacity-0 -translate-x-2 pointer-events-none ml-0"
+                                  : "max-w-[200px] opacity-100 translate-x-0 ml-3"
+                              }`}
                             >
                               <span className="truncate">{item.label}</span>
                             </div>
@@ -694,43 +745,54 @@ export function AdminSidebar({
                           type="button"
                           onClick={() => handleGroupClick(item)}
                           title={isCollapsed ? item.label : undefined}
-                          className={`group flex items-center rounded-2xl text-[14px] transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] text-left cursor-pointer w-full h-11 focus:outline-none ${isCollapsed ? "justify-center px-0" : "px-3"
-                            } ${isTopLevelActive
+                          className={`group flex items-center rounded-2xl text-[14px] transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] text-left cursor-pointer w-full h-11 focus:outline-none ${
+                            isCollapsed ? "justify-center px-0" : "px-3"
+                          } ${
+                            isTopLevelActive
                               ? activeStyle
                               : isOpen && !isCollapsed
-                                ? isDarkSidebar ? "bg-white/10 text-white font-medium" : "text-slate-900 dark:text-zinc-100 font-medium hover:bg-slate-100/60 dark:hover:bg-zinc-800/40"
+                                ? isDarkSidebar
+                                  ? "bg-white/10 text-white font-medium"
+                                  : "text-slate-900 dark:text-zinc-100 font-medium hover:bg-slate-100/60 dark:hover:bg-zinc-800/40"
                                 : inactiveStyle
-                            }`}
+                          }`}
                         >
                           <div className={`flex items-center ${isCollapsed ? "justify-center w-full" : "w-full min-w-0"}`}>
-                            <span
-                              className={`transition-colors shrink-0 flex items-center justify-center w-5 h-5 ${isTopLevelActive || isAnyChildActive
-                                ? activeIcon
-                                : inactiveIcon
-                                }`}
+                            {/* Color-coded Icon Box */}
+                            <div
+                              className={`w-7 h-7 rounded-xl flex items-center justify-center border transition-all duration-200 shrink-0 ${
+                                isTopLevelActive || isOpen
+                                  ? iconTheme.open
+                                  : `${iconTheme.idle} group-hover:scale-105`
+                              }`}
                             >
                               {item.icon}
-                            </span>
+                            </div>
                             <div
-                              className={`flex items-center justify-between min-w-0 flex-1 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden whitespace-nowrap ${isCollapsed
-                                ? "max-w-0 opacity-0 -translate-x-2 pointer-events-none ml-0"
-                                : "max-w-[200px] opacity-100 translate-x-0 ml-3"
-                                }`}
+                              className={`flex items-center justify-between min-w-0 flex-1 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden whitespace-nowrap ${
+                                isCollapsed
+                                  ? "max-w-0 opacity-0 -translate-x-2 pointer-events-none ml-0"
+                                  : "max-w-[200px] opacity-100 translate-x-0 ml-3"
+                              }`}
                             >
                               <span className="truncate">{item.label}</span>
                               <div className="flex items-center gap-2 shrink-0 ml-2">
                                 {item.badge && renderBadge(item.badge, item.badgeVariant, isTopLevelActive)}
                                 <span
-                                  className={`h-6 w-6 rounded-full flex items-center justify-center transition-colors ${isTopLevelActive
-                                    ? chevronActive
-                                    : isOpen
-                                      ? isDarkSidebar ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300"
-                                      : chevronInactive
-                                    }`}
+                                  className={`h-6 w-6 rounded-full flex items-center justify-center transition-all duration-200 ${
+                                    isTopLevelActive
+                                      ? chevronActive
+                                      : isOpen
+                                        ? isDarkSidebar
+                                          ? "bg-white/20 text-white"
+                                          : "bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300"
+                                        : chevronInactive
+                                  }`}
                                 >
                                   <ChevronRight
-                                    className={`h-3.5 w-3.5 transition-transform duration-300 ease-in-out ${isOpen ? "rotate-90" : "rotate-0"
-                                      }`}
+                                    className={`h-3.5 w-3.5 transition-transform duration-300 ease-in-out ${
+                                      isOpen ? "rotate-90" : "rotate-0"
+                                    }`}
                                   />
                                 </span>
                               </div>
@@ -745,26 +807,27 @@ export function AdminSidebar({
                             if (onItemClick) onItemClick();
                           }}
                           title={isCollapsed ? item.label : undefined}
-                          className={`group flex items-center rounded-2xl text-[14px] transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] w-full h-11 focus:outline-none ${isCollapsed ? "justify-center px-0" : "px-3"
-                            } ${isTopLevelActive
-                              ? activeStyle
-                              : inactiveStyle
-                            }`}
+                          className={`group flex items-center rounded-2xl text-[14px] transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] w-full h-11 focus:outline-none ${
+                            isCollapsed ? "justify-center px-0" : "px-3"
+                          } ${isTopLevelActive ? activeStyle : inactiveStyle}`}
                         >
                           <div className={`flex items-center ${isCollapsed ? "justify-center w-full" : "w-full min-w-0"}`}>
-                            <span
-                              className={`transition-colors shrink-0 flex items-center justify-center w-5 h-5 ${isTopLevelActive
-                                ? activeIcon
-                                : inactiveIcon
-                                }`}
+                            {/* Color-coded Icon Box */}
+                            <div
+                              className={`w-7 h-7 rounded-xl flex items-center justify-center border transition-all duration-200 shrink-0 ${
+                                isTopLevelActive
+                                  ? iconTheme.open
+                                  : `${iconTheme.idle} group-hover:scale-105`
+                              }`}
                             >
                               {item.icon}
-                            </span>
+                            </div>
                             <div
-                              className={`flex items-center justify-between min-w-0 flex-1 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden whitespace-nowrap ${isCollapsed
-                                ? "max-w-0 opacity-0 -translate-x-2 pointer-events-none ml-0"
-                                : "max-w-[200px] opacity-100 translate-x-0 ml-3"
-                                }`}
+                              className={`flex items-center justify-between min-w-0 flex-1 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden whitespace-nowrap ${
+                                isCollapsed
+                                  ? "max-w-0 opacity-0 -translate-x-2 pointer-events-none ml-0"
+                                  : "max-w-[200px] opacity-100 translate-x-0 ml-3"
+                              }`}
                             >
                               <span className="truncate">{item.label}</span>
                               {item.badge && (
@@ -777,13 +840,14 @@ export function AdminSidebar({
                         </Link>
                       )}
 
-                      {/* Dropdown / Submenu matching exact typography of reference */}
+                      {/* Dropdown / Submenu */}
                       {hasChildren && (
                         <div
-                          className={`transition-all duration-300 ease-in-out overflow-hidden ${isOpen && !isCollapsed
-                            ? "max-h-96 opacity-100 pl-9 pr-2 space-y-0.5 py-1"
-                            : "max-h-0 opacity-0 pointer-events-none py-0"
-                            }`}
+                          className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                            isOpen && !isCollapsed
+                              ? "max-h-96 opacity-100 pl-8 pr-2 space-y-0.5 py-1"
+                              : "max-h-0 opacity-0 pointer-events-none py-0"
+                          }`}
                         >
                           {item.children?.map((child) => {
                             const isChildActive = (() => {
@@ -803,27 +867,49 @@ export function AdminSidebar({
                                 href={child.href}
                                 onClick={() => {
                                   setActiveKey(child.href);
+                                  if (child.onClick) child.onClick();
                                   if (onItemClick) onItemClick();
                                 }}
-                                className={`flex items-center justify-between px-3 py-2 rounded-xl text-[13.5px] transition-all duration-150 ease-out hover:translate-x-1 ${isChildActive
-                                  ? isDarkSidebar
-                                    ? "bg-white/20 text-white font-medium"
-                                    : currentAccent.activeLight
-                                  : isDarkSidebar
-                                    ? "text-white/70 hover:text-white hover:bg-white/10 font-normal"
-                                    : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100/60 dark:hover:bg-zinc-800/40 font-normal"
-                                  }`}
+                                className={`group flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all duration-150 cursor-pointer ${
+                                  isChildActive
+                                    ? isDarkSidebar
+                                      ? "bg-white/20 text-white font-medium shadow-xs"
+                                      : currentAccent.activeLight
+                                    : isDarkSidebar
+                                      ? "text-white/70 hover:text-white hover:bg-white/10 font-normal"
+                                      : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100/60 dark:hover:bg-zinc-800/40 font-normal"
+                                }`}
                               >
                                 <div className="flex items-center gap-2.5 min-w-0">
-                                  <span
-                                    className={`w-1.5 h-1.5 rounded-full shrink-0 transition-all duration-200 ${isChildActive
-                                      ? "bg-orange-500 ring-4 ring-orange-200/80 dark:ring-orange-950 scale-110"
-                                      : "bg-slate-300 dark:bg-zinc-600"
+                                  {child.icon ? (
+                                    <span
+                                      className={`shrink-0 transition-colors ${
+                                        isChildActive
+                                          ? "text-blue-600 dark:text-blue-400"
+                                          : isDarkSidebar
+                                            ? "text-white/50 group-hover:text-white"
+                                            : "text-slate-400 dark:text-zinc-500 group-hover:text-current"
                                       }`}
-                                  />
-                                  <span className={`truncate ${isChildActive ? "font-semibold text-orange-600 dark:text-orange-400" : ""}`}>{child.label}</span>
+                                    >
+                                      {child.icon}
+                                    </span>
+                                  ) : (
+                                    <span
+                                      className={`w-1.5 h-1.5 rounded-full shrink-0 transition-all duration-200 ${
+                                        isChildActive
+                                          ? "bg-blue-600 scale-110"
+                                          : "bg-slate-300 dark:bg-zinc-600"
+                                      }`}
+                                    />
+                                  )}
+                                  <span className="truncate">{child.label}</span>
                                 </div>
-                                {child.badge && renderBadge(child.badge, child.badgeVariant, isChildActive)}
+                                <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                                  {isChildActive && (
+                                    <span className="h-1.5 w-1.5 rounded-full bg-blue-600 shadow-xs" />
+                                  )}
+                                  {child.badge && renderBadge(child.badge, child.badgeVariant, isChildActive)}
+                                </div>
                               </Link>
                             );
                           })}
@@ -834,12 +920,13 @@ export function AdminSidebar({
                 })}
               </div>
 
-              {/* Section Divider Line matching Reference Image */}
+              {/* Section Divider */}
               {section.showDivider && (
                 <div className="py-2 transition-all duration-300">
                   <div
-                    className={`border-t transition-all duration-300 ${isDarkSidebar ? "border-white/15" : "border-slate-200 dark:border-zinc-800"
-                      } ${isCollapsed ? "w-6 mx-auto" : "mx-1"}`}
+                    className={`border-t transition-all duration-300 ${
+                      isDarkSidebar ? "border-white/15" : "border-slate-200 dark:border-zinc-800"
+                    } ${isCollapsed ? "w-6 mx-auto" : "mx-1"}`}
                   />
                 </div>
               )}
@@ -849,30 +936,33 @@ export function AdminSidebar({
       </div>
 
       {/* Footer Security Badge */}
-      <div className={`pt-2.5 pb-1 mt-auto border-t text-[11px] flex items-center overflow-hidden transition-all duration-300 ${isDarkSidebar
-        ? "border-white/15 text-white/70"
-        : "border-slate-150 dark:border-zinc-800 text-slate-500 dark:text-zinc-400"
-        } ${isCollapsed ? "px-1 justify-center" : "justify-between px-2"
-        }`}>
+      <div
+        className={`pt-2.5 pb-1 mt-auto border-t text-[11px] flex items-center overflow-hidden transition-all duration-300 ${
+          isDarkSidebar
+            ? "border-white/15 text-white/70"
+            : "border-slate-150 dark:border-zinc-800 text-slate-500 dark:text-zinc-400"
+        } ${isCollapsed ? "px-1 justify-center" : "justify-between px-2"}`}
+      >
         <div className={`flex items-center ${isCollapsed ? "justify-center" : "min-w-0 gap-2"}`}>
           <span className="w-5 h-5 shrink-0 flex items-center justify-center">
-            <ShieldAlert className={`h-4 w-4 shrink-0 ${isDarkSidebar ? "text-white" : "text-orange-500"}`} />
+            <ShieldAlert className={`h-4 w-4 shrink-0 ${isDarkSidebar ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
           </span>
           <div
-            className={`transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden whitespace-nowrap ${isCollapsed
-              ? "max-w-0 opacity-0 -translate-x-2 pointer-events-none"
-              : "max-w-[140px] opacity-100 translate-x-0"
-              }`}
+            className={`transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden whitespace-nowrap ${
+              isCollapsed
+                ? "max-w-0 opacity-0 -translate-x-2 pointer-events-none"
+                : "max-w-[140px] opacity-100 translate-x-0"
+            }`}
           >
             <span className="truncate font-medium block">{user?.roles?.[0]?.name || "Administrator"}</span>
           </div>
         </div>
         <span
-          className={`text-[10px] font-mono px-1.5 py-0.5 rounded transition-all duration-300 shrink-0 ${isDarkSidebar
-            ? "bg-white/15 text-white"
-            : "bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400"
-            } ${isCollapsed ? "opacity-0 max-w-0 overflow-hidden pointer-events-none scale-90" : "opacity-100 scale-100"
-            }`}
+          className={`text-[10px] font-mono px-1.5 py-0.5 rounded transition-all duration-300 shrink-0 ${
+            isDarkSidebar
+              ? "bg-white/15 text-white"
+              : "bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400"
+          } ${isCollapsed ? "opacity-0 max-w-0 overflow-hidden pointer-events-none scale-90" : "opacity-100 scale-100"}`}
         >
           Admin
         </span>

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 export interface ModalProps {
@@ -24,6 +25,12 @@ export function Modal({
   size = "md",
   closeOnOutsideClick = true,
 }: ModalProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Handle ESC key press
   useEffect(() => {
     if (!isOpen) return;
@@ -44,7 +51,7 @@ export function Modal({
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const sizeClasses = {
     sm: "max-w-md",
@@ -53,15 +60,15 @@ export function Modal({
     xl: "max-w-4xl",
   };
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
       role="dialog"
       aria-modal="true"
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-md transition-opacity animate-fade-in"
+        className="fixed inset-0 bg-black/50 transition-opacity animate-fade-in"
         onClick={() => closeOnOutsideClick && onClose()}
       />
 
@@ -105,6 +112,7 @@ export function Modal({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

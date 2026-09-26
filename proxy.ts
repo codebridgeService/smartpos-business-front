@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 // Public auth routes that should only be accessible when not logged in
-const AUTH_ROUTES = ["/auth/login", "/auth/register", "/auth/forgot-password"];
+const AUTH_ROUTES = ["/auth/login", "/auth/register", "/auth/forgot-password", "/auth/reset-password"];
 
 // Protected route prefixes that require valid authentication
 const PROTECTED_PREFIXES = [
@@ -148,14 +148,14 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Case C: Authenticated user accessing Owner Root Portal (/businesses or /owner/*)
-  // Strict rule: ONLY Owners can access the Top-Level Business Portal (/businesses or /owner).
+  // Case C: Authenticated user accessing Owner Root Portal (/businesses, /businesses/*, or /owner/*)
+  // Strict rule: Admins CANNOT access Business Portal (Owners only)
   // For specific tenant routes (/businesses/:id/*), any authenticated user can access (checks auth only).
+  const isTenantIdRoute = /^\/businesses\/[0-9a-fA-F-]{36}(\/.*)?$/.test(pathname);
   const isOwnerRootPortal =
     pathname === "/owner" ||
     pathname.startsWith("/owner/") ||
-    pathname === "/businesses" ||
-    pathname === "/businesses/";
+    (pathname.startsWith("/businesses") && !isTenantIdRoute);
 
   if (isOwnerRootPortal && isAuthenticated) {
     if (userRoles.length > 0) {
@@ -182,10 +182,10 @@ export function proxy(request: NextRequest) {
     if (userRoles.length > 0) {
       const hasAdminRole = userRoles.some((role) => ADMIN_ROLES.includes(role));
       if (!hasAdminRole) {
-        // If user is owner, redirect directly to /owner
+        // If user is owner, strictly redirect directly to /businesses/dashboard
         const hasOwnerRole = userRoles.some((role) => OWNER_ROLES.includes(role));
         if (hasOwnerRole) {
-          const ownerUrl = new URL("/businesses", request.url);
+          const ownerUrl = new URL("/businesses/dashboard", request.url);
           ownerUrl.searchParams.set("error", "admin_role_required");
           return NextResponse.redirect(ownerUrl);
         }
