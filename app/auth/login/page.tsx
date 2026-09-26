@@ -67,23 +67,7 @@ export default function LoginPage() {
           ? new URLSearchParams(window.location.search).get("redirect")
           : null;
 
-      // 2. Role: Store Owner -> /businesses
-      if (isOwner(res.user)) {
-        if (
-          redirectUrl &&
-          !redirectUrl.startsWith("/admin") &&
-          redirectUrl !== "/" &&
-          redirectUrl !== "/coming-soon"
-        ) {
-          router.push(redirectUrl);
-          return;
-        }
-
-        router.push("/businesses");
-        return;
-      }
-
-      // 3. Role: System Admin -> /admin/dashboard
+      // 2. Role: System Admin -> /admin/dashboard
       if (isAdmin(res.user)) {
         if (
           redirectUrl &&
@@ -96,6 +80,22 @@ export default function LoginPage() {
         }
 
         router.push("/admin/dashboard");
+        return;
+      }
+
+      // 3. Role: Store Owner -> /businesses
+      if (isOwner(res.user)) {
+        if (
+          redirectUrl &&
+          !redirectUrl.startsWith("/admin") &&
+          redirectUrl !== "/" &&
+          redirectUrl !== "/coming-soon"
+        ) {
+          router.push(redirectUrl);
+          return;
+        }
+
+        router.push("/businesses");
         return;
       }
 

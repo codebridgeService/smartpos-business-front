@@ -36,6 +36,20 @@ export function BusinessShell({ children }: BusinessShellProps) {
       const isAdminUser = isAdmin(user);
       const isCashierUser = isCashier(user);
 
+      // If user has admin role and is NOT a business owner:
+      // Automatically switch to /admin/dashboard when accessing ANY business portal routes
+      if (isAdminUser && !isOwnerUser) {
+        const isTenantIdRoute = /^\/businesses\/[0-9a-fA-F-]{36}(\/.*)?$/.test(pathname);
+        if (
+          pathname === "/businesses" ||
+          pathname.startsWith("/owner") ||
+          (pathname.startsWith("/businesses") && !isTenantIdRoute)
+        ) {
+          router.replace("/admin/dashboard");
+          return;
+        }
+      }
+
       // If user has a cashier role and is NOT an admin or business owner:
       if (isCashierUser && !isOwnerUser && !isAdminUser) {
         if (

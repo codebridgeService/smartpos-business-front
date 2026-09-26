@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -95,9 +96,25 @@ export function AdminNavbar({
   const isUserAdmin = isAdmin(user);
   const isUserOwner = isOwner(user);
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isOutletMenuOpen, setIsOutletMenuOpen] = useState(false);
   const [isAddNewMenuOpen, setIsAddNewMenuOpen] = useState(false);
+
+  const handleToggleAddNew = (open: boolean) => {
+    setIsAddNewMenuOpen(open);
+    if (open) {
+      setIsOutletMenuOpen(false);
+      setIsUserMenuOpen(false);
+      setIsNotificationsOpen(false);
+      setIsSearchOpen(false);
+    }
+  };
+
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -200,6 +217,18 @@ export function AdminNavbar({
     item.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Handle ESC key for Add New Menu
+  useEffect(() => {
+    if (!isAddNewMenuOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        handleToggleAddNew(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isAddNewMenuOpen]);
+
   return (
     <>
       <header
@@ -232,15 +261,19 @@ export function AdminNavbar({
             </div>
           </Link>
 
-          {/* Sidebar Collapse Toggle Button (Circular Orange << / >> centered on dividing line) */}
+          {/* Sidebar Collapse Toggle Button (Circular Orange << / >> with blue ring matching specification) */}
           {layoutMode !== "horizontal" && onToggleCollapse && (
             <button
               type="button"
-              onClick={onToggleCollapse}
-              className="hidden lg:flex absolute -right-3.5 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-orange-500 hover:bg-orange-600 text-white items-center justify-center shadow-xs shadow-orange-500/30 transition-transform z-30 active:scale-90 cursor-pointer"
-              title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleCollapse();
+              }}
+              className="hidden lg:flex absolute -right-3.5 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-orange-500 hover:bg-orange-600 text-white items-center justify-center shadow-md transition-all z-30 active:scale-90 cursor-pointer ring-2 ring-blue-500 dark:ring-blue-400 ring-offset-2 ring-offset-white dark:ring-offset-zinc-950"
+              title={isCollapsed ? "Open sidebar (expand)" : "Close sidebar (collapse)"}
+              aria-label={isCollapsed ? "Open sidebar (expand)" : "Close sidebar (collapse)"}
             >
-              {isCollapsed || layoutMode === "mini" ? (
+              {isCollapsed ? (
                 <ChevronsRight className="h-3.5 w-3.5 stroke-[2.5]" />
               ) : (
                 <ChevronsLeft className="h-3.5 w-3.5 stroke-[2.5]" />
@@ -370,45 +403,50 @@ export function AdminNavbar({
             <div className="relative">
               <button
                 type="button"
-                onClick={() => {
-                  setIsAddNewMenuOpen(!isAddNewMenuOpen);
-                  setIsOutletMenuOpen(false);
-                  setIsUserMenuOpen(false);
-                }}
+                onClick={() => handleToggleAddNew(!isAddNewMenuOpen)}
                 className="flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold shadow-md shadow-orange-500/25 transition-all active:scale-95 cursor-pointer"
               >
                 <PlusCircle className="h-4 w-4 shrink-0 text-white" />
                 <span>Add New</span>
               </button>
 
-              {isAddNewMenuOpen && (
-                <>
+              {isAddNewMenuOpen && mounted &&
+                createPortal(
                   <div
-                    className="fixed inset-0 z-40 bg-black/15 dark:bg-black/40 backdrop-blur-xs"
-                    onClick={() => setIsAddNewMenuOpen(false)}
-                  />
-                  <div className="absolute right-0 top-full mt-3 z-50 w-[640px] max-w-[94vw] rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xl p-4 animate-slide-up">
-                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-                      {QUICK_ADD_ITEMS.map((item, index) => (
-                        <Link
-                          key={item.label}
-                          href={item.href}
-                          onClick={() => setIsAddNewMenuOpen(false)}
-                          style={{ animationDelay: `${index * 25}ms` }}
-                          className="animate-push-up group flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-900/60 hover:border-orange-500/80 hover:shadow-lg hover:shadow-orange-500/10 hover:-translate-y-0.5 transition-all text-center"
-                        >
-                          <div className="h-12 w-12 rounded-2xl bg-slate-100/90 dark:bg-zinc-800/90 flex items-center justify-center text-slate-700 dark:text-zinc-300 group-hover:bg-orange-500 group-hover:text-white transition-all shadow-2xs">
-                            {item.icon}
-                          </div>
-                          <span className="text-[12.5px] font-medium text-slate-700 dark:text-zinc-300 group-hover:text-orange-600 dark:group-hover:text-orange-400 mt-2 transition-colors">
-                            {item.label}
-                          </span>
-                        </Link>
-                      ))}
+                    className="fixed inset-0 z-[100] flex items-start justify-center pt-20 sm:pt-24 p-4 overflow-y-auto"
+                    role="dialog"
+                    aria-modal="true"
+                  >
+                    {/* Backdrop without blur */}
+                    <div
+                      className="fixed inset-0 bg-black/40 transition-opacity animate-fade-in"
+                      onClick={() => handleToggleAddNew(false)}
+                    />
+
+                    {/* Centered Quick Actions Card matching screenshot */}
+                    <div className="relative z-10 w-[680px] max-w-[94vw] rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xl p-5 sm:p-6 animate-scale-in">
+                      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 sm:gap-3.5">
+                        {QUICK_ADD_ITEMS.map((item, index) => (
+                          <Link
+                            key={item.label}
+                            href={item.href}
+                            onClick={() => handleToggleAddNew(false)}
+                            style={{ animationDelay: `${index * 20}ms` }}
+                            className="animate-push-up group flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-900/60 hover:border-orange-500/80 hover:shadow-lg hover:shadow-orange-500/10 hover:-translate-y-0.5 transition-all text-center"
+                          >
+                            <div className="h-12 w-12 rounded-2xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 flex items-center justify-center text-slate-700 dark:text-zinc-300 group-hover:bg-orange-500 group-hover:text-white group-hover:border-orange-500 transition-all shadow-2xs">
+                              {item.icon}
+                            </div>
+                            <span className="text-[12px] font-medium text-slate-700 dark:text-zinc-300 group-hover:text-orange-600 dark:group-hover:text-orange-400 mt-2 transition-colors">
+                              {item.label}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                </>
-              )}
+                  </div>,
+                  document.body
+                )}
             </div>
 
             {/* POS Quick Button (Dark Navy Pill with Monitor Icon)

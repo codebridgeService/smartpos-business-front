@@ -258,6 +258,56 @@ describe("Unified API Client & Security Suite", () => {
       expect(tokenStorage.getAccessToken()).toBeNull();
       expect(tokenStorage.getRefreshToken()).toBeNull();
     });
+
+    it("sends forgot-password request to /auth/forgot-password", async () => {
+      let capturedUrl = "";
+      let capturedBody: any = null;
+
+      vi.spyOn(global, "fetch").mockImplementation(async (input, init) => {
+        capturedUrl = String(input);
+        capturedBody = JSON.parse(String(init?.body));
+        return new Response(
+          JSON.stringify({ message: "We have emailed your password reset link." }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      });
+
+      const res = await authApi.forgotPassword({ email: "user@example.com" });
+      expect(capturedUrl).toContain("/auth/forgot-password");
+      expect(capturedBody).toEqual({ email: "user@example.com" });
+      expect(res.message).toBe("We have emailed your password reset link.");
+    });
+
+    it("sends reset-password request to /auth/reset-password", async () => {
+      let capturedUrl = "";
+      let capturedBody: any = null;
+
+      vi.spyOn(global, "fetch").mockImplementation(async (input, init) => {
+        capturedUrl = String(input);
+        capturedBody = JSON.parse(String(init?.body));
+        return new Response(
+          JSON.stringify({ message: "Password has been reset." }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      });
+
+      const res = await authApi.resetPassword({
+        email: "user@example.com",
+        token: "sample_token_123",
+        password: "newpassword123",
+        password_confirmation: "newpassword123",
+      });
+      expect(capturedUrl).toContain("/auth/reset-password");
+      expect(capturedBody.token).toBe("sample_token_123");
+      expect(capturedBody.password).toBe("newpassword123");
+      expect(res.message).toBe("Password has been reset.");
+    });
   });
 
   describe("productsApi", () => {

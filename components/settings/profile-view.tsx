@@ -35,13 +35,20 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { apiClient } from "@/lib/api";
+import { getAvatarUrl } from "@/lib/utils/image";
 import { AvatarUploadModal } from "./avatar-upload-modal";
 import { DeleteAvatarModal } from "./delete-avatar-modal";
 import type { UpdateUserRequest } from "@/types";
 
-export function ProfileView() {
+export interface ProfileViewProps {
+  className?: string;
+}
+
+export function ProfileView({ className }: ProfileViewProps = {}) {
   const { user, session, device, refreshUser, isLoading: isAuthLoading } = useAuth();
   const toast = useToast();
+
+  const [imageError, setImageError] = useState(false);
 
   // Avatar Modals
   const [isAvatarUploadOpen, setIsAvatarUploadOpen] = useState(false);
@@ -264,8 +271,14 @@ export function ProfileView() {
       .join("")
       .toUpperCase() || "U";
 
+  const avatarSrc = getAvatarUrl(user.avatar_url, user.avatar);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [avatarSrc]);
+
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-5xl mx-auto">
+    <div className={className || "p-4 sm:p-6 lg:p-8 space-y-6 max-w-5xl mx-auto"}>
       {/* Header Banner & Profile Summary */}
       <Card className="overflow-hidden border-zinc-200/80 dark:border-zinc-800 shadow-sm">
         <div className="h-28 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 relative">
@@ -289,11 +302,12 @@ export function ProfileView() {
             {/* Avatar with Camera Overlay */}
             <div className="relative group shrink-0">
               <div className="h-28 w-28 rounded-full overflow-hidden border-4 border-white dark:border-zinc-900 shadow-xl bg-gradient-to-tr from-blue-500 to-purple-600 text-white flex items-center justify-center font-bold text-3xl select-none">
-                {user.avatar_url ? (
+                {avatarSrc && !imageError ? (
                   <img
-                    src={user.avatar_url}
+                    src={avatarSrc}
                     alt={user.name}
                     className="h-full w-full object-cover"
+                    onError={() => setImageError(true)}
                   />
                 ) : (
                   <span>{userInitials}</span>
@@ -314,13 +328,12 @@ export function ProfileView() {
               {/* Status Indicator */}
               <div
                 title={`Account Status: ${user.status}`}
-                className={`absolute bottom-1 right-1 h-5 w-5 rounded-full border-2 border-white dark:border-zinc-900 ${
-                  user.status === "active"
-                    ? "bg-emerald-500"
-                    : user.status === "inactive"
+                className={`absolute bottom-1 right-1 h-5 w-5 rounded-full border-2 border-white dark:border-zinc-900 ${user.status === "active"
+                  ? "bg-emerald-500"
+                  : user.status === "inactive"
                     ? "bg-amber-500"
                     : "bg-red-500"
-                }`}
+                  }`}
               />
             </div>
 
@@ -375,7 +388,7 @@ export function ProfileView() {
               >
                 Upload Photo
               </Button>
-              {user.avatar_url && (
+              {avatarSrc && !imageError && (
                 <Button
                   type="button"
                   variant="ghost"

@@ -20,8 +20,10 @@ import {
   ArrowRight,
   ExternalLink,
   Code2,
+  Edit3,
 } from "lucide-react";
 import { ChangelogApi } from "@/lib/api/changelogs";
+import { useToast } from "@/components/ui/toast";
 import {
   SystemChangelog,
   ChangelogComponent,
@@ -44,10 +46,12 @@ export default function SystemChangelogsPage() {
   const [selectedType, setSelectedType] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const toast = useToast();
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formVersion, setFormVersion] = useState("v1.3.0");
+  const [editingLog, setEditingLog] = useState<SystemChangelog | null>(null);
+  const [formVersion, setFormVersion] = useState("v1.2.3");
   const [formTitle, setFormTitle] = useState("");
   const [formComponent, setFormComponent] = useState<ChangelogComponent>("FRONTEND");
   const [formType, setFormType] = useState<ChangeType>("FEATURE");
@@ -69,6 +73,30 @@ export default function SystemChangelogsPage() {
   useEffect(() => {
     loadLogs();
   }, [selectedComponent]);
+
+  const handleOpenCreate = () => {
+    setEditingLog(null);
+    setFormVersion("v1.2.3");
+    setFormTitle("");
+    setFormComponent("FRONTEND");
+    setFormType("FEATURE");
+    setFormSummary("");
+    setFormBullets([""]);
+    setFormAuthor("SmartPOS Engineering");
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEdit = (log: SystemChangelog) => {
+    setEditingLog(log);
+    setFormVersion(log.version);
+    setFormTitle(log.title);
+    setFormComponent(log.component);
+    setFormType(log.change_type);
+    setFormSummary(log.summary);
+    setFormBullets(log.changes_list && log.changes_list.length > 0 ? log.changes_list : [""]);
+    setFormAuthor(log.author_name);
+    setIsModalOpen(true);
+  };
 
   const handleAddBullet = () => {
     setFormBullets((prev) => [...prev, ""]);
@@ -103,13 +131,22 @@ export default function SystemChangelogsPage() {
         is_published: true,
       };
 
-      await ChangelogApi.createChangelog(payload);
+      if (editingLog) {
+        await ChangelogApi.updateChangelog(editingLog.id, payload);
+        toast.success(`Change log ${payload.version} updated successfully!`);
+      } else {
+        await ChangelogApi.createChangelog(payload);
+        toast.success(`New change log ${payload.version} recorded successfully!`);
+      }
+
       setIsModalOpen(false);
-      // Reset form
+      setEditingLog(null);
       setFormTitle("");
       setFormSummary("");
       setFormBullets([""]);
       await loadLogs();
+    } catch {
+      toast.error("Failed to save change log entry.");
     } finally {
       setIsSubmitting(false);
     }
@@ -118,6 +155,7 @@ export default function SystemChangelogsPage() {
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this changelog entry?")) return;
     await ChangelogApi.deleteChangelog(id);
+    toast.success("Change log entry deleted.");
     await loadLogs();
   };
 
@@ -228,7 +266,7 @@ export default function SystemChangelogsPage() {
 
         <button
           type="button"
-          onClick={() => setIsModalOpen(true)}
+          onClick={handleOpenCreate}
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
         >
           <Plus className="h-4 w-4" />
@@ -328,6 +366,14 @@ export default function SystemChangelogsPage() {
                     </span>
                     <button
                       type="button"
+                      onClick={() => handleOpenEdit(log)}
+                      className="p-1 rounded-lg hover:bg-orange-50 hover:text-orange-600 text-zinc-400 dark:hover:bg-orange-950/40 transition-colors cursor-pointer"
+                      title="Edit / Update Change Log"
+                    >
+                      <Edit3 className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => handleDelete(log.id)}
                       className="p-1 rounded-lg hover:bg-rose-50 hover:text-rose-600 text-zinc-400 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                       title="Delete Entry"
@@ -374,11 +420,11 @@ export default function SystemChangelogsPage() {
 
       {/* Record Release Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-in fade-in">
           <div className="bg-white dark:bg-zinc-900 w-full max-w-xl rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800">
               <h3 className="text-base font-bold text-zinc-900 dark:text-white">
-                Record New Change Log
+                {editingLog ? `Update Change Log (${editingLog.version})` : "Record New Change Log"}
               </h3>
               <button
                 type="button"
@@ -532,9 +578,13 @@ export default function SystemChangelogsPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-orange-500 hover:bg-orange-600 text-white disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-orange-500 hover:bg-orange-600 text-white disabled:opacity-50 cursor-pointer"
                 >
-                  {isSubmitting ? "Publishing..." : "Publish Change Log"}
+                  {isSubmitting
+                    ? "Saving..."
+                    : editingLog
+                    ? "Update Change Log"
+                    : "Publish Change Log"}
                 </button>
               </div>
             </form>

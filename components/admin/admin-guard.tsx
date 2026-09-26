@@ -21,8 +21,22 @@ export function AdminGuard({ children, fallback }: AdminGuardProps) {
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push(`/auth/login?redirect=${encodeURIComponent(pathname)}`);
+      return;
     }
-  }, [isLoading, isAuthenticated, router, pathname]);
+
+    if (!isLoading && isAuthenticated && user) {
+      // If user is owner and NOT admin, immediately redirect to /businesses/dashboard
+      if (!isAdmin(user) && isOwner(user)) {
+        router.replace("/businesses/dashboard");
+        return;
+      }
+      // If user is regular staff or cashier without admin privileges, redirect to /pos
+      if (!isAdmin(user)) {
+        router.replace("/pos");
+        return;
+      }
+    }
+  }, [isLoading, isAuthenticated, user, router, pathname]);
 
   // 1. Loading State
   if (isLoading) {

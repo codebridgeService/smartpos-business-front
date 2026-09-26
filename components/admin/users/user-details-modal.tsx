@@ -121,6 +121,21 @@ export function UserDetailsModal({
     }
   }, [isOpen, userUuid, loadUserDetails, setSelectedUser, toast]);
 
+  const roleOptions = React.useMemo(() => {
+    const seen = new Set<string>();
+    return (availableRoles || [])
+      .filter((r) => {
+        const id = r.uuid || String(r.id || "");
+        if (!id || seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      })
+      .map((r) => ({
+        value: r.uuid || String(r.id),
+        label: `${r.name} (${r.code})${r.is_system ? " - System" : ""}`,
+      }));
+  }, [availableRoles]);
+
   if (!isOpen || !userUuid) return null;
 
   const handleCopyUuid = () => {
@@ -186,11 +201,6 @@ export function UserDetailsModal({
       return dateStr;
     }
   };
-
-  const roleOptions = availableRoles.map((r) => ({
-    value: r.uuid,
-    label: `${r.name} (${r.code})${r.is_system ? " - System" : ""}`,
-  }));
 
   return (
     <Modal

@@ -43,3 +43,6 @@ export interface CreateChangelogPayload {
   release_notes_url?: string;
   published_at?: string;
 }
+
+export type UpdateChangelogPayload = Partial<CreateChangelogPayload>;
+

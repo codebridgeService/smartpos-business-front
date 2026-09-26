@@ -22,8 +22,8 @@ This document outlines the complete development roadmap, architectural milestone
     └── Base Design System & Shared UI Components
 [Phase 2] Identity, Authentication & Account Security
     ├── Auth Flows (Login, Register, Refresh, Forgot Password OTP)
-    ├── User Profile, Avatars & Session Management
-    └── POS PIN Security & Audit Logs
+    ├── User Profile, Avatars & POS PIN Security
+    └── Account Security Hub (Password, 2FA, Google Auth, Phone/Email Verify, Devices, Activity, Deactivate)
 [Phase 3] RBAC & Access Control
     ├── Permissions & Custom Roles Management
     ├── Role Provisioning (Manager, Cashier, Inventory Clerk)
@@ -115,16 +115,53 @@ This document outlines the complete development roadmap, architectural milestone
     - [x] WebP image upload modal (`POST /users/{user}/avatar` via `multipart/form-data`).
     - [x] Delete avatar button (`DELETE /users/{user}/avatar`).
 
-- [x] **2.3 Session & Device Security (`/settings/security`)**
-  - [x] Active Sessions list (`GET /sessions`):
-    - [x] Display IP address, browser/user agent, last activity, expiration.
-    - [x] Terminate specific session (`DELETE /sessions/{userSession}`).
-    - [x] Terminate all other sessions button (`DELETE /sessions?except_current=true`).
-  - [x] Registered Devices list (`GET /devices`):
-    - [x] Display device type, platform, trust status, block status, last seen.
-    - [x] Trust device action (`PATCH /devices/{userDevice}/trust`).
-    - [x] Block device action (`PATCH /devices/{userDevice}/block`).
-  - [x] Login Attempts audit table (`GET /login-attempts` with pagination).
+- [x] **2.3 Account Security Suite (`/settings/security`)**
+  - [x] **Password Management**:
+    - [x] Display dynamic last changed timestamp (`Last Changed 22 Dec 2024, 10:30 AM`).
+    - [x] Change Password modal (`current_password`, `password`, `password_confirmation`).
+    - [x] Password validation rules & error handling (`POST /auth/change-password`).
+  - [x] **Two-Factor Authentication (2FA)**:
+    - [x] Display status & description ("Receive codes via SMS or email every time you login").
+    - [x] 2FA toggle switch for immediate enable/disable.
+    - [ ] 2FA setup & verification challenge flow (SMS / Email OTP / TOTP Authenticator).
+  - [x] **Google Authentication**:
+    - [x] Display status & description ("Connect to Google") with "Connected" status badge.
+    - [x] Google OAuth connection toggle switch.
+    - [ ] Link / Unlink Google OAuth account flow (`POST /auth/oauth/google/connect`, `DELETE /auth/oauth/google/disconnect`).
+  - [x] **Phone Number Verification**:
+    - [x] Display verified mobile number ("Verified Mobile Number : 564783920") with verified checkmark badge.
+    - [x] Change phone number modal with phone number input.
+    - [ ] SMS OTP verification challenge for new phone number (`POST /users/phone/verify`).
+    - [x] Remove / unlink phone number confirmation dialog.
+  - [x] **Email Verification**:
+    - [x] Display verified email address ("Verified Email : admin@gmail.com") with verified checkmark badge.
+    - [x] Change email address modal.
+    - [ ] Email verification link or 6-digit OTP code challenge (`POST /users/email/verify-request`).
+    - [x] Remove / unlink secondary email confirmation dialog.
+  - [x] **Device Management**:
+    - [x] Display description ("Manage devices associated with the account") and "Manage" modal trigger.
+    - [x] Registered Devices list modal (`GET /devices`):
+      - [x] Display device type (Desktop, Mobile, Tablet, POS Terminal), platform, IP, trust status, block status, last seen.
+      - [x] Trust device action (`PATCH /devices/{userDevice}/trust`).
+      - [x] Block device action (`PATCH /devices/{userDevice}/block`).
+      - [x] Unblock device action (`PATCH /devices/{userDevice}/unblock`).
+  - [x] **Account Activity**:
+    - [x] Display description ("Manage activities associated with the account") and "View" modal trigger.
+    - [x] Active Sessions list (`GET /sessions`):
+      - [x] Display IP address, browser/user agent, last activity, expiration, current session badge.
+      - [x] Terminate specific session (`DELETE /sessions/{userSession}`).
+      - [x] Terminate all other sessions button (`DELETE /sessions?except_current=true`).
+      - [x] Purge revoked sessions button (`DELETE /sessions/revoked`).
+    - [x] Login Attempts audit log (`GET /login-attempts` with pagination):
+      - [x] Timestamp, IP address, user agent, success/failure status badges.
+  - [x] **Deactivate Account**:
+    - [x] Display description ("This will shutdown your account. Your account will be reactive when you sign in again").
+    - [x] Deactivate Account modal with password confirmation and reason dropdown.
+    - [ ] Deactivation API integration (`POST /auth/deactivate`), token revocation, and session logout.
+  - [x] **Delete Account**:
+    - [x] Display description ("Your account will be permanently deleted").
+    - [x] Permanent deletion confirmation modal with double-confirmation ("DELETE" input + password).
+    - [ ] Permanent account deletion API integration (`DELETE /users/{user}`).
 
 - [x] **2.4 POS Fast-Access PIN (`/settings/pos-pin`)**
   - [x] Set or change 4-to-6 digit numeric POS PIN (`PUT /users/{user}/pos-pin`).

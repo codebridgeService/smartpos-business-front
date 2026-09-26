@@ -1,27 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { AuthShell } from "@/components/layout";
 import { TextInput, PasswordInput, Button, Alert } from "@/components/ui";
-import { apiClient, isApiError } from "@/lib/api";
+import { authApi, isApiError } from "@/lib/api";
 import { useToast } from "@/components/ui/toast";
-import type {
-  ForgotPasswordSendCodeResponse,
-  VerifyResetCodeResponse,
-  ApiMessageResponse,
-} from "@/types";
-import { Mail, KeyRound, Lock, CheckCircle2, ArrowLeft } from "lucide-react";
+import { Mail, Lock, CheckCircle2, ArrowLeft, Send } from "lucide-react";
 
-type Step = "request_otp" | "verify_otp" | "new_password" | "success";
+type Step = "request_link" | "link_sent" | "reset_password" | "success";
 
-export default function ForgotPasswordPage() {
+function ForgotPasswordContent() {
   const toast = useToast();
+  const searchParams = useSearchParams();
 
-  const [step, setStep] = useState<Step>("request_otp");
+  const [step, setStep] = useState<Step>("request_link");
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
-  const [otpUuid, setOtpUuid] = useState("");
+  const [token, setToken] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
 
@@ -29,11 +25,26 @@ export default function ForgotPasswordPage() {
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
+  // Check URL query parameters for reset token (from email link) or pre-filled email
+  useEffect(() => {
+    const urlEmail = searchParams.get("email");
+    const urlToken = searchParams.get("token");
+
+    if (urlEmail) {
+      setEmail(urlEmail);
+    }
+
+    if (urlToken) {
+      setToken(urlToken);
+      setStep("reset_password");
+    }
+  }, [searchParams]);
+
   // ---------------------------------------------------------------------------
-  // Step 1: Send OTP to Email
+  // Step 1: Send Password Reset Link (POST /auth/forgot-password)
   // ---------------------------------------------------------------------------
-  const handleSendCode = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSendLink = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setErrorBanner(null);
     setFieldErrors({});
 
@@ -45,16 +56,11 @@ export default function ForgotPasswordPage() {
     setIsLoading(true);
 
     try {
-      const res = await apiClient.post<ForgotPasswordSendCodeResponse>(
-        "/auth/forgot-password/send-code",
-        { email: email.trim() },
-        { skipAuth: true }
-      );
-
-      toast.success(res.message || "Verification code sent to your email.");
-      setStep("verify_otp");
+      const res = await authApi.forgotPassword({ email: email.trim() });
+      toast.success(res.message || "Password reset link sent to your email.");
+      setStep("link_sent");
     } catch (err: unknown) {
-      console.error("[ForgotPassword SendCode Error]:", err);
+      console.error("[ForgotPassword Error]:", err);
       if (isApiError(err)) {
         if (err.isValidationError() && err.errors?.email) {
           setFieldErrors({ email: err.errors.email[0] });
@@ -64,7 +70,7 @@ export default function ForgotPasswordPage() {
       } else if (err instanceof Error && err.message) {
         setErrorBanner(err.message);
       } else {
-        setErrorBanner("Failed to send verification code. Please try again.");
+        setErrorBanner("Failed to send reset link. Please verify your email.");
       }
     } finally {
       setIsLoading(false);
@@ -72,52 +78,7 @@ export default function ForgotPasswordPage() {
   };
 
   // ---------------------------------------------------------------------------
-  // Step 2: Verify 6-digit OTP Code
-  // ---------------------------------------------------------------------------
-  const handleVerifyCode = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorBanner(null);
-    setFieldErrors({});
-
-    if (!code.trim()) {
-      setFieldErrors({ code: "Verification code is required" });
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const res = await apiClient.post<VerifyResetCodeResponse>(
-        "/auth/verify-reset-code",
-        { email: email.trim(), code: code.trim() },
-        { skipAuth: true }
-      );
-
-      toast.success(res.message || "Code verified successfully.");
-      setOtpUuid(res.otp_uuid);
-      setStep("new_password");
-    } catch (err: unknown) {
-      console.error("[ForgotPassword VerifyCode Error]:", err);
-      if (isApiError(err)) {
-        if (err.status === 429) {
-          setErrorBanner("Too many failed attempts. Please request a new code.");
-        } else if (err.isValidationError() && err.errors?.code) {
-          setFieldErrors({ code: err.errors.code[0] });
-        } else {
-          setErrorBanner(err.message);
-        }
-      } else if (err instanceof Error && err.message) {
-        setErrorBanner(err.message);
-      } else {
-        setErrorBanner("Invalid verification code.");
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // ---------------------------------------------------------------------------
-  // Step 3: Reset Password
+  // Step 2: Reset Password (POST /auth/reset-password)
   // ---------------------------------------------------------------------------
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,21 +101,17 @@ export default function ForgotPasswordPage() {
     setIsLoading(true);
 
     try {
-      const res = await apiClient.post<ApiMessageResponse>(
-        "/auth/reset-password",
-        {
-          email: email.trim(),
-          otp_uuid: otpUuid,
-          password,
-          password_confirmation: passwordConfirmation,
-        },
-        { skipAuth: true }
-      );
+      const res = await authApi.resetPassword({
+        email: email.trim(),
+        token,
+        password,
+        password_confirmation: passwordConfirmation,
+      });
 
       toast.success(res.message || "Password reset successfully!");
       setStep("success");
     } catch (err: unknown) {
-      console.error("[ForgotPassword ResetPassword Error]:", err);
+      console.error("[ResetPassword Error]:", err);
       if (isApiError(err)) {
         if (err.isValidationError() && err.errors) {
           const mapped: Record<string, string> = {};
@@ -168,7 +125,7 @@ export default function ForgotPasswordPage() {
       } else if (err instanceof Error && err.message) {
         setErrorBanner(err.message);
       } else {
-        setErrorBanner("Failed to reset password. Please try again.");
+        setErrorBanner("Failed to reset password. Please check your reset link or request a new one.");
       }
     } finally {
       setIsLoading(false);
@@ -178,22 +135,22 @@ export default function ForgotPasswordPage() {
   return (
     <AuthShell
       title={
-        step === "request_otp"
+        step === "request_link"
           ? "Reset your password"
-          : step === "verify_otp"
-          ? "Enter verification code"
-          : step === "new_password"
+          : step === "link_sent"
+          ? "Check your email"
+          : step === "reset_password"
           ? "Set new password"
           : "Password updated!"
       }
       subtitle={
-        step === "request_otp"
-          ? "Enter your registered email address and we'll send you a recovery code"
-          : step === "verify_otp"
-          ? `We sent a verification code to ${email}`
-          : step === "new_password"
-          ? "Choose a strong password with at least 8 characters"
-          : "Your password has been successfully reset"
+        step === "request_link"
+          ? "Enter your registered email address to receive a password reset link."
+          : step === "link_sent"
+          ? `We've sent a password reset link to ${email}`
+          : step === "reset_password"
+          ? "Choose a strong password with at least 8 characters."
+          : "Your password has been successfully reset."
       }
       footer={
         <div className="text-center text-xs text-zinc-500">
@@ -213,9 +170,9 @@ export default function ForgotPasswordPage() {
         </Alert>
       )}
 
-      {/* Step 1: Request Code */}
-      {step === "request_otp" && (
-        <form onSubmit={handleSendCode} className="space-y-4">
+      {/* Step 1: Request Password Reset Link */}
+      {step === "request_link" && (
+        <form onSubmit={handleSendLink} className="space-y-4">
           <TextInput
             label="Email Address"
             type="email"
@@ -233,47 +190,54 @@ export default function ForgotPasswordPage() {
             className="w-full mt-2"
             size="lg"
             isLoading={isLoading}
-            rightIcon={<KeyRound className="h-4 w-4" />}
+            rightIcon={<Send className="h-4 w-4" />}
           >
-            Send Verification Code
+            Send Reset Link
           </Button>
         </form>
       )}
 
-      {/* Step 2: Verify Code */}
-      {step === "verify_otp" && (
-        <form onSubmit={handleVerifyCode} className="space-y-4">
-          <TextInput
-            label="6-Digit Verification Code"
-            placeholder="123456"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            error={fieldErrors.code}
-            required
-            autoFocus
-            className="text-center tracking-widest text-lg font-mono"
-            maxLength={10}
-          />
-
-          <Button type="submit" className="w-full mt-2" size="lg" isLoading={isLoading}>
-            Verify Code
-          </Button>
-
-          <div className="text-center mt-3">
+      {/* Step 2: Email Sent Confirmation */}
+      {step === "link_sent" && (
+        <div className="text-center py-2 space-y-4">
+          <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
+            <Mail className="h-8 w-8" />
+          </div>
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">
+            Please check your inbox (and spam folder) and click the link inside the email to choose a new password.
+          </p>
+          <div className="pt-2 flex flex-col gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleSendLink()}
+              isLoading={isLoading}
+              className="w-full"
+            >
+              Resend Reset Link
+            </Button>
             <button
               type="button"
-              onClick={() => setStep("request_otp")}
-              className="text-xs font-medium text-zinc-500 hover:text-blue-600 dark:text-zinc-400 transition-colors"
+              onClick={() => setStep("request_link")}
+              className="text-xs text-zinc-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors pt-1 cursor-pointer"
             >
-              Didn&apos;t receive code? Try again
+              Try a different email address
             </button>
           </div>
-        </form>
+        </div>
       )}
 
-      {/* Step 3: New Password */}
-      {step === "new_password" && (
+      {/* Step 3: Set New Password Form (from Email Link) */}
+      {step === "reset_password" && (
         <form onSubmit={handleResetPassword} className="space-y-4">
+          <TextInput
+            label="Account Email"
+            type="email"
+            value={email}
+            disabled
+            leftIcon={<Mail className="h-4 w-4" />}
+          />
+
           <PasswordInput
             label="New Password"
             placeholder="Min. 8 characters"
@@ -286,7 +250,7 @@ export default function ForgotPasswordPage() {
 
           <PasswordInput
             label="Confirm New Password"
-            placeholder="Confirm password"
+            placeholder="Confirm new password"
             value={passwordConfirmation}
             onChange={(e) => setPasswordConfirmation(e.target.value)}
             error={fieldErrors.password_confirmation}
@@ -300,7 +264,7 @@ export default function ForgotPasswordPage() {
             isLoading={isLoading}
             leftIcon={<Lock className="h-4 w-4" />}
           >
-            Save New Password
+            Update Password
           </Button>
         </form>
       )}
@@ -324,5 +288,21 @@ export default function ForgotPasswordPage() {
         </div>
       )}
     </AuthShell>
+  );
+}
+
+export default function ForgotPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <AuthShell title="Reset your password" subtitle="Loading...">
+          <div className="h-32 flex items-center justify-center text-sm text-zinc-400">
+            Loading...
+          </div>
+        </AuthShell>
+      }
+    >
+      <ForgotPasswordContent />
+    </Suspense>
   );
 }

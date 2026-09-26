@@ -85,18 +85,28 @@ export function CreateUserModal({
     }
   };
 
-  const roleOptions =
-    roles.length > 0
-      ? roles.map((r) => ({
-        value: r.code,
-        label: `${r.name} (${r.code})`,
-      }))
-      : [
+  const roleOptions = React.useMemo(() => {
+    if (roles.length === 0) {
+      return [
         { value: "owner", label: "Business Owner" },
         { value: "admin", label: "System Administrator" },
         { value: "manager", label: "Branch Manager" },
         { value: "cashier", label: "Cashier" },
       ];
+    }
+    const seen = new Set<string>();
+    const unique: { value: string; label: string }[] = [];
+    for (const r of roles) {
+      const code = (r.code || "").trim();
+      if (!code || seen.has(code)) continue;
+      seen.add(code);
+      unique.push({
+        value: code,
+        label: `${r.name} (${code})`,
+      });
+    }
+    return unique;
+  }, [roles]);
 
   return (
     <Modal

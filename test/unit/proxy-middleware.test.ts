@@ -58,7 +58,7 @@ describe("Next.js Proxy / Middleware", () => {
     expect(res.headers.get("location")).toBe("http://localhost:3000/businesses");
   });
 
-  it("prevents non-admin user (e.g. owner) from accessing /admin and redirects to /businesses", () => {
+  it("prevents non-admin user (e.g. owner) from accessing /admin and redirects to /businesses/dashboard", () => {
     const req = createMockRequest("http://localhost:3000/admin/dashboard", {
       smartpos_access_token: "mock-token",
       smartpos_user_roles: JSON.stringify(["owner"]),
@@ -66,7 +66,18 @@ describe("Next.js Proxy / Middleware", () => {
     const res = proxy(req);
 
     expect(res.status).toBe(307);
-    expect(res.headers.get("location")).toBe("http://localhost:3000/businesses?error=admin_role_required");
+    expect(res.headers.get("location")).toBe("http://localhost:3000/businesses/dashboard?error=admin_role_required");
+  });
+
+  it("strictly prevents admin user from accessing /businesses/settings and redirects to /admin/dashboard", () => {
+    const req = createMockRequest("http://localhost:3000/businesses/settings", {
+      smartpos_access_token: "mock-token",
+      smartpos_user_roles: JSON.stringify(["admin"]),
+    });
+    const res = proxy(req);
+
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe("http://localhost:3000/admin/dashboard?error=owner_role_required");
   });
 
   it("allows valid admin access to /admin with security headers", () => {
@@ -93,8 +104,42 @@ describe("Next.js Proxy / Middleware", () => {
     expect(res.headers.get("location")).toBe("http://localhost:3000/admin/dashboard?error=owner_role_required");
   });
 
+  it("strictly prevents admin user from accessing /businesses/dashboard and redirects to /admin/dashboard", () => {
+    const req = createMockRequest("http://localhost:3000/businesses/dashboard", {
+      smartpos_access_token: "mock-token",
+      smartpos_user_roles: JSON.stringify(["admin"]),
+    });
+    const res = proxy(req);
+
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe("http://localhost:3000/admin/dashboard?error=owner_role_required");
+  });
+
+  it("strictly prevents admin user from accessing subpaths of /businesses/dashboard and redirects to /admin/dashboard", () => {
+    const req = createMockRequest("http://localhost:3000/businesses/dashboard/reports", {
+      smartpos_access_token: "mock-token",
+      smartpos_user_roles: JSON.stringify(["admin"]),
+    });
+    const res = proxy(req);
+
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe("http://localhost:3000/admin/dashboard?error=owner_role_required");
+  });
+
   it("allows valid owner access to /businesses portal with security headers", () => {
     const req = createMockRequest("http://localhost:3000/businesses", {
+      smartpos_access_token: "mock-token",
+      smartpos_user_roles: JSON.stringify(["owner"]),
+    });
+    const res = proxy(req);
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get("X-Frame-Options")).toBe("SAMEORIGIN");
+    expect(res.headers.get("X-Content-Type-Options")).toBe("nosniff");
+  });
+
+  it("allows valid owner access to /businesses/dashboard with security headers", () => {
+    const req = createMockRequest("http://localhost:3000/businesses/dashboard", {
       smartpos_access_token: "mock-token",
       smartpos_user_roles: JSON.stringify(["owner"]),
     });

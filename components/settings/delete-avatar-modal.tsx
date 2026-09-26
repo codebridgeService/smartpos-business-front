@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Trash2, AlertTriangle } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { apiClient } from "@/lib/api";
+import { getAvatarUrl } from "@/lib/utils/image";
 import type { User } from "@/types";
 
 interface DeleteAvatarModalProps {
@@ -24,6 +25,13 @@ export function DeleteAvatarModal({
   const toast = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
+
+  const avatarSrc = getAvatarUrl(user.avatar_url, user.avatar);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [avatarSrc]);
 
   const handleDelete = async () => {
     if (!user.uuid) return;
@@ -82,11 +90,12 @@ export function DeleteAvatarModal({
       <div className="flex flex-col items-center gap-4 py-2 text-center">
         <div className="relative">
           <div className="h-20 w-20 rounded-full overflow-hidden border-2 border-red-200 dark:border-red-900/60 bg-zinc-100 dark:bg-zinc-800">
-            {user.avatar_url ? (
+            {avatarSrc && !imageError ? (
               <img
-                src={user.avatar_url}
+                src={avatarSrc}
                 alt={user.name}
                 className="h-full w-full object-cover"
+                onError={() => setImageError(true)}
               />
             ) : (
               <div className="h-full w-full flex items-center justify-center font-bold text-lg text-zinc-500">
