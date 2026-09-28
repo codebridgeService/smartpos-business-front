@@ -38,7 +38,9 @@ interface AuthContextType {
   register: (payload: RegisterPayload) => Promise<RegisterResponse>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  updateCurrentUser: (patch: Partial<User>) => void;
 }
+
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -196,6 +198,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     void refreshUser();
   }, [refreshUser]);
 
+  const updateCurrentUser = useCallback((patch: Partial<User>) => {
+    setUser((prev) => (prev ? { ...prev, ...patch } : null));
+  }, []);
+
   const value = useMemo(
     () => ({
       user,
@@ -207,9 +213,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       register,
       logout,
       refreshUser,
+      updateCurrentUser,
     }),
-    [user, session, device, isLoading, login, register, logout, refreshUser]
+    [user, session, device, isLoading, login, register, logout, refreshUser, updateCurrentUser]
   );
+
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

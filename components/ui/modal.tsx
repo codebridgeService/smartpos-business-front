@@ -11,7 +11,7 @@ export interface ModalProps {
   description?: React.ReactNode;
   children: React.ReactNode;
   footer?: React.ReactNode;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
   closeOnOutsideClick?: boolean;
 }
 
@@ -58,6 +58,8 @@ export function Modal({
     md: "max-w-lg",
     lg: "max-w-2xl",
     xl: "max-w-4xl",
+    "2xl": "max-w-5xl",
+    "3xl": "max-w-6xl",
   };
 
   return createPortal(
@@ -74,19 +76,19 @@ export function Modal({
 
       {/* Modal Card */}
       <div
-        className={`relative w-full ${sizeClasses[size]} bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 rounded-3xl shadow-2xl overflow-hidden z-10 animate-scale-in`}
+        className={`relative w-full ${sizeClasses[size]} max-h-[92vh] flex flex-col bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden z-10 animate-scale-in`}
       >
         {/* Header */}
         {(title || description) && (
-          <div className="flex items-start justify-between p-5 sm:p-6 border-b border-zinc-100 dark:border-zinc-800">
-            <div className="pr-6">
+          <div className="flex items-start justify-between p-4 sm:p-5 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
+            <div className="pr-4">
               {title && (
-                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                <div className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                   {title}
-                </h3>
+                </div>
               )}
               {description && (
-                <p className="mt-1 text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
+                <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
                   {description}
                 </p>
               )}
@@ -103,11 +105,11 @@ export function Modal({
         )}
 
         {/* Content */}
-        <div className="p-5 sm:p-6 max-h-[75vh] overflow-y-auto">{children}</div>
+        <div className="p-4 sm:p-5 overflow-y-auto flex-1">{children}</div>
 
         {/* Footer */}
         {footer && (
-          <div className="p-4 sm:p-6 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-900/70 flex items-center justify-end gap-3">
+          <div className="p-3.5 sm:p-4 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-900/70 shrink-0">
             {footer}
           </div>
         )}
