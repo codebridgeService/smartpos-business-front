@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Eye,
@@ -19,10 +19,10 @@ import {
   Tablet,
   Monitor,
   Clock,
-  LogOut,
   RefreshCw,
-  XCircle,
-  KeyRound,
+  Send,
+  AlertCircle,
+  Loader2,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
@@ -30,64 +30,64 @@ import { TextInput } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/toast';
 import { useAuth } from '@/context/auth-context';
-import { apiClient } from '@/lib/api';
-import type { UserSession, UserDevice, LoginAttempt } from '@/types';
-
-// Fallback demo devices if offline
-const DEFAULT_DEMO_DEVICES: UserDevice[] = [
-  {
-    id: 1,
-    user_id: 1,
-    uuid: 'demo-dev-1',
-    device_uuid: 'demo-dev-1',
-    device_name: 'MacBook Pro 16" (HQ Office)',
-    device_type: 'desktop',
-    platform: 'macOS',
-    first_ip_address: '127.0.0.1',
-    last_ip_address: '127.0.0.1',
-    is_trusted: true,
-    is_blocked: false,
-    last_seen_at: new Date().toISOString(),
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: 2,
-    user_id: 1,
-    uuid: 'demo-dev-2',
-    device_uuid: 'demo-dev-2',
-    device_name: 'iPad POS Terminal #1',
-    device_type: 'tablet',
-    platform: 'iPadOS',
-    first_ip_address: '127.0.0.1',
-    last_ip_address: '127.0.0.1',
-    is_trusted: true,
-    is_blocked: false,
-    last_seen_at: new Date().toISOString(),
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-];
+import { useSecurityStore } from '@/stores';
+import type { UserSession, UserDevice } from '@/types';
 
 export function SecurityView() {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser, updateCurrentUser } = useAuth();
   const toast = useToast();
 
-  // Settings Toggles & Values State
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState<boolean>(true);
-  const [googleAuthEnabled, setGoogleAuthEnabled] = useState<boolean>(true);
-  const [phoneVerified, setPhoneVerified] = useState<string>(user?.phone || '+81699799974');
-  const [emailVerified, setEmailVerified] = useState<string>(user?.email || 'info@example.com');
-  const [lastPasswordChange, setLastPasswordChange] = useState<string>('22 Dec 2024, 10:30 AM');
 
-  // Modals
-  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState<boolean>(false);
-  const [isDeviceModalOpen, setIsDeviceModalOpen] = useState<boolean>(false);
-  const [isActivityModalOpen, setIsActivityModalOpen] = useState<boolean>(false);
-  const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState<boolean>(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
-  const [isPhoneModalOpen, setIsPhoneModalOpen] = useState<boolean>(false);
-  const [isEmailModalOpen, setIsEmailModalOpen] = useState<boolean>(false);
+  const {
+    devices,
+    sessions,
+    loginAttempts,
+    twoFactorEnabled,
+    googleAuthEnabled,
+    phoneVerified,
+    emailVerified,
+    isEmailVerified,
+    emailVerifiedAt,
+    isSendingVerificationEmail,
+    isCheckingEmailStatus,
+    lastPasswordChange,
+    isUpdatingDevice,
+    isPurgingRevoked,
+    isSavingPassword,
+    isPasswordModalOpen,
+    isDeviceModalOpen,
+    isActivityModalOpen,
+    isDeactivateModalOpen,
+    isDeleteModalOpen,
+    isPhoneModalOpen,
+    isEmailModalOpen,
+    setTwoFactorEnabled,
+    setGoogleAuthEnabled,
+    setPhoneVerified,
+    setEmailVerified,
+    setIsEmailVerified,
+    setEmailVerifiedAt,
+    setIsPasswordModalOpen,
+
+    setIsDeviceModalOpen,
+    setIsActivityModalOpen,
+    setIsDeactivateModalOpen,
+    setIsDeleteModalOpen,
+    setIsPhoneModalOpen,
+    setIsEmailModalOpen,
+    openDevicesModal,
+    openActivityModal,
+    fetchDevices,
+    blockDevice,
+    unblockDevice,
+    revokeSession,
+    purgeRevokedSessions,
+    changePassword,
+    sendEmailVerification,
+    resendEmailVerification,
+    checkEmailVerificationStatus,
+    changeEmail,
+  } = useSecurityStore();
 
   // Password Form State
   const [currentPassword, setCurrentPassword] = useState('');
@@ -97,85 +97,96 @@ export function SecurityView() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isSavingPassword, setIsSavingPassword] = useState(false);
 
   // Phone / Email form state
   const [tempPhone, setTempPhone] = useState(phoneVerified);
   const [tempEmail, setTempEmail] = useState(emailVerified);
 
-  // Telemetry: Sessions & Devices & Login Attempts
-  const [sessions, setSessions] = useState<UserSession[]>([]);
-  const [devices, setDevices] = useState<UserDevice[]>([]);
-  const [loginAttempts, setLoginAttempts] = useState<LoginAttempt[]>([]);
-  const [isSessionsLoading, setIsSessionsLoading] = useState(false);
-  const [isDevicesLoading, setIsDevicesLoading] = useState(false);
-  const [isAttemptsLoading, setIsAttemptsLoading] = useState(false);
-  const [sessionToRevoke, setSessionToRevoke] = useState<UserSession | null>(null);
-  const [isRevokingSession, setIsRevokingSession] = useState(false);
-  const [isPurgingRevoked, setIsPurgingRevoked] = useState(false);
-  const [isUpdatingDevice, setIsUpdatingDevice] = useState(false);
-
   // Synchronize user prop
   useEffect(() => {
-    if (user?.email) setEmailVerified(user.email);
-    if (user?.phone) setPhoneVerified(user.phone);
-  }, [user]);
-
-  // Fetch telemetry
-  const fetchSessions = useCallback(async () => {
-    setIsSessionsLoading(true);
-    try {
-      const res = await apiClient.get<any>('/sessions');
-      const list = Array.isArray(res) ? res : res?.data || [];
-      setSessions(list);
-    } catch {
-      // Graceful fallback
-    } finally {
-      setIsSessionsLoading(false);
+    // Only synchronize initial email if not currently in an unverified change flow
+    if (user?.email && user.email !== emailVerified && isEmailVerified) {
+      setEmailVerified(user.email);
     }
-  }, []);
-
-  const fetchDevices = useCallback(async () => {
-    setIsDevicesLoading(true);
-    try {
-      const res = await apiClient.get<any>('/devices');
-      const list = Array.isArray(res) ? res : res?.data || [];
-      setDevices(list.length > 0 ? list : DEFAULT_DEMO_DEVICES);
-    } catch {
-      setDevices(DEFAULT_DEMO_DEVICES);
-    } finally {
-      setIsDevicesLoading(false);
+    if (user?.phone && user.phone !== phoneVerified) {
+      setPhoneVerified(user.phone);
     }
-  }, []);
-
-  const fetchLoginAttempts = useCallback(async () => {
-    setIsAttemptsLoading(true);
-    try {
-      const res = await apiClient.get<any>('/login-attempts');
-      const list = Array.isArray(res) ? res : res?.data || [];
-      setLoginAttempts(list);
-    } catch {
-      // Graceful fallback
-    } finally {
-      setIsAttemptsLoading(false);
+    // Only take email_verified_at if user.email matches our currently displayed email
+    if (user && user.email === emailVerified) {
+      setIsEmailVerified(Boolean(user.email_verified_at));
+      setEmailVerifiedAt(user.email_verified_at || null);
     }
-  }, []);
+  }, [user?.email, user?.phone, user?.email_verified_at, emailVerified, phoneVerified, isEmailVerified, setEmailVerified, setPhoneVerified, setIsEmailVerified, setEmailVerifiedAt]);
 
+  // Open modals with store triggers
   const handleOpenDevices = () => {
-    setIsDeviceModalOpen(true);
-    fetchSessions();
-    fetchDevices();
+    openDevicesModal();
   };
 
   const handleOpenActivity = () => {
-    setIsActivityModalOpen(true);
-    fetchLoginAttempts();
+    openActivityModal();
   };
+
+  const handleOpenChangeEmail = () => {
+    setTempEmail(emailVerified);
+    setIsEmailModalOpen(true);
+  };
+
+  const handleChangeEmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanEmail = tempEmail.trim();
+
+    if (!cleanEmail) {
+      toast.error('Email address is required.');
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      toast.error('Please enter a valid email address.');
+      return;
+    }
+
+    if (cleanEmail === user?.email && isEmailVerified) {
+      toast.info('This is already your current verified email address.');
+      setIsEmailModalOpen(false);
+      return;
+    }
+
+    try {
+      const res = await changeEmail(cleanEmail, {
+        userUuid: user?.uuid,
+        name: user?.name,
+        phone: user?.phone,
+        username: user?.username,
+      });
+
+      // Immediately reflect new email in current user state and mark as unverified
+      updateCurrentUser?.({
+        email: cleanEmail,
+        email_verified_at: null,
+      });
+
+      setEmailVerified(cleanEmail);
+      setIsEmailVerified(false);
+      setEmailVerifiedAt(null);
+      setIsEmailModalOpen(false);
+
+      toast.success(
+        res.message || `Verification link sent to ${cleanEmail}. Please verify within 15 minutes.`
+      );
+    } catch (err: any) {
+      const msg =
+        err?.data?.message || err?.message || 'Failed to update email and send verification link.';
+      toast.error(msg);
+    }
+  };
+
 
   // Password Submit
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordErrors({});
+
 
     const newErrors: Record<string, string> = {};
 
@@ -200,20 +211,13 @@ export function SecurityView() {
       return;
     }
 
-    setIsSavingPassword(true);
     try {
-      await apiClient.post('/auth/change-password', {
+      await changePassword({
         current_password: currentPassword,
         password: newPassword,
         password_confirmation: confirmPassword,
       });
       toast.success('Password updated successfully');
-      setLastPasswordChange(
-        new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) +
-        ', ' +
-        new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      );
-      setIsPasswordModalOpen(false);
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
@@ -233,80 +237,78 @@ export function SecurityView() {
         err?.message ||
         'Failed to update password. Please check your credentials.';
       toast.error(msg);
-    } finally {
-      setIsSavingPassword(false);
     }
   };
 
   // Device Block / Unblock Actions
   const handleUnblockDevice = async (device: UserDevice) => {
-    setIsUpdatingDevice(true);
     try {
-      await apiClient.patch(`/devices/${device.uuid}/unblock`);
+      await unblockDevice(device);
       toast.success(`Device "${device.device_name || 'Terminal'}" unblocked successfully.`);
-      await fetchDevices();
     } catch {
-      setDevices((prev) =>
-        prev.map((d) => (d.uuid === device.uuid ? { ...d, is_blocked: false } : d))
-      );
-      toast.success(`Device "${device.device_name || 'Terminal'}" unblocked successfully.`);
-    } finally {
-      setIsUpdatingDevice(false);
+      toast.error('Failed to unblock device.');
     }
   };
 
   const handleBlockDevice = async (device: UserDevice) => {
-    setIsUpdatingDevice(true);
     try {
-      await apiClient.patch(`/devices/${device.uuid}/block`);
+      await blockDevice(device);
       toast.success(`Device "${device.device_name || 'Terminal'}" blocked.`);
-      await fetchDevices();
     } catch {
-      setDevices((prev) =>
-        prev.map((d) => (d.uuid === device.uuid ? { ...d, is_blocked: true } : d))
-      );
-      toast.success(`Device "${device.device_name || 'Terminal'}" blocked.`);
-    } finally {
-      setIsUpdatingDevice(false);
+      toast.error('Failed to block device.');
     }
   };
 
   const handlePurgeRevoked = async () => {
-    setIsPurgingRevoked(true);
     try {
-      await apiClient.delete('/sessions/revoked');
-      setSessions((prev) => prev.filter((s) => s.status !== 'revoked' && !s.revoked_at));
+      await purgeRevokedSessions();
       toast.success('Revoked sessions purged successfully.');
     } catch {
-      setSessions((prev) => prev.filter((s) => s.status !== 'revoked' && !s.revoked_at));
-      toast.success('Revoked sessions purged successfully.');
-    } finally {
-      setIsPurgingRevoked(false);
+      toast.error('Failed to purge revoked sessions.');
     }
   };
 
   const handleRevokeSession = async (session: UserSession) => {
     try {
-      await apiClient.delete(`/sessions/${session.uuid}`);
+      await revokeSession(session, logout);
       toast.success('Session revoked.');
-      if (session.is_current) {
-        await logout();
-      } else {
-        await fetchSessions();
-      }
     } catch {
-      setSessions((prev) => prev.filter((s) => s.uuid !== session.uuid));
-      toast.success('Session revoked.');
+      toast.error('Failed to revoke session.');
+    }
+  };
+
+  const handleSendVerification = async () => {
+    try {
+      const res = await sendEmailVerification(emailVerified);
+      toast.success(res.message || 'Verification link sent successfully. Please check your email.');
+    } catch (err: any) {
+      const msg = err?.data?.message || err?.message || 'Failed to send verification link.';
+      toast.error(msg);
+    }
+  };
+
+  const handleCheckEmailStatus = async () => {
+    try {
+      const res = await checkEmailVerificationStatus();
+      if (res.is_verified) {
+        toast.success('Email address is verified.');
+      } else {
+        toast.info('Email address is not yet verified. Please check your inbox for the 15-minute verification link.');
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to check verification status.');
     }
   };
 
   const getDeviceIcon = (type?: string | null) => {
+
     const t = (type || '').toLowerCase();
     if (t.includes('mobile') || t.includes('phone')) return <Smartphone className="h-4 w-4" />;
     if (t.includes('tablet') || t.includes('ipad')) return <Tablet className="h-4 w-4" />;
     if (t.includes('pos') || t.includes('terminal')) return <Monitor className="h-4 w-4" />;
     return <Laptop className="h-4 w-4" />;
   };
+
 
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 shadow-xs overflow-hidden">
@@ -474,30 +476,76 @@ export function SecurityView() {
               <Mail className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-800 dark:text-zinc-100">
-                Email Verification
-              </h3>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 flex items-center gap-1.5">
-                <span>Verified Email : {emailVerified}</span>
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981] inline shrink-0" />
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold text-slate-800 dark:text-zinc-100">
+                  Email Verification
+                </h3>
+                {isEmailVerified ? (
+                  <span className="px-2 py-0.5 text-[10px] font-semibold rounded-md border border-[#10B981]/40 bg-emerald-50 dark:bg-emerald-950/30 text-[#10B981] flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-[#10B981]" /> Verified
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 text-[10px] font-semibold rounded-md border border-amber-300 dark:border-amber-700/60 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3 text-amber-500" /> Unverified
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                <span>{isEmailVerified ? 'Verified Email' : 'Email Address'} : <strong className="font-semibold text-slate-800 dark:text-zinc-200">{emailVerified}</strong></span>
+                {isEmailVerified ? (
+                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-[#10B981] inline shrink-0" />
+                    {emailVerifiedAt
+                      ? `(Verified ${new Date(emailVerifiedAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })})`
+                      : '(Verified)'}
+                  </span>
+                ) : (
+                  <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                    (Pending verification — 15-min signed link)
+                  </span>
+                )}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+            {!isEmailVerified && (
+              <button
+                onClick={handleSendVerification}
+                disabled={isSendingVerificationEmail}
+                className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-semibold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                title="Send a 15-minute email verification link"
+              >
+                {isSendingVerificationEmail ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Send className="w-3.5 h-3.5" />
+                )}
+                Send Link
+              </button>
+            )}
+
             <button
-              onClick={() => {
-                setTempEmail(emailVerified);
-                setIsEmailModalOpen(true);
-              }}
+              onClick={handleCheckEmailStatus}
+              disabled={isCheckingEmailStatus}
+              className="p-1.5 rounded-lg border border-slate-200 dark:border-zinc-700 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-600 dark:text-slate-300 text-xs transition-colors cursor-pointer"
+              title="Refresh verification status"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isCheckingEmailStatus ? 'animate-spin' : ''}`} />
+            </button>
+
+            <button
+              onClick={handleOpenChangeEmail}
               className="px-4 py-1.5 rounded-lg bg-[#F26522] hover:bg-[#d9531e] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
             >
               Change
             </button>
+
             <button
               onClick={() => {
                 if (confirm('Are you sure you want to remove this secondary email?')) {
                   setEmailVerified(user?.email || 'unassigned@smartpos.local');
+                  setIsEmailVerified(Boolean(user?.email_verified_at));
                   toast.info('Secondary email removed.');
                 }
               }}
@@ -507,6 +555,7 @@ export function SecurityView() {
             </button>
           </div>
         </div>
+
 
         {/* 6. Device Management */}
         <div className="py-4 px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/40 dark:hover:bg-zinc-800/20 transition-colors">
@@ -952,39 +1001,59 @@ export function SecurityView() {
         <Modal
           isOpen={isEmailModalOpen}
           onClose={() => setIsEmailModalOpen(false)}
-          title="Update Verified Email Address"
+          title="Update Email Address"
+          description="Enter your new email address. A 15-minute verification link will be sent to confirm ownership."
         >
-          <div className="space-y-4 pt-2">
+          <form onSubmit={handleChangeEmailSubmit} className="space-y-4 pt-2">
+            <div className="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl text-xs text-amber-800 dark:text-amber-200 flex items-start gap-2.5">
+              <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+              <span>
+                Changing your email will mark it as <strong>unverified</strong>. A 15-minute verification link will be dispatched to your new address immediately.
+              </span>
+            </div>
+
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">
-                Email Address
+                New Email Address
               </label>
               <input
                 type="email"
+                required
                 value={tempEmail}
                 onChange={(e) => setTempEmail(e.target.value)}
-                placeholder="info@example.com"
-                className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-zinc-700 rounded-lg bg-slate-50 dark:bg-zinc-800 text-slate-900 dark:text-white"
+                placeholder="new.email@example.com"
+                className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-zinc-700 rounded-lg bg-slate-50 dark:bg-zinc-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F26522]/30"
               />
             </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" size="sm" onClick={() => setIsEmailModalOpen(false)}>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-zinc-800">
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
+                onClick={() => setIsEmailModalOpen(false)}
+                disabled={isSendingVerificationEmail}
+              >
                 Cancel
               </Button>
               <button
-                onClick={() => {
-                  setEmailVerified(tempEmail);
-                  setIsEmailModalOpen(false);
-                  toast.success('Verified email address updated.');
-                }}
-                className="px-4 py-2 rounded-lg bg-[#F26522] hover:bg-[#d9531e] text-white text-xs font-semibold shadow-xs"
+                type="submit"
+                disabled={isSendingVerificationEmail}
+                className="px-5 py-2 rounded-lg bg-[#F26522] hover:bg-[#d9531e] text-white text-xs font-semibold shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
-                Save Email
+                {isSendingVerificationEmail ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Send className="w-3.5 h-3.5" />
+                )}
+                {isSendingVerificationEmail ? 'Sending...' : 'Update & Send Verification'}
               </button>
             </div>
-          </div>
+          </form>
         </Modal>
       )}
+
+
 
       {/* Deactivate Account Modal */}
       {isDeactivateModalOpen && (

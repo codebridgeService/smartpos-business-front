@@ -9,6 +9,8 @@ export interface Permission {
   code: string;
   name: string;
   module: string | null;
+  resource?: string | null;
+  action?: string | null;
   description: string | null;
   created_at: string | null;
   updated_at: string | null;
@@ -20,6 +22,7 @@ export interface Role {
   business_uuid: string | null;
   name: string;
   code: string;
+  description?: string | null;
   is_system: boolean;
   created_at: string | null;
   updated_at: string | null;
