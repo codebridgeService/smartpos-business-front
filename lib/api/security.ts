@@ -169,16 +169,25 @@ export const securityApi = {
    * Verify email address using the 15-minute signed link
    * Endpoint: GET /auth/email/verify/{id}/{hash}
    */
-  async verifyEmail(id: string | number, hash: string): Promise<VerifyEmailResponse> {
-    return apiClient.get<VerifyEmailResponse>(`/auth/email/verify/${id}/${hash}`);
+  async verifyEmail(id: string | number, hash: string, searchParams?: Record<string, string>): Promise<VerifyEmailResponse> {
+    return apiClient.get<VerifyEmailResponse>(`/auth/email/verify/${id}/${hash}`, { params: searchParams });
   },
 
   /**
    * Verify email change using the 15-minute signed link
    * Endpoint: GET /auth/email/change/verify/{token}
    */
-  async verifyEmailChange(token: string, searchParams?: Record<string, string>): Promise<VerifyEmailResponse> {
-    return apiClient.get<VerifyEmailResponse>(`/auth/email/change/verify/${token}`, { params: searchParams });
+  async verifyEmailChange(
+    tokenOrId: string | number,
+    hashOrSearchParams?: string | Record<string, string>,
+    searchParams?: Record<string, string>
+  ): Promise<VerifyEmailResponse> {
+    if (typeof hashOrSearchParams === "string") {
+      const token = hashOrSearchParams;
+      const params = { ...searchParams, id: String(tokenOrId) };
+      return apiClient.get<VerifyEmailResponse>(`/auth/email/change/verify/${token}`, { params });
+    }
+    return apiClient.get<VerifyEmailResponse>(`/auth/email/change/verify/${tokenOrId}`, { params: hashOrSearchParams });
   },
 
   /**
