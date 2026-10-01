@@ -8,6 +8,7 @@ import type {
   UpdateBusinessSettingRequest,
 } from "@/types";
 import { businessesApi } from "@/lib/api/businesses";
+import { storageCache } from "@/lib/storage/storage-cache";
 
 export interface BusinessState {
   // Data
@@ -92,9 +93,16 @@ export const useBusinessStore = create<BusinessState>((set, get) => ({
   clearProvisionedResult: () => set({ provisionedResult: null }),
 
   fetchBusinesses: async () => {
-    set({ isLoading: true, error: null });
+    const cached = storageCache.get<Business[]>("smartpos:cache:companies");
+    if (cached && cached.length > 0) {
+      set({ businesses: cached, isLoading: false });
+    } else {
+      set({ isLoading: true, error: null });
+    }
+
     try {
       const list = await businessesApi.getBusinesses();
+      storageCache.set("smartpos:cache:companies", list, 120);
       set({ businesses: list, isLoading: false });
       return list;
     } catch (err: unknown) {
@@ -108,6 +116,7 @@ export const useBusinessStore = create<BusinessState>((set, get) => ({
     set({ isSaving: true, error: null });
     try {
       const res = await businessesApi.createBusiness(data);
+      storageCache.remove("smartpos:cache:companies");
       const newBusiness = res.data;
       set((state) => ({
         businesses: [newBusiness, ...state.businesses],
@@ -126,6 +135,7 @@ export const useBusinessStore = create<BusinessState>((set, get) => ({
     set({ isSaving: true, error: null });
     try {
       const updated = await businessesApi.updateBusiness(uuid, data);
+      storageCache.remove("smartpos:cache:companies");
       set((state) => ({
         businesses: state.businesses.map((b) => (b.uuid === uuid ? updated : b)),
         selectedBusiness: state.selectedBusiness?.uuid === uuid ? updated : state.selectedBusiness,
@@ -143,6 +153,7 @@ export const useBusinessStore = create<BusinessState>((set, get) => ({
     set({ isSaving: true, error: null });
     try {
       await businessesApi.deleteBusiness(uuid);
+      storageCache.remove("smartpos:cache:companies");
       set((state) => ({
         businesses: state.businesses.filter((b) => b.uuid !== uuid),
         selectedBusiness: null,

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { Role, LengthAwarePaginator, ApiListResponse } from "@/types";
 import { rolesApi, type CreateRolePayload, type UpdateRolePayload } from "@/lib/api/roles";
+import { storageCache } from "@/lib/storage/storage-cache";
 
 export const DEFAULT_SYSTEM_ROLES: Role[] = [
   {
@@ -186,12 +187,33 @@ export const useRoleStore = create<RoleState>((set, get) => ({
     const targetBusinessUuid =
       businessUuid !== undefined ? businessUuid : get().selectedBusinessUuid;
 
-    set({
-      isLoading: true,
-      error: null,
-      currentPage: page,
-      selectedBusinessUuid: targetBusinessUuid ?? null,
-    });
+    const isDefaultQuery = page === 1 && !targetBusinessUuid;
+
+    if (isDefaultQuery) {
+      const cached = storageCache.get<Role[]>("smartpos:cache:roles");
+      if (cached && cached.length > 0) {
+        set({
+          roles: cached,
+          isLoading: false,
+          currentPage: 1,
+          selectedBusinessUuid: null,
+        });
+      } else {
+        set({
+          isLoading: true,
+          error: null,
+          currentPage: page,
+          selectedBusinessUuid: targetBusinessUuid ?? null,
+        });
+      }
+    } else {
+      set({
+        isLoading: true,
+        error: null,
+        currentPage: page,
+        selectedBusinessUuid: targetBusinessUuid ?? null,
+      });
+    }
 
     try {
       const res = await rolesApi.getRoles({
@@ -214,6 +236,9 @@ export const useRoleStore = create<RoleState>((set, get) => ({
       }
 
       if (items.length > 0) {
+        if (isDefaultQuery) {
+          storageCache.set("smartpos:cache:roles", items, 120);
+        }
         set({ roles: items, paginator });
         return items;
       } else if (targetBusinessUuid) {
@@ -251,6 +276,7 @@ export const useRoleStore = create<RoleState>((set, get) => ({
     set({ isSaving: true, error: null });
     try {
       const newRole = await rolesApi.createRole(payload);
+      storageCache.remove("smartpos:cache:roles");
       set((state) => ({
         roles: [...state.roles, newRole],
         isCreateModalOpen: false,
@@ -268,6 +294,7 @@ export const useRoleStore = create<RoleState>((set, get) => ({
     set({ isSaving: true, error: null });
     try {
       const updated = await rolesApi.updateRole(uuid, payload);
+      storageCache.remove("smartpos:cache:roles");
       set((state) => ({
         roles: state.roles.map((r) => (r.uuid === uuid ? { ...r, ...updated } : r)),
         roleToEdit: null,
@@ -285,6 +312,7 @@ export const useRoleStore = create<RoleState>((set, get) => ({
     set({ isSaving: true, error: null });
     try {
       await rolesApi.deleteRole(uuid);
+      storageCache.remove("smartpos:cache:roles");
       set((state) => ({
         roles: state.roles.filter((r) => r.uuid !== uuid),
         roleToDelete: null,

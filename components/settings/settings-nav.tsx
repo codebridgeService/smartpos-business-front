@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { User, Shield, KeyRound } from "lucide-react";
+import { User, Shield, KeyRound, Database } from "lucide-react";
 
 interface SettingsTab {
   label: string;
@@ -27,6 +27,11 @@ const SETTINGS_TABS: SettingsTab[] = [
     label: "POS Fast-Access PIN",
     href: "/settings/pos-pin",
     icon: <KeyRound className="h-4 w-4" />,
+  },
+  {
+    label: "Local Storage & Cache",
+    href: "/settings/storage",
+    icon: <Database className="h-4 w-4" />,
   },
 ];
 

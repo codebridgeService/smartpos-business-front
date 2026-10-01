@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { User, Role, ApiListResponse, LengthAwarePaginator } from "@/types";
 import { apiClient, usersApi } from "@/lib/api";
+import { storageCache } from "@/lib/storage/storage-cache";
 
 export interface UserFilterState {
   searchQuery: string;
@@ -180,7 +181,28 @@ export const useUserStore = create<UserStoreState>((set, get) => ({
     const { filters } = get();
     const page = targetPage ?? filters.currentPage;
 
-    set({ isLoading: true, error: null });
+    const isDefaultQuery =
+      page === 1 &&
+      !filters.searchQuery.trim() &&
+      filters.statusFilter === "all" &&
+      filters.roleFilter === "all";
+
+    // Instant cache retrieval if default query
+    if (isDefaultQuery) {
+      const cached = storageCache.get<LengthAwarePaginator<User>>("smartpos:cache:users");
+      if (cached && cached.data?.length > 0) {
+        set({
+          users: cached.data,
+          paginator: cached,
+          isLoading: false,
+          filters: { ...filters, currentPage: 1 },
+        });
+      } else {
+        set({ isLoading: true, error: null });
+      }
+    } else {
+      set({ isLoading: true, error: null });
+    }
 
     try {
       const paginator = await usersApi.getUsers({
@@ -190,6 +212,10 @@ export const useUserStore = create<UserStoreState>((set, get) => ({
         status: filters.statusFilter !== "all" ? filters.statusFilter : undefined,
         role: filters.roleFilter !== "all" ? filters.roleFilter : undefined,
       });
+
+      if (isDefaultQuery) {
+        storageCache.set("smartpos:cache:users", paginator, 120);
+      }
 
       set({
         users: paginator.data,
@@ -222,6 +248,7 @@ export const useUserStore = create<UserStoreState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       await usersApi.deleteUser(uuid);
+      storageCache.remove("smartpos:cache:users");
       set((state) => ({
         users: state.users.filter((u) => u.uuid !== uuid),
         isLoading: false,

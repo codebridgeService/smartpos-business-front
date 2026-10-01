@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useBusiness } from "@/context/business-context";
 import { useRoleStore } from "@/stores/useRoleStore";
+import { useRolesQuery, QueryProvider } from "@/lib/react-query";
 import type { Role } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,13 +38,13 @@ import {
   ProvisionRoleModal,
 } from "@/components/businesses/roles";
 
-export default function BusinessRolesPage() {
+function BusinessRolesContent() {
   const { activeBusiness } = useBusiness();
   const businessUuid = activeBusiness?.uuid || null;
 
   const {
-    roles,
-    isLoading,
+    roles: storeRoles,
+    isLoading: isStoreLoading,
     isCreateModalOpen,
     isProvisionModalOpen,
     roleToEdit,
@@ -57,6 +58,22 @@ export default function BusinessRolesPage() {
     fetchRoles,
   } = useRoleStore();
 
+  const {
+    data: queryRoles,
+    isLoading: isQueryLoading,
+    refetch,
+  } = useRolesQuery({ business_uuid: businessUuid }, Boolean(businessUuid));
+
+  const roles: Role[] = useMemo(() => {
+    if (Array.isArray(queryRoles)) return queryRoles;
+    if (queryRoles && typeof queryRoles === "object" && "data" in queryRoles && Array.isArray(queryRoles.data)) {
+      return queryRoles.data;
+    }
+    return storeRoles;
+  }, [queryRoles, storeRoles]);
+
+  const isLoading = isQueryLoading || isStoreLoading;
+
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<"all" | "custom" | "system">("all");
 
@@ -68,6 +85,7 @@ export default function BusinessRolesPage() {
   }, [businessUuid, fetchRoles]);
 
   const handleRefresh = async () => {
+    await refetch();
     if (businessUuid) {
       await fetchRoles(businessUuid, 1);
     }
@@ -399,3 +417,12 @@ export default function BusinessRolesPage() {
     </div>
   );
 }
+
+export default function BusinessRolesPage() {
+  return (
+    <QueryProvider>
+      <BusinessRolesContent />
+    </QueryProvider>
+  );
+}
+

@@ -6,4 +6,5 @@ export * from "./security-view";
 export * from "./pos-pin-view";
 export * from "./dreampos-profile-view";
 export * from "./dreampos-settings-shell";
+export * from "./storage-cache-view";
 

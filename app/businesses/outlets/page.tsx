@@ -33,6 +33,13 @@ import {
   CreateOutletRequest,
   UpdateOutletRequest,
 } from "@/lib/api/outlets";
+import {
+  QueryProvider,
+  useOutletsQuery,
+  useCreateOutletMutation,
+  useUpdateOutletMutation,
+  useDeleteOutletMutation,
+} from "@/lib/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,7 +51,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import type { Outlet } from "@/types";
 
-export default function BusinessOutletsPage({
+function BusinessOutletsContent({
   params,
 }: {
   params?: Promise<{ business?: string }> | { business?: string };
@@ -53,9 +60,21 @@ export default function BusinessOutletsPage({
   const businessUuid = activeBusiness?.uuid || (businesses.length > 0 ? businesses[0].uuid : "");
   const toast = useToast();
 
-  const [outlets, setOutlets] = useState<Outlet[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: outlets = [],
+    isLoading,
+    error: queryError,
+    refetch,
+  } = useOutletsQuery(businessUuid);
+
+  const error = queryError ? (queryError instanceof Error ? queryError.message : "Failed to load outlets") : null;
+  const createMutation = useCreateOutletMutation();
+  const updateMutation = useUpdateOutletMutation();
+  const deleteMutation = useDeleteOutletMutation();
+
+  const isSubmittingCreate = createMutation.isPending;
+  const isSubmittingEdit = updateMutation.isPending;
+  const isSubmittingDelete = deleteMutation.isPending;
 
   // View switch: Grid vs. Table (persisted in device storage)
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
@@ -89,7 +108,6 @@ export default function BusinessOutletsPage({
 
   // Create Modal State
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isSubmittingCreate, setIsSubmittingCreate] = useState(false);
   const [createForm, setCreateForm] = useState<CreateOutletRequest>({
     code: "",
     name: "",
@@ -105,7 +123,6 @@ export default function BusinessOutletsPage({
 
   // Edit Modal State
   const [editingOutlet, setEditingOutlet] = useState<Outlet | null>(null);
-  const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
   const [editForm, setEditForm] = useState<UpdateOutletRequest>({
     code: "",
     name: "",
@@ -123,30 +140,6 @@ export default function BusinessOutletsPage({
 
   // Delete Modal State
   const [deletingOutlet, setDeletingOutlet] = useState<Outlet | null>(null);
-  const [isSubmittingDelete, setIsSubmittingDelete] = useState(false);
-
-  const fetchOutlets = useCallback(async () => {
-    if (!businessUuid) {
-      setIsLoading(false);
-      return;
-    }
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await outletsApi.getOutlets(businessUuid);
-      setOutlets(data);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to load outlets";
-      setError(msg);
-      toast.error(msg);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [businessUuid]);
-
-  useEffect(() => {
-    void fetchOutlets();
-  }, [fetchOutlets]);
 
   // Filtered outlets
   const filteredOutlets = useMemo(() => {
@@ -180,15 +173,17 @@ export default function BusinessOutletsPage({
       return;
     }
 
-    setIsSubmittingCreate(true);
     try {
-      await outletsApi.createOutlet(businessUuid, {
-        ...createForm,
-        code: createForm.code.trim().toUpperCase(),
-        name: createForm.name.trim(),
-        phone: createForm.phone?.trim() || null,
-        email: createForm.email?.trim() || null,
-        address: createForm.address?.trim() || null,
+      await createMutation.mutateAsync({
+        businessUuid,
+        data: {
+          ...createForm,
+          code: createForm.code.trim().toUpperCase(),
+          name: createForm.name.trim(),
+          phone: createForm.phone?.trim() || null,
+          email: createForm.email?.trim() || null,
+          address: createForm.address?.trim() || null,
+        },
       });
 
       toast.success("Outlet created successfully!");
@@ -205,12 +200,10 @@ export default function BusinessOutletsPage({
         tax_rate: "10.00",
         timezone: "Asia/Phnom_Penh",
       });
-      await fetchOutlets();
+      await refetch();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to create outlet";
       toast.error(msg);
-    } finally {
-      setIsSubmittingCreate(false);
     }
   };
 
@@ -242,30 +235,31 @@ export default function BusinessOutletsPage({
       return;
     }
 
-    setIsSubmittingEdit(true);
     try {
-      await outletsApi.updateOutlet(editingOutlet.uuid, {
-        ...editForm,
-        code: editForm.code?.trim().toUpperCase(),
-        name: editForm.name?.trim(),
-        phone: editForm.phone?.trim() || null,
-        email: editForm.email?.trim() || null,
-        address: editForm.address?.trim() || null,
-        city: editForm.city?.trim() || null,
-        tax_rate: editForm.tax_rate?.toString() || null,
-        timezone: editForm.timezone?.trim() || null,
-        receipt_header: editForm.receipt_header?.trim() || null,
-        receipt_footer: editForm.receipt_footer?.trim() || null,
+      await updateMutation.mutateAsync({
+        outletUuid: editingOutlet.uuid,
+        businessUuid,
+        data: {
+          ...editForm,
+          code: editForm.code?.trim().toUpperCase(),
+          name: editForm.name?.trim(),
+          phone: editForm.phone?.trim() || null,
+          email: editForm.email?.trim() || null,
+          address: editForm.address?.trim() || null,
+          city: editForm.city?.trim() || null,
+          tax_rate: editForm.tax_rate?.toString() || null,
+          timezone: editForm.timezone?.trim() || null,
+          receipt_header: editForm.receipt_header?.trim() || null,
+          receipt_footer: editForm.receipt_footer?.trim() || null,
+        },
       });
 
       toast.success("Outlet updated successfully!");
       setEditingOutlet(null);
-      await fetchOutlets();
+      await refetch();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to update outlet";
       toast.error(msg);
-    } finally {
-      setIsSubmittingEdit(false);
     }
   };
 
@@ -273,17 +267,17 @@ export default function BusinessOutletsPage({
   const handleDeleteSubmit = async () => {
     if (!deletingOutlet) return;
 
-    setIsSubmittingDelete(true);
     try {
-      await outletsApi.deleteOutlet(deletingOutlet.uuid);
+      await deleteMutation.mutateAsync({
+        outletUuid: deletingOutlet.uuid,
+        businessUuid,
+      });
       toast.success(`Outlet "${deletingOutlet.name}" deleted successfully.`);
       setDeletingOutlet(null);
-      await fetchOutlets();
+      await refetch();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to delete outlet";
       toast.error(msg);
-    } finally {
-      setIsSubmittingDelete(false);
     }
   };
 
@@ -307,7 +301,7 @@ export default function BusinessOutletsPage({
         <div className="flex items-center gap-2.5">
           <Button
             variant="outline"
-            onClick={fetchOutlets}
+            onClick={() => void refetch()}
             disabled={isLoading}
             className="flex items-center gap-2"
           >
@@ -389,7 +383,7 @@ export default function BusinessOutletsPage({
             <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
             <span>{error}</span>
           </div>
-          <Button variant="outline" size="sm" onClick={fetchOutlets}>
+          <Button variant="outline" size="sm" onClick={() => void refetch()}>
             Try Again
           </Button>
         </div>
@@ -1058,5 +1052,15 @@ export default function BusinessOutletsPage({
         </div>
       </Modal>
     </div>
+  );
+}
+
+export default function BusinessOutletsPage(props: {
+  params?: Promise<{ business?: string }> | { business?: string };
+}) {
+  return (
+    <QueryProvider>
+      <BusinessOutletsContent {...props} />
+    </QueryProvider>
   );
 }

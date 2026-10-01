@@ -5,13 +5,13 @@ import { useBusiness } from "@/context/business-context";
 import { useRegisterStore } from "@/stores/useRegisterStore";
 import { outletsApi } from "@/lib/api/outlets";
 import type { Outlet, Register } from "@/types";
-import { 
-  Calculator, 
-  Plus, 
-  MapPin, 
-  Monitor, 
-  MoreVertical, 
-  Trash2, 
+import {
+  Calculator,
+  Plus,
+  MapPin,
+  Monitor,
+  MoreVertical,
+  Trash2,
   Edit3,
   Server,
   ToggleRight,
@@ -25,13 +25,13 @@ import { CreateRegisterModal, EditRegisterModal } from "@/components/registers";
 
 export default function RegistersPage() {
   const { activeBusiness } = useBusiness();
-  const { 
-    registers, 
-    activeOutletUuid, 
-    setActiveOutlet, 
-    isLoading, 
-    isInitialLoaded, 
-    deleteRegister 
+  const {
+    registers,
+    activeOutletUuid,
+    setActiveOutlet,
+    isLoading,
+    isInitialLoaded,
+    deleteRegister
   } = useRegisterStore();
 
   const [outlets, setOutlets] = useState<Outlet[]>([]);
@@ -49,7 +49,7 @@ export default function RegistersPage() {
       try {
         const fetchedOutlets = await outletsApi.getOutlets(activeBusiness.uuid);
         setOutlets(fetchedOutlets);
-        
+
         // Auto-select first outlet if none selected
         if (fetchedOutlets.length > 0 && !activeOutletUuid) {
           setActiveOutlet(fetchedOutlets[0].uuid);
@@ -110,7 +110,7 @@ export default function RegistersPage() {
             </select>
           </div>
 
-          <Button 
+          <Button
             onClick={() => setIsCreateModalOpen(true)}
             disabled={!activeOutletUuid}
             className="shrink-0"
@@ -143,8 +143,8 @@ export default function RegistersPage() {
           <p className="text-sm text-muted-foreground mt-1 max-w-sm text-center">
             This outlet doesn't have any cash registers yet.
           </p>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="mt-6"
             onClick={() => setIsCreateModalOpen(true)}
           >
@@ -171,7 +171,7 @@ export default function RegistersPage() {
                       </p>
                     </div>
                   </div>
-                  
+
                   {register.status === "active" ? (
                     <Badge variant="success" className="bg-success/15 text-success hover:bg-success/25 font-medium border-0">
                       Active
@@ -182,14 +182,14 @@ export default function RegistersPage() {
                     </Badge>
                   )}
                 </div>
-                
+
                 <div className="p-5 space-y-4">
                   {register.description && (
                     <p className="text-sm text-muted-foreground line-clamp-2">
                       {register.description}
                     </p>
                   )}
-                  
+
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="text-muted-foreground text-xs mb-1">Float Setup</p>
@@ -210,25 +210,25 @@ export default function RegistersPage() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between pt-4 border-t border-border/50">
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <Server className="h-3.5 w-3.5" />
                       {register.devices_count || 0} paired devices
                     </div>
-                    
+
                     <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="h-8 px-2 text-muted-foreground hover:text-primary"
                         onClick={() => handleEdit(register)}
                       >
                         <Edit3 className="h-4 w-4" />
                       </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="h-8 px-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                         onClick={() => handleDelete(register.uuid)}
                       >

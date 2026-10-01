@@ -22,6 +22,7 @@ import {
   Globe,
 } from "lucide-react";
 import { useUserStore } from "@/stores";
+import { useUsersQuery, QueryProvider } from "@/lib/react-query";
 import { UserDetailsModal, CreateUserModal } from "@/components/admin/users";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,12 +32,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar } from "@/components/ui/avatar";
 import type { Role } from "@/types";
 
-export default function AdminUsersPage() {
+function AdminUsersContent() {
   const {
-    users,
-    paginator,
+    users: storeUsers,
+    paginator: storePaginator,
     selectedUserUuid,
-    isLoading,
+    isLoading: isStoreLoading,
     error,
     filters,
     isCreateModalOpen,
@@ -53,6 +54,23 @@ export default function AdminUsersPage() {
     closeDetailsModal,
     fetchUsers,
   } = useUserStore();
+
+  const queryParams = useMemo(() => ({
+    page: filters.currentPage,
+    per_page: filters.perPage,
+    search: filters.searchQuery.trim() || undefined,
+    status: filters.statusFilter !== "all" ? filters.statusFilter : undefined,
+    role: filters.roleFilter !== "all" ? filters.roleFilter : undefined,
+  }), [filters.currentPage, filters.perPage, filters.searchQuery, filters.statusFilter, filters.roleFilter]);
+
+  const { data: queryPaginator, isLoading: isQueryLoading, refetch } = useUsersQuery(queryParams);
+
+  const users = useMemo(() => {
+    return queryPaginator?.data ?? storeUsers;
+  }, [queryPaginator, storeUsers]);
+
+  const paginator = queryPaginator ?? storePaginator;
+  const isLoading = isQueryLoading || isStoreLoading;
 
   const [searchInput, setSearchInput] = useState(filters.searchQuery);
 
@@ -773,8 +791,19 @@ export default function AdminUsersPage() {
         isOpen={isDetailsModalOpen}
         onClose={closeDetailsModal}
         userUuid={selectedUserUuid}
-        onSuccess={() => fetchUsers()}
+        onSuccess={async () => {
+          await Promise.all([refetch(), fetchUsers()]);
+        }}
       />
     </div>
   );
 }
+
+export default function AdminUsersPage() {
+  return (
+    <QueryProvider>
+      <AdminUsersContent />
+    </QueryProvider>
+  );
+}
+

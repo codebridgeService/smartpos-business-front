@@ -41,9 +41,9 @@ export const useRegisterStore = create<RegisterState>((set, get) => ({
       const registers = await registersApi.getRegisters(outletUuid);
       set({ registers, isLoading: false, isInitialLoaded: true });
     } catch (error: any) {
-      set({ 
-        error: error.response?.data?.message || "Failed to fetch registers", 
-        isLoading: false 
+      set({
+        error: error.response?.data?.message || "Failed to fetch registers",
+        isLoading: false
       });
     }
   },
@@ -58,9 +58,9 @@ export const useRegisterStore = create<RegisterState>((set, get) => ({
       }));
       return newRegister;
     } catch (error: any) {
-      set({ 
-        error: error.response?.data?.message || "Failed to create register", 
-        isLoading: false 
+      set({
+        error: error.response?.data?.message || "Failed to create register",
+        isLoading: false
       });
       throw error;
     }
@@ -71,16 +71,16 @@ export const useRegisterStore = create<RegisterState>((set, get) => ({
       set({ isLoading: true, error: null });
       const updatedRegister = await registersApi.updateRegister(registerUuid, data);
       set((state) => ({
-        registers: state.registers.map((r) => 
+        registers: state.registers.map((r) =>
           r.uuid === registerUuid ? updatedRegister : r
         ),
         isLoading: false,
       }));
       return updatedRegister;
     } catch (error: any) {
-      set({ 
-        error: error.response?.data?.message || "Failed to update register", 
-        isLoading: false 
+      set({
+        error: error.response?.data?.message || "Failed to update register",
+        isLoading: false
       });
       throw error;
     }
@@ -95,9 +95,9 @@ export const useRegisterStore = create<RegisterState>((set, get) => ({
         isLoading: false,
       }));
     } catch (error: any) {
-      set({ 
-        error: error.response?.data?.message || "Failed to delete register", 
-        isLoading: false 
+      set({
+        error: error.response?.data?.message || "Failed to delete register",
+        isLoading: false
       });
       throw error;
     }

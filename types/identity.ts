@@ -304,3 +304,48 @@ export interface VerifyPosPinResponse {
     business_uuid: string;
   };
 }
+
+// ---------------------------------------------------------------------------
+// Security Events & Forensic Audit Log DTOs
+// ---------------------------------------------------------------------------
+
+export type SecuritySeverity = "low" | "medium" | "high" | "critical";
+
+export interface SecurityEvent {
+  id: number;
+  uuid: string;
+  user_uuid: string | null;
+  business_uuid: string | null;
+  session_uuid: string | null;
+  device_uuid: string | null;
+  event_type: string;
+  severity: SecuritySeverity | string;
+  ip_address: string | null;
+  user_agent: string | null;
+  route: string | null;
+  http_method: string | null;
+  description: string | null;
+  metadata: Record<string, unknown> | unknown[] | null;
+  occurred_at: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface SecurityEventsQueryParams {
+  page?: number;
+  per_page?: number;
+  event_type?: string;
+  severity?: string;
+  user_uuid?: string;
+  business_uuid?: string;
+  session_uuid?: string;
+  device_uuid?: string;
+  route?: string;
+  from?: string;
+  to?: string;
+  search?: string;
+}
+
+export interface SecurityEventDetailResponse {
+  data: SecurityEvent;
+}

@@ -15,6 +15,7 @@ import { useToast } from "@/components/ui/toast";
 import { apiClient, permissionsApi, sortPermissionsByModuleAndCode } from "@/lib/api";
 import { useRoleStore } from "@/stores/useRoleStore";
 import { usePermissionStore } from "@/stores/usePermissionStore";
+import { storageCache } from "@/lib/storage/storage-cache";
 import { GranularPermissionMatrix } from "./granular-permission-matrix";
 import type { Role, Permission } from "@/types";
 
@@ -100,6 +101,7 @@ export function PermissionMatrixModal({
           Array.isArray(permListRes.value) &&
           permListRes.value.length > 0
         ) {
+          storageCache.set("smartpos:cache:permissions", permListRes.value, 120);
           permListRes.value.forEach((p) => {
             if (p.uuid) mergedMap.set(p.uuid, p);
           });
