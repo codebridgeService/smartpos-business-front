@@ -31,6 +31,7 @@ import { useBusiness } from "@/context/business-context";
 import { useRoleStore } from "@/stores/useRoleStore";
 import { usePermissionStore } from "@/stores/usePermissionStore";
 import { permissionsApi } from "@/lib/api/permissions";
+import { storageCache } from "@/lib/storage/storage-cache";
 import type { Role, Permission } from "@/types";
 import {
   CreateRoleModal,
@@ -272,6 +273,7 @@ export default function AdminRolesPage() {
         const perms = await permissionsApi.getAllPermissions();
         if (Array.isArray(perms) && perms.length > 0) {
           setAllPermissions(perms);
+          storageCache.set("smartpos:cache:permissions", perms, 120);
         } else {
           setAllPermissions(usePermissionStore.getState().permissions);
         }

@@ -1,6 +1,13 @@
 import { apiClient } from "./client";
 import { tokenStorage } from "./token";
-import type { User } from "@/types";
+import type {
+  User,
+  ForgotPasswordSendCodeRequest,
+  ForgotPasswordSendCodeResponse,
+  VerifyResetCodeRequest,
+  VerifyResetCodeResponse,
+  ResetPasswordRequest,
+} from "@/types";
 
 export interface LoginCredentials {
   email?: string;
@@ -35,16 +42,15 @@ export interface AuthResponse {
   expires_in?: string;
 }
 
-export interface ForgotPasswordPayload {
-  email: string;
-}
+export type ForgotPasswordPayload = ForgotPasswordSendCodeRequest;
 
-export interface ResetPasswordPayload {
+export type ResetPasswordPayload = ResetPasswordRequest | {
   email: string;
-  token: string;
+  token?: string;
+  otp_uuid?: string;
   password: string;
   password_confirmation: string;
-}
+};
 
 export const authApi = {
   /**
@@ -127,21 +133,64 @@ export const authApi = {
   },
 
   /**
-   * Send password reset email
-   * Endpoint: POST /auth/forgot-password
+   * Send forgot-password OTP verification code to email
+   * Endpoint: POST /auth/forgot-password/send-code
    */
-  async forgotPassword(payload: ForgotPasswordPayload): Promise<{ message: string }> {
-    return apiClient.post<{ message: string }>("/auth/forgot-password", payload, {
-      skipAuth: true,
-    });
+  async sendForgotPasswordCode(
+    payload: ForgotPasswordSendCodeRequest
+  ): Promise<ForgotPasswordSendCodeResponse> {
+    return apiClient.post<ForgotPasswordSendCodeResponse>(
+      "/auth/forgot-password/send-code",
+      payload,
+      { skipAuth: true }
+    );
   },
 
   /**
-   * Reset password with reset token
+   * Alias for sendForgotPasswordCode
+   */
+  async forgotPassword(
+    payload: ForgotPasswordPayload
+  ): Promise<ForgotPasswordSendCodeResponse> {
+    return this.sendForgotPasswordCode(payload);
+  },
+
+  /**
+   * Verify forgot-password OTP verification code
+   * Endpoint: POST /auth/verify-reset-code
+   */
+  async verifyResetCode(
+    payload: VerifyResetCodeRequest
+  ): Promise<VerifyResetCodeResponse> {
+    return apiClient.post<VerifyResetCodeResponse>(
+      "/auth/verify-reset-code",
+      payload,
+      { skipAuth: true }
+    );
+  },
+
+  /**
+   * Reset password with verified OTP
    * Endpoint: POST /auth/reset-password
    */
-  async resetPassword(payload: ResetPasswordPayload): Promise<{ message: string }> {
-    return apiClient.post<{ message: string }>("/auth/reset-password", payload, {
+  async resetPassword(
+    payload: ResetPasswordPayload
+  ): Promise<{ message: string }> {
+    const otpUuid =
+      "otp_uuid" in payload && payload.otp_uuid
+        ? payload.otp_uuid
+        : "token" in payload
+        ? (payload as any).token
+        : "";
+
+    const body: ResetPasswordRequest = {
+      email: payload.email,
+      otp_uuid: otpUuid,
+      password: payload.password,
+      password_confirmation: payload.password_confirmation,
+    };
+
+    return apiClient.post<{ message: string }>("/auth/reset-password", body, {
       skipAuth: true,
     });
   },

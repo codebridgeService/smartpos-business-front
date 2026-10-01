@@ -23,6 +23,7 @@ import {
   Send,
   AlertCircle,
   Loader2,
+  X,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
@@ -86,6 +87,9 @@ export function SecurityView() {
     sendEmailVerification,
     resendEmailVerification,
     checkEmailVerificationStatus,
+    pendingEmail,
+    cancelEmailChange,
+    resendEmailChange,
     changeEmail,
   } = useSecurityStore();
 
@@ -100,7 +104,10 @@ export function SecurityView() {
 
   // Phone / Email form state
   const [tempPhone, setTempPhone] = useState(phoneVerified);
-  const [tempEmail, setTempEmail] = useState(emailVerified);
+  const [tempEmail, setTempEmail] = useState('');
+  const [emailChangePassword, setEmailChangePassword] = useState('');
+  const [showEmailChangePassword, setShowEmailChangePassword] = useState(false);
+  const [isCancellingEmailChange, setIsCancellingEmailChange] = useState(false);
 
   // Synchronize user prop
   useEffect(() => {
@@ -128,7 +135,9 @@ export function SecurityView() {
   };
 
   const handleOpenChangeEmail = () => {
-    setTempEmail(emailVerified);
+    setTempEmail('');
+    setEmailChangePassword('');
+    setShowEmailChangePassword(false);
     setIsEmailModalOpen(true);
   };
 
@@ -137,7 +146,7 @@ export function SecurityView() {
     const cleanEmail = tempEmail.trim();
 
     if (!cleanEmail) {
-      toast.error('Email address is required.');
+      toast.error('New email address is required.');
       return;
     }
 
@@ -146,29 +155,19 @@ export function SecurityView() {
       return;
     }
 
-    if (cleanEmail === user?.email && isEmailVerified) {
-      toast.info('This is already your current verified email address.');
-      setIsEmailModalOpen(false);
+    if (cleanEmail.toLowerCase() === (user?.email || emailVerified).toLowerCase()) {
+      toast.info('The new email address cannot be the same as your current email.');
+      return;
+    }
+
+    if (!emailChangePassword) {
+      toast.error('Current password is required to request an email change.');
       return;
     }
 
     try {
-      const res = await changeEmail(cleanEmail, {
-        userUuid: user?.uuid,
-        name: user?.name,
-        phone: user?.phone,
-        username: user?.username,
-      });
-
-      // Immediately reflect new email in current user state and mark as unverified
-      updateCurrentUser?.({
-        email: cleanEmail,
-        email_verified_at: null,
-      });
-
-      setEmailVerified(cleanEmail);
-      setIsEmailVerified(false);
-      setEmailVerifiedAt(null);
+      const res = await changeEmail(cleanEmail, emailChangePassword);
+      setEmailChangePassword('');
       setIsEmailModalOpen(false);
 
       toast.success(
@@ -176,8 +175,34 @@ export function SecurityView() {
       );
     } catch (err: any) {
       const msg =
-        err?.data?.message || err?.message || 'Failed to update email and send verification link.';
+        err?.data?.message || err?.message || 'Failed to request email change.';
       toast.error(msg);
+    }
+  };
+
+  const handleResendPendingEmail = async () => {
+    try {
+      const res = await resendEmailChange();
+      toast.success(res.message || 'Verification link resent to your new email.');
+    } catch (err: any) {
+      const msg = err?.data?.message || err?.message || 'Failed to resend verification link.';
+      toast.error(msg);
+    }
+  };
+
+  const handleCancelPendingEmail = async () => {
+    if (!confirm('Are you sure you want to cancel the pending email change?')) {
+      return;
+    }
+    setIsCancellingEmailChange(true);
+    try {
+      await cancelEmailChange();
+      toast.success('Pending email change cancelled successfully.');
+    } catch (err: any) {
+      const msg = err?.data?.message || err?.message || 'Failed to cancel email change.';
+      toast.error(msg);
+    } finally {
+      setIsCancellingEmailChange(false);
     }
   };
 
@@ -489,6 +514,11 @@ export function SecurityView() {
                     <AlertCircle className="w-3 h-3 text-amber-500" /> Unverified
                   </span>
                 )}
+                {pendingEmail && (
+                  <span className="px-2 py-0.5 text-[10px] font-semibold rounded-md border border-sky-300 dark:border-sky-700/60 bg-sky-50 dark:bg-sky-950/30 text-sky-700 dark:text-sky-300 flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-sky-500" /> Change Pending
+                  </span>
+                )}
               </div>
               <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
                 <span>{isEmailVerified ? 'Verified Email' : 'Email Address'} : <strong className="font-semibold text-slate-800 dark:text-zinc-200">{emailVerified}</strong></span>
@@ -505,11 +535,45 @@ export function SecurityView() {
                   </span>
                 )}
               </p>
+              {pendingEmail && (
+                <div className="mt-1.5 text-xs text-sky-700 dark:text-sky-300 flex items-center gap-1.5 flex-wrap bg-sky-50/70 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/60 rounded-md px-2.5 py-1">
+                  <span>Pending new email: <strong className="font-semibold">{pendingEmail}</strong> (15-min verification link sent)</span>
+                </div>
+              )}
             </div>
           </div>
 
           <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
-            {!isEmailVerified && (
+            {pendingEmail ? (
+              <>
+                <button
+                  onClick={handleResendPendingEmail}
+                  disabled={isSendingVerificationEmail}
+                  className="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white text-xs font-semibold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                  title="Resend 15-minute verification link to pending email"
+                >
+                  {isSendingVerificationEmail ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Send className="w-3.5 h-3.5" />
+                  )}
+                  Resend Link
+                </button>
+                <button
+                  onClick={handleCancelPendingEmail}
+                  disabled={isCancellingEmailChange}
+                  className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white text-xs font-semibold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                  title="Cancel pending email change request"
+                >
+                  {isCancellingEmailChange ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <X className="w-3.5 h-3.5" />
+                  )}
+                  Cancel Change
+                </button>
+              </>
+            ) : !isEmailVerified ? (
               <button
                 onClick={handleSendVerification}
                 disabled={isSendingVerificationEmail}
@@ -523,7 +587,7 @@ export function SecurityView() {
                 )}
                 Send Link
               </button>
-            )}
+            ) : null}
 
             <button
               onClick={handleCheckEmailStatus}
@@ -1002,13 +1066,13 @@ export function SecurityView() {
           isOpen={isEmailModalOpen}
           onClose={() => setIsEmailModalOpen(false)}
           title="Update Email Address"
-          description="Enter your new email address. A 15-minute verification link will be sent to confirm ownership."
+          description="Enter your new email address and current password. A 15-minute verification link will be sent to confirm ownership."
         >
           <form onSubmit={handleChangeEmailSubmit} className="space-y-4 pt-2">
             <div className="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl text-xs text-amber-800 dark:text-amber-200 flex items-start gap-2.5">
               <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
               <span>
-                Changing your email will mark it as <strong>unverified</strong>. A 15-minute verification link will be dispatched to your new address immediately.
+                For security verification, your current password is required. A 15-minute verification link will be sent to the new email address before it replaces your current email.
               </span>
             </div>
 
@@ -1024,6 +1088,36 @@ export function SecurityView() {
                 placeholder="new.email@example.com"
                 className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-zinc-700 rounded-lg bg-slate-50 dark:bg-zinc-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F26522]/30"
               />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">
+                Current Password <span className="text-rose-500">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  type={showEmailChangePassword ? "text" : "password"}
+                  required
+                  value={emailChangePassword}
+                  onChange={(e) => setEmailChangePassword(e.target.value)}
+                  placeholder="Enter your current password"
+                  className="w-full px-3 py-2 pr-10 text-sm border border-slate-200 dark:border-zinc-700 rounded-lg bg-slate-50 dark:bg-zinc-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F26522]/30"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowEmailChangePassword(!showEmailChangePassword)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-zinc-300"
+                >
+                  {showEmailChangePassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-1">
+                Required by the identity service to verify identity prior to issuing verification link.
+              </p>
             </div>
 
             <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-zinc-800">

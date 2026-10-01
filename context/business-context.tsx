@@ -9,6 +9,7 @@ import React, {
   useMemo,
 } from "react";
 import { apiClient } from "@/lib/api";
+import { getQueryClient, queryKeys, useBusinessesQuery } from "@/lib/react-query";
 import { useAuth } from "./auth-context";
 import type {
   Business,
@@ -37,11 +38,19 @@ const BusinessContext = createContext<BusinessContextType | undefined>(undefined
 export function BusinessProvider({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated } = useAuth();
 
-  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const {
+    data: queriedBusinesses,
+    isLoading: isBusinessesLoading,
+    error: queryError,
+    refetch: refetchBusinessesQuery,
+  } = useBusinessesQuery(undefined, isAuthenticated);
+
+  const businesses = useMemo(() => queriedBusinesses || [], [queriedBusinesses]);
   const [activeBusiness, setActiveBusiness] = useState<Business | null>(null);
   const [settings, setSettings] = useState<BusinessSetting | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+
+  const isLoading = isBusinessesLoading;
+  const error = queryError ? (queryError instanceof Error ? queryError.message : "Failed to load businesses") : null;
 
   const fetchSettings = useCallback(async (businessUuid: string): Promise<BusinessSetting | null> => {
     try {
@@ -77,22 +86,19 @@ export function BusinessProvider({ children }: { children: React.ReactNode }) {
   );
 
   const fetchBusinesses = useCallback(async (): Promise<Business[]> => {
+    const res = await refetchBusinessesQuery();
+    return res.data || [];
+  }, [refetchBusinessesQuery]);
+
+  // Sync active business with queried businesses
+  useEffect(() => {
     if (!isAuthenticated) {
-      setBusinesses([]);
       setActiveBusiness(null);
       setSettings(null);
-      return [];
+      return;
     }
 
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const res = await apiClient.get<ApiListResponse<Business>>("/businesses");
-      const list = res.data || [];
-      setBusinesses(list);
-
-      // Determine active business: restore from localStorage or default to first
+    if (businesses.length > 0) {
       let target: Business | null = null;
       const savedUuid =
         typeof window !== "undefined"
@@ -100,11 +106,11 @@ export function BusinessProvider({ children }: { children: React.ReactNode }) {
           : null;
 
       if (savedUuid) {
-        target = list.find((b) => b.uuid === savedUuid) || null;
+        target = businesses.find((b) => b.uuid === savedUuid) || null;
       }
 
-      if (!target && list.length > 0) {
-        target = list[0];
+      if (!target && businesses.length > 0) {
+        target = businesses[0];
       }
 
       setActiveBusiness(target);
@@ -117,16 +123,8 @@ export function BusinessProvider({ children }: { children: React.ReactNode }) {
       } else {
         setSettings(null);
       }
-
-      return list;
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to load businesses";
-      setError(message);
-      return [];
-    } finally {
-      setIsLoading(false);
     }
-  }, [isAuthenticated, fetchSettings]);
+  }, [businesses, isAuthenticated, fetchSettings]);
 
   const refreshSettings = useCallback(async (): Promise<BusinessSetting | null> => {
     if (!activeBusiness) return null;
@@ -151,14 +149,11 @@ export function BusinessProvider({ children }: { children: React.ReactNode }) {
 
   // Sync with auth lifecycle
   useEffect(() => {
-    if (isAuthenticated) {
-      void fetchBusinesses();
-    } else {
-      setBusinesses([]);
+    if (!isAuthenticated) {
       setActiveBusiness(null);
       setSettings(null);
     }
-  }, [isAuthenticated, user?.uuid, fetchBusinesses]);
+  }, [isAuthenticated, user?.uuid]);
 
   const value = useMemo(
     () => ({

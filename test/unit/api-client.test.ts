@@ -267,7 +267,7 @@ describe("Unified API Client & Security Suite", () => {
         capturedUrl = String(input);
         capturedBody = JSON.parse(String(init?.body));
         return new Response(
-          JSON.stringify({ message: "We have emailed your password reset link." }),
+          JSON.stringify({ message: "If the email exists, a verification code has been sent." }),
           {
             status: 200,
             headers: { "Content-Type": "application/json" },
@@ -275,13 +275,13 @@ describe("Unified API Client & Security Suite", () => {
         );
       });
 
-      const res = await authApi.forgotPassword({ email: "user@example.com" });
-      expect(capturedUrl).toContain("/auth/forgot-password");
+      const res = await authApi.sendForgotPasswordCode({ email: "user@example.com" });
+      expect(capturedUrl).toContain("/auth/forgot-password/send-code");
       expect(capturedBody).toEqual({ email: "user@example.com" });
-      expect(res.message).toBe("We have emailed your password reset link.");
+      expect(res.message).toBe("If the email exists, a verification code has been sent.");
     });
 
-    it("sends reset-password request to /auth/reset-password", async () => {
+    it("sends verify-reset-code request to /auth/verify-reset-code", async () => {
       let capturedUrl = "";
       let capturedBody: any = null;
 
@@ -289,7 +289,35 @@ describe("Unified API Client & Security Suite", () => {
         capturedUrl = String(input);
         capturedBody = JSON.parse(String(init?.body));
         return new Response(
-          JSON.stringify({ message: "Password has been reset." }),
+          JSON.stringify({
+            message: "Verification code verified successfully.",
+            otp_uuid: "97ce2408-f9d4-40b4-aded-0be6420a43ce",
+          }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      });
+
+      const res = await authApi.verifyResetCode({
+        email: "user@example.com",
+        code: "123456",
+      });
+      expect(capturedUrl).toContain("/auth/verify-reset-code");
+      expect(capturedBody).toEqual({ email: "user@example.com", code: "123456" });
+      expect(res.otp_uuid).toBe("97ce2408-f9d4-40b4-aded-0be6420a43ce");
+    });
+
+    it("sends reset-password request to /auth/reset-password with otp_uuid", async () => {
+      let capturedUrl = "";
+      let capturedBody: any = null;
+
+      vi.spyOn(global, "fetch").mockImplementation(async (input, init) => {
+        capturedUrl = String(input);
+        capturedBody = JSON.parse(String(init?.body));
+        return new Response(
+          JSON.stringify({ message: "Password reset successfully. Please login again." }),
           {
             status: 200,
             headers: { "Content-Type": "application/json" },
@@ -299,14 +327,14 @@ describe("Unified API Client & Security Suite", () => {
 
       const res = await authApi.resetPassword({
         email: "user@example.com",
-        token: "sample_token_123",
+        otp_uuid: "97ce2408-f9d4-40b4-aded-0be6420a43ce",
         password: "newpassword123",
         password_confirmation: "newpassword123",
       });
       expect(capturedUrl).toContain("/auth/reset-password");
-      expect(capturedBody.token).toBe("sample_token_123");
+      expect(capturedBody.otp_uuid).toBe("97ce2408-f9d4-40b4-aded-0be6420a43ce");
       expect(capturedBody.password).toBe("newpassword123");
-      expect(res.message).toBe("Password has been reset.");
+      expect(res.message).toBe("Password reset successfully. Please login again.");
     });
   });
 

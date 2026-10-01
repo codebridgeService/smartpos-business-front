@@ -202,7 +202,7 @@ export const securityApi = {
    * Request email change: stores pending_email and sends verification link to new email
    * Endpoint: POST /auth/email/change-request
    */
-  async requestEmailChange(email: string, password?: string): Promise<SendEmailVerificationResponse> {
+  async requestEmailChange(email: string, password: string): Promise<SendEmailVerificationResponse> {
     return apiClient.post<SendEmailVerificationResponse>("/auth/email/change-request", { email, password });
   },
 

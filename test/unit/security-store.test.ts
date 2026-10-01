@@ -182,12 +182,13 @@ describe("useSecurityStore", () => {
       verification_url: "https://smartpos.servicefixit.me/auth/email/verify-change/1/samplehash",
     };
 
-    vi.spyOn(securityApi, "requestEmailChange").mockResolvedValue(mockSendResponse);
+    const requestSpy = vi.spyOn(securityApi, "requestEmailChange").mockResolvedValue(mockSendResponse);
 
     useSecurityStore.setState({ isEmailVerified: true, emailVerified: "old@gmail.com", pendingEmail: null });
 
-    const res = await useSecurityStore.getState().changeEmail("newuser@gmail.com", "user-uuid-1");
+    const res = await useSecurityStore.getState().changeEmail("newuser@gmail.com", "CurrentPassword123!");
     expect(res).toEqual(mockSendResponse);
+    expect(requestSpy).toHaveBeenCalledWith("newuser@gmail.com", "CurrentPassword123!");
     expect(useSecurityStore.getState().pendingEmail).toBe("newuser@gmail.com");
     expect(useSecurityStore.getState().emailVerified).toBe("old@gmail.com");
   });

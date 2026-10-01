@@ -234,6 +234,11 @@ export function AdminSidebar({
               href: "/admin/permissions",
               icon: <Key className="h-3.5 w-3.5 shrink-0" />,
             },
+            {
+              label: "Security Audit Logs",
+              href: "/admin/security-events",
+              icon: <ShieldAlert className="h-3.5 w-3.5 shrink-0" />,
+            },
           ],
         },
       ],
@@ -662,7 +667,12 @@ export function AdminSidebar({
                 {section.items.map((item) => {
                   const hasChildren = Boolean(item.children && item.children.length > 0);
                   const isAnyChildActive = Boolean(
-                    hasChildren && item.children?.some((child) => (activeKey || pathname) === child.href)
+                    hasChildren &&
+                      item.children?.some(
+                        (child) =>
+                          (activeKey || pathname) === child.href ||
+                          (child.href !== "#" && !child.href.includes("?") && pathname.startsWith(child.href))
+                      )
                   );
                   const isOpen = openDropdowns[item.label] ?? false;
 
@@ -858,7 +868,10 @@ export function AdminSidebar({
                                 typeof window !== "undefined" && window.location.search
                                   ? `${pathname}${window.location.search}`
                                   : pathname;
-                              return currentHref === child.href;
+                              return (
+                                currentHref === child.href ||
+                                (child.href !== "#" && !child.href.includes("?") && pathname.startsWith(child.href))
+                              );
                             })();
 
                             return (

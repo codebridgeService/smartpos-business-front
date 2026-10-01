@@ -64,6 +64,7 @@ export interface EmailVerificationStatusResponse {
   is_verified: boolean;
   email_verified_at: string | null;
   pending_email?: string | null;
+  pending_email_expires_at?: string | null;
 }
 
 export interface RequestEmailChangeResponse {
@@ -76,6 +77,7 @@ export interface RequestEmailChangeResponse {
 
 export interface ChangeEmailRequest {
   email: string;
+  password: string;
 }
 
 

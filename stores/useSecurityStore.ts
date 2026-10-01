@@ -98,7 +98,7 @@ export interface SecurityState {
   resendEmailChange: () => Promise<SendEmailVerificationResponse>;
   changeEmail: (
     newEmail: string,
-    passwordOrContext?: string | { password?: string; userUuid?: string; name?: string; phone?: string | null; username?: string | null }
+    password: string
   ) => Promise<SendEmailVerificationResponse>;
 }
 
@@ -407,11 +407,7 @@ export const useSecurityStore = create<SecurityState>((set, get) => ({
     }
   },
 
-  changeEmail: async (
-    newEmail: string,
-    passwordOrContext?: string | { password?: string; userUuid?: string; name?: string; phone?: string | null; username?: string | null }
-  ) => {
-    const password = typeof passwordOrContext === "string" ? passwordOrContext : passwordOrContext?.password;
+  changeEmail: async (newEmail: string, password: string) => {
     set({ isSendingVerificationEmail: true, error: null });
     try {
       const res = await securityApi.requestEmailChange(newEmail, password);

@@ -40,6 +40,7 @@ import { Select } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useBusinessUsersQuery, QueryProvider } from "@/lib/react-query";
 import type { BusinessUser, BusinessUserOutlet, Outlet } from "@/types";
 
 const ROLE_OPTIONS = [
@@ -50,16 +51,29 @@ const ROLE_OPTIONS = [
   { value: "staff", label: "Staff (General Store Operations)" },
 ];
 
-export default function BusinessStaffPage() {
+function BusinessStaffContent() {
   const { activeBusiness, businesses } = useBusiness();
   const businessUuid = activeBusiness?.uuid || (businesses.length > 0 ? businesses[0].uuid : "");
   const toast = useToast();
+
+  const {
+    data: queryUsers,
+    isLoading: isUsersQueryLoading,
+    refetch: refetchUsers,
+  } = useBusinessUsersQuery(businessUuid, undefined, Boolean(businessUuid));
 
   // Data states
   const [users, setUsers] = useState<BusinessUser[]>([]);
   const [outlets, setOutlets] = useState<Outlet[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (queryUsers && queryUsers.length > 0) {
+      setUsers(queryUsers);
+      setIsLoading(false);
+    }
+  }, [queryUsers]);
 
   // View & Filter states
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
@@ -1464,3 +1478,12 @@ export default function BusinessStaffPage() {
     </div>
   );
 }
+
+export default function BusinessStaffPage() {
+  return (
+    <QueryProvider>
+      <BusinessStaffContent />
+    </QueryProvider>
+  );
+}
+

@@ -8,6 +8,7 @@ import {
   permissionsApi,
   sortPermissionsByModuleAndCode,
 } from "@/lib/api/permissions";
+import { storageCache } from "@/lib/storage/storage-cache";
 
 
 export interface PermissionState {
@@ -151,12 +152,27 @@ export const usePermissionStore = create<PermissionState>((set, get) => ({
     if (isLoading) return;
     if (isInitialLoaded && !force && get().permissions.length > 0) return;
 
-    set({ isLoading: true, error: null });
+    if (!force) {
+      const cached = storageCache.get<Permission[]>("smartpos:cache:permissions");
+      if (cached && cached.length > 0) {
+        set({
+          permissions: cached,
+          isLoading: false,
+          isInitialLoaded: true,
+          error: null,
+        });
+      } else {
+        set({ isLoading: true, error: null });
+      }
+    } else {
+      set({ isLoading: true, error: null });
+    }
 
     try {
       const items = await permissionsApi.getAllPermissions();
-
       const sorted = sortPermissionsByModuleAndCode(items);
+
+      storageCache.set("smartpos:cache:permissions", sorted, 120);
 
       set({
         permissions: sorted,
@@ -184,6 +200,7 @@ export const usePermissionStore = create<PermissionState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const created = await permissionsApi.createBatch(items);
+      storageCache.remove("smartpos:cache:permissions");
       set((state) => {
         const merged = [...state.permissions, ...created];
         return {
@@ -208,6 +225,7 @@ export const usePermissionStore = create<PermissionState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const updated = await permissionsApi.update(id, data);
+      storageCache.remove("smartpos:cache:permissions");
       set((state) => {
         const next = state.permissions.map((p) =>
           p.id === id || p.uuid === String(id) ? { ...p, ...updated } : p
@@ -234,6 +252,7 @@ export const usePermissionStore = create<PermissionState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       await permissionsApi.delete(id);
+      storageCache.remove("smartpos:cache:permissions");
       set((state) => ({
         permissions: state.permissions.filter(
           (p) => p.id !== id && p.uuid !== String(id)

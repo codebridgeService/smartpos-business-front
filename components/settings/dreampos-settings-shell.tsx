@@ -45,6 +45,7 @@ import { useAuth } from "@/context/auth-context";
 import { ProfileView } from "./profile-view";
 import { SecurityView } from "./security-view";
 import { PosPinView } from "./pos-pin-view";
+import { StorageCacheView } from "./storage-cache-view";
 
 interface SubItem {
   id: string;
@@ -483,10 +484,16 @@ export function DreamPosSettingsShell({
           </div>
         )}
 
+        {(activeTab === "storage-settings" || activeTab === "clear-cache") && (
+          <StorageCacheView />
+        )}
+
         {/* Other Settings Placeholder Views */}
         {activeTab !== "profile" &&
           activeTab !== "security" &&
-          activeTab !== "pos-pin" && (
+          activeTab !== "pos-pin" &&
+          activeTab !== "storage-settings" &&
+          activeTab !== "clear-cache" && (
             <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 p-8 shadow-xs text-center">
               <div className="max-w-md mx-auto py-8">
                 <div className="h-12 w-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center mx-auto mb-3 shadow-md shadow-indigo-500/20">

@@ -7,48 +7,66 @@ import { AuthShell } from "@/components/layout";
 import { TextInput, PasswordInput, Button, Alert } from "@/components/ui";
 import { authApi, isApiError } from "@/lib/api";
 import { useToast } from "@/components/ui/toast";
-import { Mail, Lock, CheckCircle2, ArrowLeft, Send } from "lucide-react";
+import { Mail, Lock, CheckCircle2, ArrowLeft, Send, KeyRound, ShieldCheck } from "lucide-react";
 
-type Step = "request_link" | "link_sent" | "reset_password" | "success";
+type Step = "request_code" | "verify_code" | "reset_password" | "success";
 
 function ForgotPasswordContent() {
   const toast = useToast();
   const searchParams = useSearchParams();
 
-  const [step, setStep] = useState<Step>("request_link");
+  const [step, setStep] = useState<Step>("request_code");
   const [email, setEmail] = useState("");
-  const [token, setToken] = useState("");
+  const [code, setCode] = useState("");
+  const [otpUuid, setOtpUuid] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  // Check URL query parameters for reset token (from email link) or pre-filled email
+  // Resend cooldown timer countdown
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const interval = setInterval(() => {
+      setResendCooldown((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [resendCooldown]);
+
+  // Check URL query parameters for pre-filled email or OTP
   useEffect(() => {
     const urlEmail = searchParams.get("email");
-    const urlToken = searchParams.get("token");
+    const urlCode = searchParams.get("code");
+    const urlOtpUuid = searchParams.get("otp_uuid") || searchParams.get("token");
 
     if (urlEmail) {
       setEmail(urlEmail);
     }
 
-    if (urlToken) {
-      setToken(urlToken);
+    if (urlOtpUuid) {
+      setOtpUuid(urlOtpUuid);
       setStep("reset_password");
+    } else if (urlCode) {
+      setCode(urlCode);
+      if (urlEmail) {
+        setStep("verify_code");
+      }
     }
   }, [searchParams]);
 
   // ---------------------------------------------------------------------------
-  // Step 1: Send Password Reset Link (POST /auth/forgot-password)
+  // Step 1: Send Password Reset OTP Code (POST /auth/forgot-password/send-code)
   // ---------------------------------------------------------------------------
-  const handleSendLink = async (e?: React.FormEvent) => {
+  const handleSendCode = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setErrorBanner(null);
     setFieldErrors({});
 
-    if (!email.trim()) {
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
       setFieldErrors({ email: "Email address is required" });
       return;
     }
@@ -56,11 +74,12 @@ function ForgotPasswordContent() {
     setIsLoading(true);
 
     try {
-      const res = await authApi.forgotPassword({ email: email.trim() });
-      toast.success(res.message || "Password reset link sent to your email.");
-      setStep("link_sent");
+      const res = await authApi.sendForgotPasswordCode({ email: cleanEmail });
+      toast.success(res.message || "Verification code sent to your email.");
+      setStep("verify_code");
+      setResendCooldown(60);
     } catch (err: unknown) {
-      console.error("[ForgotPassword Error]:", err);
+      console.error("[SendCode Error]:", err);
       if (isApiError(err)) {
         if (err.isValidationError() && err.errors?.email) {
           setFieldErrors({ email: err.errors.email[0] });
@@ -70,7 +89,7 @@ function ForgotPasswordContent() {
       } else if (err instanceof Error && err.message) {
         setErrorBanner(err.message);
       } else {
-        setErrorBanner("Failed to send reset link. Please verify your email.");
+        setErrorBanner("Failed to send verification code. Please check your email.");
       }
     } finally {
       setIsLoading(false);
@@ -78,7 +97,54 @@ function ForgotPasswordContent() {
   };
 
   // ---------------------------------------------------------------------------
-  // Step 2: Reset Password (POST /auth/reset-password)
+  // Step 2: Verify OTP Code (POST /auth/verify-reset-code)
+  // ---------------------------------------------------------------------------
+  const handleVerifyCode = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setErrorBanner(null);
+    setFieldErrors({});
+
+    const cleanCode = code.trim();
+    if (!cleanCode) {
+      setFieldErrors({ code: "Verification code is required" });
+      return;
+    }
+    if (cleanCode.length !== 6 || !/^\d{6}$/.test(cleanCode)) {
+      setFieldErrors({ code: "Please enter the 6-digit numerical code" });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const res = await authApi.verifyResetCode({
+        email: email.trim(),
+        code: cleanCode,
+      });
+
+      toast.success(res.message || "Code verified successfully!");
+      setOtpUuid(res.otp_uuid);
+      setStep("reset_password");
+    } catch (err: unknown) {
+      console.error("[VerifyCode Error]:", err);
+      if (isApiError(err)) {
+        if (err.isValidationError() && err.errors?.code) {
+          setFieldErrors({ code: err.errors.code[0] });
+        } else {
+          setErrorBanner(err.message);
+        }
+      } else if (err instanceof Error && err.message) {
+        setErrorBanner(err.message);
+      } else {
+        setErrorBanner("Failed to verify code. Please check your code and try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // ---------------------------------------------------------------------------
+  // Step 3: Reset Password (POST /auth/reset-password)
   // ---------------------------------------------------------------------------
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,12 +164,18 @@ function ForgotPasswordContent() {
       return;
     }
 
+    if (!otpUuid) {
+      setErrorBanner("Session expired or missing verification. Please request a new code.");
+      setStep("request_code");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const res = await authApi.resetPassword({
         email: email.trim(),
-        token,
+        otp_uuid: otpUuid,
         password,
         password_confirmation: passwordConfirmation,
       });
@@ -125,7 +197,7 @@ function ForgotPasswordContent() {
       } else if (err instanceof Error && err.message) {
         setErrorBanner(err.message);
       } else {
-        setErrorBanner("Failed to reset password. Please check your reset link or request a new one.");
+        setErrorBanner("Failed to reset password. Please check your inputs or request a new code.");
       }
     } finally {
       setIsLoading(false);
@@ -135,22 +207,22 @@ function ForgotPasswordContent() {
   return (
     <AuthShell
       title={
-        step === "request_link"
+        step === "request_code"
           ? "Reset your password"
-          : step === "link_sent"
-          ? "Check your email"
-          : step === "reset_password"
-          ? "Set new password"
-          : "Password updated!"
+          : step === "verify_code"
+            ? "Enter verification code"
+            : step === "reset_password"
+              ? "Set new password"
+              : "Password updated!"
       }
       subtitle={
-        step === "request_link"
-          ? "Enter your registered email address to receive a password reset link."
-          : step === "link_sent"
-          ? `We've sent a password reset link to ${email}`
-          : step === "reset_password"
-          ? "Choose a strong password with at least 8 characters."
-          : "Your password has been successfully reset."
+        step === "request_code"
+          ? "Enter your registered email address to receive a 6-digit verification code."
+          : step === "verify_code"
+            ? `We sent a 6-digit code to ${email}`
+            : step === "reset_password"
+              ? "Choose a strong password with at least 8 characters."
+              : "Your password has been successfully reset."
       }
       footer={
         <div className="text-center text-xs text-zinc-500">
@@ -170,9 +242,9 @@ function ForgotPasswordContent() {
         </Alert>
       )}
 
-      {/* Step 1: Request Password Reset Link */}
-      {step === "request_link" && (
-        <form onSubmit={handleSendLink} className="space-y-4">
+      {/* Step 1: Request 6-digit verification code */}
+      {step === "request_code" && (
+        <form onSubmit={handleSendCode} className="space-y-4">
           <TextInput
             label="Email Address"
             type="email"
@@ -192,42 +264,75 @@ function ForgotPasswordContent() {
             isLoading={isLoading}
             rightIcon={<Send className="h-4 w-4" />}
           >
-            Send Reset Link
+            Send Verification Code
           </Button>
         </form>
       )}
 
-      {/* Step 2: Email Sent Confirmation */}
-      {step === "link_sent" && (
-        <div className="text-center py-2 space-y-4">
-          <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
-            <Mail className="h-8 w-8" />
+      {/* Step 2: Verify 6-digit OTP code */}
+      {step === "verify_code" && (
+        <form onSubmit={handleVerifyCode} className="space-y-4">
+          <div className="p-3 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 rounded-xl text-xs text-blue-800 dark:text-blue-200 flex items-start gap-2.5">
+            <Mail className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+            <span>
+              Please check your inbox at <strong>{email}</strong> for your 6-digit OTP code (valid for 10 minutes).
+            </span>
           </div>
-          <p className="text-sm text-zinc-600 dark:text-zinc-300">
-            Please check your inbox (and spam folder) and click the link inside the email to choose a new password.
-          </p>
-          <div className="pt-2 flex flex-col gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleSendLink()}
-              isLoading={isLoading}
-              className="w-full"
-            >
-              Resend Reset Link
-            </Button>
+
+          <TextInput
+            label="6-Digit Verification Code"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={6}
+            placeholder="123456"
+            value={code}
+            onChange={(e) => {
+              const val = e.target.value.replace(/\D/g, "").slice(0, 6);
+              setCode(val);
+            }}
+            error={fieldErrors.code}
+            required
+            autoFocus
+            leftIcon={<KeyRound className="h-4 w-4" />}
+          />
+
+          <Button
+            type="submit"
+            className="w-full mt-2"
+            size="lg"
+            isLoading={isLoading}
+            rightIcon={<ShieldCheck className="h-4 w-4" />}
+          >
+            Verify Code
+          </Button>
+
+          <div className="pt-2 flex flex-col gap-2 text-center">
             <button
               type="button"
-              onClick={() => setStep("request_link")}
-              className="text-xs text-zinc-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors pt-1 cursor-pointer"
+              disabled={isLoading || resendCooldown > 0}
+              onClick={() => handleSendCode()}
+              className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors cursor-pointer"
             >
-              Try a different email address
+              {resendCooldown > 0
+                ? `Resend code in ${resendCooldown}s`
+                : "Didn't receive the code? Resend"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setStep("request_code");
+                setCode("");
+              }}
+              className="text-xs text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors cursor-pointer"
+            >
+              Use a different email address
             </button>
           </div>
-        </div>
+        </form>
       )}
 
-      {/* Step 3: Set New Password Form (from Email Link) */}
+      {/* Step 3: Set New Password */}
       {step === "reset_password" && (
         <form onSubmit={handleResetPassword} className="space-y-4">
           <TextInput
