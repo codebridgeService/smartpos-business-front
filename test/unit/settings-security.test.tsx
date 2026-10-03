@@ -54,7 +54,7 @@ describe("Business Settings Page - Security Tab", () => {
 
     // Sidebar navigation groups
     expect(screen.getByText("Settings")).toBeDefined();
-    expect(screen.getByText("General Settings")).toBeDefined();
+    expect(screen.getAllByText("General Settings").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Security").length).toBeGreaterThanOrEqual(1);
 
     // Security view content

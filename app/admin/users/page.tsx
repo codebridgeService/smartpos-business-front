@@ -160,7 +160,7 @@ function AdminUsersContent() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
           <Button
             variant="outline"
             size="sm"
@@ -599,7 +599,7 @@ function AdminUsersContent() {
 
           {/* Pagination */}
           {paginator && paginator.last_page > 1 && (
-            <div className="flex items-center justify-between border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/40 px-6 py-3 text-xs text-zinc-500 dark:text-zinc-400">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/40 px-4 sm:px-6 py-3 text-xs text-zinc-500 dark:text-zinc-400">
               <div>
                 Showing <span className="font-semibold text-zinc-900 dark:text-zinc-100">{paginator.from}</span> to{" "}
                 <span className="font-semibold text-zinc-900 dark:text-zinc-100">{paginator.to}</span> of{" "}
@@ -748,7 +748,7 @@ function AdminUsersContent() {
 
           {/* Grid Pagination */}
           {paginator && paginator.last_page > 1 && (
-            <div className="flex items-center justify-between border-t border-zinc-200 dark:border-zinc-800 pt-4 text-xs text-zinc-500 dark:text-zinc-400">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-zinc-200 dark:border-zinc-800 pt-4 text-xs text-zinc-500 dark:text-zinc-400">
               <div>
                 Showing <span className="font-semibold text-zinc-900 dark:text-zinc-100">{paginator.from}</span> to{" "}
                 <span className="font-semibold text-zinc-900 dark:text-zinc-100">{paginator.to}</span> of{" "}

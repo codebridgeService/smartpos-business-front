@@ -5,3 +5,4 @@ export * from "./AutoRemoveSettings";
 export * from "./ClearCacheDialog";
 export * from "./OfflineDataStatus";
 export * from "./StorageDrilldownList";
+export * from "./StorageCacheSkeleton";

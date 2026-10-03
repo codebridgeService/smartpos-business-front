@@ -308,7 +308,7 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <div
-            className={`relative w-72 bg-white dark:bg-zinc-900 h-full p-4 flex flex-col z-50 shadow-2xl transform transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${
+            className={`relative w-[270px] xs:w-72 max-w-[85vw] bg-white dark:bg-zinc-900 h-full p-3.5 sm:p-4 flex flex-col z-50 shadow-2xl transform transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${
               isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
             }`}
           >
@@ -354,7 +354,7 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
 
         {/* Page Content */}
         <main
-          className={`flex-1 p-4 sm:p-6 lg:p-7 w-full min-w-0 ${
+          className={`flex-1 p-3 xs:p-4 sm:p-6 lg:p-7 w-full min-w-0 ${
             layoutWidth === "boxed" ? "max-w-7xl mx-auto" : ""
           }`}
         >
@@ -368,10 +368,10 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
       <button
         type="button"
         onClick={() => setIsCustomizerOpen(true)}
-        className="fixed right-0 top-1/2 -translate-y-1/2 z-40 bg-orange-500 hover:bg-orange-600 text-white pl-3 pr-2.5 py-3 rounded-l-2xl shadow-xl hover:shadow-orange-500/25 flex items-center gap-2 transition-all active:scale-95 group cursor-pointer"
+        className="fixed right-0 top-1/2 -translate-y-1/2 z-40 bg-orange-500 hover:bg-orange-600 text-white pl-2.5 pr-2 py-2 sm:pl-3 sm:pr-2.5 sm:py-3 rounded-l-xl sm:rounded-l-2xl shadow-xl hover:shadow-orange-500/25 flex items-center gap-1.5 sm:gap-2 transition-all active:scale-95 group cursor-pointer"
         title="Open Theme & Layout Customizer"
       >
-        <Sliders className="h-4.5 w-4.5 group-hover:rotate-90 transition-transform duration-300" />
+        <Sliders className="h-4 w-4 sm:h-4.5 sm:w-4.5 group-hover:rotate-90 transition-transform duration-300" />
       </button>
 
       {/* Theme & Layout Customizer Drawer */}

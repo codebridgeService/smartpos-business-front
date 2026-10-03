@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export interface AnimatedNumberProps {
   value: number;
@@ -10,6 +11,8 @@ export interface AnimatedNumberProps {
   decimals?: number;
   formatter?: (n: number) => string;
   className?: string;
+  loading?: boolean;
+  skeletonClassName?: string;
 }
 
 export function AnimatedNumber({
@@ -20,7 +23,18 @@ export function AnimatedNumber({
   decimals = 0,
   formatter,
   className = "",
+  loading = false,
+  skeletonClassName,
 }: AnimatedNumberProps) {
+  if (loading) {
+    return (
+      <Skeleton
+        animation="shimmer"
+        className={skeletonClassName || "h-6 w-14 inline-block rounded-md"}
+      />
+    );
+  }
+
   const isTest = typeof process !== "undefined" && process.env?.NODE_ENV === "test";
   const [displayValue, setDisplayValue] = useState<number>(() => (isTest ? value : 0));
   const startTimestampRef = useRef<number | null>(null);

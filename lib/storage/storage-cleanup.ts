@@ -8,6 +8,7 @@ import {
   type CacheCategory,
   type CacheMetadataRecord,
   type CleanupResult,
+  type PosStoragePolicy,
 } from "./storage-types";
 import {
   getStoragePolicy,
@@ -18,6 +19,26 @@ import {
   removeCacheMetadataBatch,
 } from "./indexeddb-storage";
 import { POS_CACHES } from "./storage-manager";
+import { isSafeCacheKey } from "./storage-cache";
+
+const LOCALSTORAGE_KEY_CATEGORY_MAP: Record<string, CacheCategory> = {
+  "smartpos:cache:users": "users",
+  "smartpos:cache:roles": "roles",
+  "smartpos:cache:permissions": "permissions",
+  "smartpos:cache:security-events": "audit",
+  "smartpos:cache:api": "api",
+  "smartpos:cache:react-query": "api",
+  "smartpos:cache:products": "products",
+  "smartpos:cache:categories": "products",
+  "smartpos:cache:brands": "products",
+  "smartpos:cache:images": "images",
+  "smartpos:cache:companies": "users",
+  "smartpos:cache:business-settings": "other",
+  "smartpos_system_changelogs_cache": "temp",
+  "smartpos_announcements": "temp",
+  "smartpos_feature_controls": "temp",
+  "smartpos_announcement_reads": "temp",
+};
 
 /**
  * Remove items from browser Cache Storage given keys and their category.
@@ -42,7 +63,80 @@ async function removeCacheStorageEntries(
 }
 
 /**
- * Perform retention cleanup:
+ * Perform retention cleanup on localStorage safe cache keys.
+ * Evaluates envelope expires_at and policy retention duration (hour, day, week, month).
+ */
+export function cleanupExpiredLocalStorageCache(policy: PosStoragePolicy): {
+  expiredCount: number;
+  freedBytes: number;
+} {
+  if (typeof window === "undefined" || typeof localStorage === "undefined") {
+    return { expiredCount: 0, freedBytes: 0 };
+  }
+
+  const now = Date.now();
+  let expiredCount = 0;
+  let freedBytes = 0;
+
+  const candidateKeys: string[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && isSafeCacheKey(key)) {
+      candidateKeys.push(key);
+    }
+  }
+
+  for (const key of candidateKeys) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+
+      const sizeBytes = new Blob([raw]).size;
+      const data = JSON.parse(raw);
+
+      let shouldEvict = false;
+
+      // 1. Check explicit envelope expires_at
+      if (data && typeof data === "object" && typeof data.expires_at === "number") {
+        if (now > data.expires_at) {
+          shouldEvict = true;
+        }
+      }
+
+      // 2. Check retention policy duration
+      const category: CacheCategory = LOCALSTORAGE_KEY_CATEGORY_MAP[key] || "other";
+      const retentionSetting =
+        policy.retention[category] || policy.retention.temp || "never";
+      const retentionMs = retentionToMs(retentionSetting);
+
+      if (!shouldEvict && retentionMs !== null) {
+        const cachedAt = typeof data?.cached_at === "number" ? data.cached_at : now;
+        if (now - cachedAt > retentionMs) {
+          shouldEvict = true;
+        }
+      }
+
+      if (shouldEvict) {
+        localStorage.removeItem(key);
+        expiredCount++;
+        freedBytes += sizeBytes;
+      }
+    } catch {
+      // If parsing fails for a safe cache key, evict corrupt entry
+      try {
+        localStorage.removeItem(key);
+        expiredCount++;
+      } catch {
+        // ignore
+      }
+    }
+  }
+
+  return { expiredCount, freedBytes };
+}
+
+/**
+ * Perform retention cleanup across all storage tiers (IndexedDB, Cache Storage, localStorage):
  * Remove all cached records that have exceeded their configured retention period.
  */
 export async function cleanupExpiredCache(): Promise<{
@@ -50,9 +144,10 @@ export async function cleanupExpiredCache(): Promise<{
   freedBytes: number;
 }> {
   const policy = getStoragePolicy();
-  const allMetadata = await getAllCacheMetadata();
   const now = Date.now();
 
+  // 1. Clean IndexedDB & Cache Storage entries
+  const allMetadata = await getAllCacheMetadata();
   const toRemove: CacheMetadataRecord[] = [];
 
   for (const record of allMetadata) {
@@ -77,22 +172,27 @@ export async function cleanupExpiredCache(): Promise<{
     }
   }
 
-  if (toRemove.length === 0) {
-    return { expiredCount: 0, freedBytes: 0 };
+  let idbFreedBytes = 0;
+  if (toRemove.length > 0) {
+    idbFreedBytes = toRemove.reduce((sum, r) => sum + (r.size_bytes || 0), 0);
+    const keysToRemove = toRemove.map((r) => r.cache_key);
+
+    // Remove from Cache Storage
+    await removeCacheStorageEntries(
+      toRemove.map((r) => ({ category: r.category, key: r.cache_key }))
+    );
+
+    // Remove from IndexedDB metadata
+    await removeCacheMetadataBatch(keysToRemove);
   }
 
-  const freedBytes = toRemove.reduce((sum, r) => sum + (r.size_bytes || 0), 0);
-  const keysToRemove = toRemove.map((r) => r.cache_key);
+  // 2. Clean localStorage safe cache entries
+  const lsResult = cleanupExpiredLocalStorageCache(policy);
 
-  // Remove from Cache Storage
-  await removeCacheStorageEntries(
-    toRemove.map((r) => ({ category: r.category, key: r.cache_key }))
-  );
-
-  // Remove from IndexedDB metadata
-  await removeCacheMetadataBatch(keysToRemove);
-
-  return { expiredCount: toRemove.length, freedBytes };
+  return {
+    expiredCount: toRemove.length + lsResult.expiredCount,
+    freedBytes: idbFreedBytes + lsResult.freedBytes,
+  };
 }
 
 /**

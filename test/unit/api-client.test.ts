@@ -361,5 +361,34 @@ describe("Unified API Client & Security Suite", () => {
       expect(capturedHeaders?.get("X-Business-Id")).toBe("biz-123");
       expect(products.data).toHaveLength(1);
     });
+
+    it("automatically injects X-Business-Uuid header from params, body, or localStorage", async () => {
+      let capturedHeaders: Headers | undefined;
+
+      vi.spyOn(global, "fetch").mockImplementation(async (input, init) => {
+        capturedHeaders = new Headers(init?.headers);
+        return new Response(JSON.stringify({ success: true, data: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      });
+
+      // 1. From params
+      await apiClient.get("/brands", { params: { business_uuid: "biz-from-params" } });
+      expect(capturedHeaders?.get("X-Business-Uuid")).toBe("biz-from-params");
+
+      // 2. From FormData body
+      const formData = new FormData();
+      formData.append("business_uuid", "biz-from-formdata");
+      await apiClient.post("/brands", formData);
+      expect(capturedHeaders?.get("X-Business-Uuid")).toBe("biz-from-formdata");
+
+      // 3. From localStorage fallback
+      localStorage.setItem("smartpos_active_business_uuid", "biz-from-localstorage");
+      await apiClient.get("/brands");
+      expect(capturedHeaders?.get("X-Business-Uuid")).toBe("biz-from-localstorage");
+      localStorage.removeItem("smartpos_active_business_uuid");
+    });
   });
 });
+

@@ -40,7 +40,9 @@ import {
   ProvisionRoleModal,
   PermissionMatrixModal,
   GranularPermissionMatrix,
+  RolesPageSkeleton,
 } from "@/components/admin/roles";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import { UserRoleAssignments } from "@/components/admin/users";
 
 interface RoleThemeConfig {
@@ -314,6 +316,10 @@ export default function AdminRolesPage() {
   const systemRolesCount = roles.filter((r) => r.is_system).length;
   const customRolesCount = roles.filter((r) => !r.is_system).length;
 
+  if (isLoading && roles.length === 0) {
+    return <RolesPageSkeleton />;
+  }
+
   return (
     <div id="zoom-wrapper" style={{ transform: `scale(${zoom})`, transformOrigin: 'center top', width: '100%', minHeight: '100vh', overflow: 'auto' }} className="space-y-6 max-w-[1600px] mx-auto pb-12 px-2 sm:px-4">
       {/* 🚀 Header & Hero Banner */}
@@ -427,7 +433,7 @@ export default function AdminRolesPage() {
             <span>Roles Configuration</span>
             {activeTab === "roles" && (
               <span className="px-2 py-0.5 text-[11px] rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold">
-                {roles.length}
+                <AnimatedNumber value={roles.length} />
               </span>
             )}
           </button>
@@ -700,7 +706,7 @@ export default function AdminRolesPage() {
               </div>
 
               {/* Pagination */}
-              {paginator && paginator.last_page > 1 && (
+              {paginator && (
                 <div className="flex items-center justify-between p-4 border-t border-slate-100 dark:border-zinc-800 text-xs text-slate-500">
                   <span>
                     Page {paginator.current_page} of {paginator.last_page} ({paginator.total} total roles)

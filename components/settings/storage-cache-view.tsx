@@ -11,6 +11,7 @@ import {
   AutoRemoveSettings,
   ClearCacheDialog,
   StorageDrilldownList,
+  StorageCacheSkeleton,
 } from "@/components/storage";
 import {
   type CacheCategory,
@@ -35,6 +36,8 @@ import { storageCache } from "@/lib/storage/storage-cache";
 import { usePermissionStore } from "@/stores/usePermissionStore";
 import { permissionsApi } from "@/lib/api/permissions";
 
+export { StorageCacheSkeleton, type StorageCacheSkeletonProps } from "@/components/storage";
+
 interface StorageCacheViewProps {
   className?: string;
 }
@@ -44,6 +47,7 @@ export function StorageCacheView({ className = "" }: StorageCacheViewProps) {
 
   const [policy, setPolicy] = useState<PosStoragePolicy>(DEFAULT_STORAGE_POLICY);
   const [usage, setUsage] = useState<StorageUsage | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isClearing, setIsClearing] = useState(false);
 
   // Clear dialog state
@@ -67,6 +71,7 @@ export function StorageCacheView({ className = "" }: StorageCacheViewProps) {
   // Run cleanup, ensure permissions cached, and purge mock demo entries on mount
   useEffect(() => {
     async function init() {
+      setIsLoading(true);
       try {
         await purgeDemoMockEntries();
         await runStorageCleanup();
@@ -89,8 +94,10 @@ export function StorageCacheView({ className = "" }: StorageCacheViewProps) {
         }
       } catch {
         // Non-blocking
+      } finally {
+        await refreshStorageData();
+        setIsLoading(false);
       }
-      await refreshStorageData();
     }
     init();
   }, [refreshStorageData]);
@@ -99,11 +106,28 @@ export function StorageCacheView({ className = "" }: StorageCacheViewProps) {
   const handleUpdatePolicy = (newPolicy: PosStoragePolicy) => {
     setPolicy(newPolicy);
     saveStoragePolicy(newPolicy);
-    toast.success("Storage policy updated.");
-    runStorageCleanup().then(() => {
+    runStorageCleanup().then((res) => {
       refreshStorageData();
+      if (res.expiredCount > 0) {
+        toast.success(
+          `Retention policy updated. Pruned ${res.expiredCount} expired items (${formatBytes(res.totalFreedBytes)} freed).`
+        );
+      } else {
+        toast.success("Storage policy updated.");
+      }
     });
   };
+
+  // Periodic background auto-cleanup watcher
+  useEffect(() => {
+    const timer = setInterval(() => {
+      runStorageCleanup().then(() => {
+        refreshStorageData();
+      });
+    }, 60000);
+
+    return () => clearInterval(timer);
+  }, [refreshStorageData]);
 
   // Open confirmation dialog
   const handleOpenClearDialog = (
@@ -190,6 +214,10 @@ export function StorageCacheView({ className = "" }: StorageCacheViewProps) {
     }
   };
 
+  if (isLoading && !usage) {
+    return <StorageCacheSkeleton animation="shimmer" className={className} />;
+  }
+
   return (
     <div className={`space-y-6 text-foreground select-none ${className}`}>
       {/* Top Header Card */}
@@ -257,6 +285,19 @@ export function StorageCacheView({ className = "" }: StorageCacheViewProps) {
           <AutoRemoveSettings
             policy={policy}
             onUpdatePolicy={handleUpdatePolicy}
+            onTriggerCleanup={async () => {
+              const res = await runStorageCleanup();
+              await refreshStorageData();
+              if (res.expiredCount > 0) {
+                toast.success(
+                  `Auto-Remove executed: Pruned ${res.expiredCount} expired items (${formatBytes(res.totalFreedBytes)} freed).`
+                );
+              } else {
+                toast.info(
+                  "Auto-Remove evaluated: All storage modules are within retention policies."
+                );
+              }
+            }}
           />
 
           <StorageDrilldownList

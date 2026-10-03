@@ -338,7 +338,7 @@ export function SecurityView() {
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 shadow-xs overflow-hidden">
       {/* Top Header matching reference */}
-      <div className="py-4 px-6 border-b border-slate-100 dark:border-zinc-800">
+      <div className="py-3.5 sm:py-4 px-4 sm:px-6 border-b border-slate-100 dark:border-zinc-800">
         <h2 className="text-base font-bold text-slate-900 dark:text-zinc-100">
           Security
         </h2>
@@ -347,7 +347,7 @@ export function SecurityView() {
       {/* Security Rows Container */}
       <div className="divide-y divide-slate-100 dark:divide-zinc-800/80">
         {/* 1. Password */}
-        <div className="py-4 px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/40 dark:hover:bg-zinc-800/20 transition-colors">
+        <div className="py-3.5 sm:py-4 px-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/40 dark:hover:bg-zinc-800/20 transition-colors">
           <div className="flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200/70 dark:border-zinc-700/60 flex items-center justify-center text-slate-600 dark:text-slate-300 shrink-0">
               <EyeOff className="w-5 h-5" />
@@ -369,7 +369,7 @@ export function SecurityView() {
         </div>
 
         {/* 2. Two Factor Authentication */}
-        <div className="py-4 px-6 flex items-center justify-between gap-3 hover:bg-slate-50/40 dark:hover:bg-zinc-800/20 transition-colors">
+        <div className="py-3.5 sm:py-4 px-4 sm:px-6 flex items-center justify-between gap-3 hover:bg-slate-50/40 dark:hover:bg-zinc-800/20 transition-colors">
           <div className="flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200/70 dark:border-zinc-700/60 flex items-center justify-center text-slate-600 dark:text-slate-300 shrink-0">
               <ShieldCheck className="w-5 h-5" />
@@ -406,7 +406,7 @@ export function SecurityView() {
         </div>
 
         {/* 3. Google Authentication */}
-        <div className="py-4 px-6 flex items-center justify-between gap-3 hover:bg-slate-50/40 dark:hover:bg-zinc-800/20 transition-colors">
+        <div className="py-3.5 sm:py-4 px-4 sm:px-6 flex items-center justify-between gap-3 hover:bg-slate-50/40 dark:hover:bg-zinc-800/20 transition-colors">
           <div className="flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200/70 dark:border-zinc-700/60 flex items-center justify-center text-slate-700 dark:text-slate-200 shrink-0">
               {/* Google G Icon */}
@@ -454,7 +454,7 @@ export function SecurityView() {
         </div>
 
         {/* 4. Phone Number Verification */}
-        <div className="py-4 px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/40 dark:hover:bg-zinc-800/20 transition-colors">
+        <div className="py-3.5 sm:py-4 px-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/40 dark:hover:bg-zinc-800/20 transition-colors">
           <div className="flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200/70 dark:border-zinc-700/60 flex items-center justify-center text-slate-600 dark:text-slate-300 shrink-0">
               <Phone className="w-5 h-5" />
@@ -495,7 +495,7 @@ export function SecurityView() {
         </div>
 
         {/* 5. Email Verification */}
-        <div className="py-4 px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/40 dark:hover:bg-zinc-800/20 transition-colors">
+        <div className="py-3.5 sm:py-4 px-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/40 dark:hover:bg-zinc-800/20 transition-colors">
           <div className="flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200/70 dark:border-zinc-700/60 flex items-center justify-center text-slate-600 dark:text-slate-300 shrink-0">
               <Mail className="w-5 h-5" />
@@ -622,7 +622,7 @@ export function SecurityView() {
 
 
         {/* 6. Device Management */}
-        <div className="py-4 px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/40 dark:hover:bg-zinc-800/20 transition-colors">
+        <div className="py-3.5 sm:py-4 px-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/40 dark:hover:bg-zinc-800/20 transition-colors">
           <div className="flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200/70 dark:border-zinc-700/60 flex items-center justify-center text-slate-600 dark:text-slate-300 shrink-0">
               <Wrench className="w-5 h-5" />
@@ -646,7 +646,7 @@ export function SecurityView() {
         </div>
 
         {/* 7. Account Activity */}
-        <div className="py-4 px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/40 dark:hover:bg-zinc-800/20 transition-colors">
+        <div className="py-3.5 sm:py-4 px-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/40 dark:hover:bg-zinc-800/20 transition-colors">
           <div className="flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200/70 dark:border-zinc-700/60 flex items-center justify-center text-slate-600 dark:text-slate-300 shrink-0">
               <Activity className="w-5 h-5" />
@@ -670,7 +670,7 @@ export function SecurityView() {
         </div>
 
         {/* 8. Deactivate Account */}
-        <div className="py-4 px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/40 dark:hover:bg-zinc-800/20 transition-colors">
+        <div className="py-3.5 sm:py-4 px-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/40 dark:hover:bg-zinc-800/20 transition-colors">
           <div className="flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200/70 dark:border-zinc-700/60 flex items-center justify-center text-slate-600 dark:text-slate-300 shrink-0">
               <Ban className="w-5 h-5" />
@@ -694,7 +694,7 @@ export function SecurityView() {
         </div>
 
         {/* 9. Delete Account */}
-        <div className="py-4 px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/40 dark:hover:bg-zinc-800/20 transition-colors">
+        <div className="py-3.5 sm:py-4 px-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/40 dark:hover:bg-zinc-800/20 transition-colors">
           <div className="flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200/70 dark:border-zinc-700/60 flex items-center justify-center text-red-500 shrink-0">
               <Trash2 className="w-5 h-5" />

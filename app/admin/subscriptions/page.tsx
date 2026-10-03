@@ -175,13 +175,13 @@ export default function SubscriptionsPage() {
             />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar whitespace-nowrap w-full sm:w-auto pb-1 sm:pb-0">
             {["All", "Active", "Past Due", "Cancelled"].map((status) => (
               <button
                 key={status}
                 type="button"
                 onClick={() => setStatusFilter(status)}
-                className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
+                className={`px-3 py-1 rounded-lg text-xs font-medium transition-all shrink-0 cursor-pointer ${
                   statusFilter === status
                     ? "bg-slate-900 dark:bg-white text-white dark:text-zinc-900 font-semibold shadow-xs"
                     : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"

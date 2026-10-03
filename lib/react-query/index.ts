@@ -12,4 +12,5 @@ export * from "./hooks/use-registers";
 export * from "./hooks/use-products";
 export * from "./hooks/use-shifts";
 export * from "./hooks/use-security-events";
+export * from "./hooks/use-brands";
 

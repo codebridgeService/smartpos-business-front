@@ -53,6 +53,12 @@ This document outlines the complete development roadmap, architectural milestone
     ├── Active Role & Business Scoped Permissions in JWT
     ├── Zustand useAuthStore Active Context State
     └── Interactive Role Switcher in User Menu & Dashboard Shell
+[Phase 10] IP Access Control, Banned IPs & Policy Governance
+    ├── Configuration Parameters & Auto-Ban Thresholds
+    ├── Operational Store Settings & POS Network Lockdown
+    ├── Banned & Whitelisted IP Directory (CRUD, Search, CIDR)
+    ├── Direct Integration with Security Audit Logs & Threat Trace
+    └── Redis O(1) Deny-List Enforcement & Edge Middleware
 ```
 
 ---
@@ -391,4 +397,136 @@ This document outlines the complete development roadmap, architectural milestone
   - [ ] Test that permissions update to match only the newly active role.
   - [ ] Test token storage updates on successful context switch.
   - [ ] Verify Next.js production build (`npm run build`).
+
+---
+
+## 🚫 Phase 10: IP Access Control, Banned IPs & Policy Governance
+
+*Location: `/admin/settings?tab=ban-ip` (`components/settings/ban-ip-view.tsx`)*
+
+- [ ] **10.1 TypeScript Schemas & Policy Contracts (`types/security.ts`)**
+  - [ ] Define `IpBanRule`:
+    - `uuid`: string
+    - `ip_address`: string (IPv4, IPv6, or CIDR notation e.g., `192.168.1.0/24`)
+    - `ban_type`: `'permanent' | 'temporary'`
+    - `scope`: `'global' | 'business' | 'outlet'`
+    - `business_uuid`?: string
+    - `outlet_uuid`?: string
+    - `reason`: `'brute_force' | 'suspicious_activity' | 'rate_limit' | 'unauthorized_network' | 'manual_admin' | 'fraud_prevention'`
+    - `notes`?: string
+    - `triggered_by`: `'system_auto' | 'admin'`
+    - `admin_user_uuid`?: string
+    - `admin_username`?: string
+    - `expires_at`?: string (ISO 8601 timestamp for temporary bans)
+    - `status`: `'active' | 'expired' | 'revoked'`
+    - `metadata`: `{ geo_country?: string; geo_city?: string; user_agent?: string; failed_attempts_count?: number }`
+    - `created_at`: string
+    - `updated_at`: string
+  - [ ] Define `IpWhitelistRule`:
+    - `uuid`: string
+    - `ip_address`: string (IPv4/IPv6/CIDR)
+    - `label`: string (e.g., "Main Outlet Static IP", "HQ Office VPN")
+    - `scope`: `'global' | 'business' | 'outlet'`
+    - `business_uuid`?: string
+    - `outlet_uuid`?: string
+    - `created_by_user`: string
+    - `created_at`: string
+  - [ ] Define `IpSecurityPolicySettings`:
+    - `auto_ban_enabled`: boolean (Toggle dynamic protection)
+    - `max_failed_login_attempts`: number (e.g., 5 attempts)
+    - `max_failed_pin_attempts`: number (e.g., 3 POS PIN attempts)
+    - `detection_window_minutes`: number (e.g., 5 minutes)
+    - `temp_ban_duration_minutes`: number (e.g., 15m, 60m, 1440m / 24h)
+    - `pos_network_lockdown_enabled`: boolean (Restrict POS terminal operations strictly to store IP whitelist)
+    - `alert_on_foreign_ip`: boolean (Notify store managers upon cashier login from non-whitelisted IP)
+    - `response_action`: `'forbidden_403' | 'rate_limit_429' | 'silent_drop'`
+    - `custom_block_message`: string
+    - `emergency_bypass_roles`: string[] (e.g., `['owner', 'super_admin']`)
+
+- [ ] **10.2 API Service Client (`lib/api/security.ts` & `lib/api/ip-ban.ts`)**
+  - [ ] `getBannedIps(params?: { search?: string; status?: string; ban_type?: string; page?: number; per_page?: number })`: Fetch paginated banned IP rules.
+  - [ ] `createIpBan(payload: CreateIpBanRequest)`: Manually ban an IP or CIDR range (`POST /security/ip-bans`).
+  - [ ] `revokeIpBan(banUuid: string, payload?: { revoke_reason?: string })`: Unban IP (`DELETE /security/ip-bans/{banUuid}` or `PATCH .../revoke`).
+  - [ ] `extendIpBan(banUuid: string, payload: { additional_minutes: number })`: Extend temporary ban duration.
+  - [ ] `getIpWhitelist(params?: { search?: string; page?: number })`: Fetch whitelist rules (`GET /security/ip-whitelist`).
+  - [ ] `createIpWhitelist(payload: CreateIpWhitelistRequest)`: Add trusted IP/CIDR (`POST /security/ip-whitelist`).
+  - [ ] `deleteIpWhitelist(whitelistUuid: string)`: Remove whitelisted rule (`DELETE /security/ip-whitelist/{whitelistUuid}`).
+  - [ ] `getIpSecurityPolicy(businessUuid?: string)`: Fetch operational policy settings (`GET /security/policy`).
+  - [ ] `updateIpSecurityPolicy(payload: Partial<IpSecurityPolicySettings>)`: Save governance settings (`PUT /security/policy`).
+  - [ ] `getIpThreatSummary(ip: string)`: Fetch linked `SecurityEvent` audit entries, attempt counts, and geolocation telemetry.
+
+- [ ] **10.3 Settings View Implementation (`components/settings/ban-ip-view.tsx`)**
+  - [ ] Replace placeholder in `components/settings/dreampos-settings-shell.tsx` with dedicated `BanIpView`.
+  - [ ] **Summary Metrics Header Cards**:
+    - Active Banned IPs count with high-threat indicator.
+    - Temporary auto-bans cooling down in last 24 hours.
+    - Whitelisted Store IPs (POS Geofencing coverage).
+    - Blocked Threat Attempts counter with trend chart sparkline.
+  - [ ] **Tabbed Management Interface**:
+    - Tab 1: **Active & Expired Ban Directory** (Full data table with real-time status indicators).
+    - Tab 2: **Store IP Whitelist & Network Lock** (Trusted IP/CIDR management for POS terminals).
+    - Tab 3: **Policy Governance & Operational Settings** (Configurable thresholds and response behaviors).
+    - Tab 4: **Real-Time Threat Monitor** (Stream of blocked connection events from `SecurityEventService`).
+
+- [ ] **10.4 Configuration Parameters & Policy Governance Panel**
+  - [ ] **Brute-Force & Automated Protection Engine Form**:
+    - Toggle for "Automated Anomaly IP Ban".
+    - Numeric stepper for "Failed Login Threshold" (default: 5 attempts).
+    - Numeric stepper for "POS PIN Failure Threshold" (default: 3 attempts).
+    - Slider/Select for "Rolling Detection Window" (1 min, 5 min, 15 min, 30 min).
+    - Select for "Cooling Ban Duration" (15 mins, 1 hour, 6 hours, 24 hours, 7 days, Permanent).
+  - [ ] **Store Operational Settings & POS Geofencing**:
+    - Toggle for "Store Network Lockdown": Require POS registers to connect only from outlet whitelisted IP / subnet.
+    - Dropdown for "Out-of-Store Behavior": Block checkout vs Allow with manager 2FA override vs Warning audit log.
+    - Toggle for "Current Admin Safeguard": Prevents accidental banning of the administrator's current public IP.
+  - [ ] **Response & Interstitial Page Settings**:
+    - Select response mode: `403 Forbidden (Standard)`, `429 Too Many Requests`, or `Drop Connection`.
+    - Custom brand message editor with preview banner ("Your IP has been restricted by store policy. Contact support...").
+
+- [ ] **10.5 Interactive Modals & Investigation Workflows**
+  - [ ] **"Ban IP Address" Modal**:
+    - Input with IPv4 / IPv6 / CIDR validation regex.
+    - Radio toggle: Permanent vs Temporary duration.
+    - Reason selector (`Brute Force`, `Suspicious Geolocation`, `Malicious Crawling`, `Admin Policy`, `POS Security Breach`).
+    - Scope selector: Global vs Selected Business/Outlet.
+    - Internal audit notes textarea.
+    - Instant preview of affected IP range for CIDR subnets (e.g. `/24` = 256 addresses).
+  - [ ] **"Add Whitelisted IP" Modal**:
+    - Input: IP address or subnet, friendly label (e.g. "Main Cashier Register Wi-Fi", "Owner Home Office").
+    - Outlet binding selector (bind whitelist rule to specific physical outlet).
+  - [ ] **"Threat Trace & IP Investigation" Slide-over Drawer**:
+    - Triggerable from any IP in Security Audit Logs (`/admin/security-events`) or Ban Directory.
+    - Render geolocation badge (Country flag, City, ISP/ASN).
+    - Chronological timeline of events triggered by this IP (failed logins, route attempts, payload attacks).
+    - Fast action button: "1-Click Instant Ban" or "Add to Trusted Whitelist".
+  - [ ] **"Unban Confirmation" Modal**:
+    - Displays ban history and requires optional unban rationale comment for the security audit log.
+
+- [ ] **10.6 Backend High-Performance Engine & Middleware Integration**
+  - [ ] Identity Service / Edge Middleware:
+    - O(1) Redis SET cache lookup (`banned_ips:set` or `banned_ip:{ip}`) with TTL for temporary bans.
+    - Subnet CIDR match cache for CIDR range rules.
+    - IP extraction with proxy trust validation (`CF-Connecting-IP`, `X-Forwarded-For`, `Remote-Addr`).
+  - [ ] Automated Trigger Pipeline:
+    - Event listener on `SecurityEventService::LOGIN_FAILED` and `POS_PIN_FAILED`.
+    - Redis sliding window rate-limiter counter per IP.
+    - Auto-ban execution when threshold is exceeded: Emit `SecurityEvent::IP_AUTO_BANNED` and notify admin channels.
+  - [ ] Expiry Cleaner Daemon:
+    - Redis native TTL handles cache expiration.
+    - Scheduled Laravel job (`php artisan security:clean-expired-bans`) to update database status to `expired`.
+
+- [ ] **10.7 Edge Proxy, Guards & Next.js Interstitial (`proxy.ts`)**
+  - [ ] Update Next.js edge proxy / middleware to check banned IP header or cache before routing to protected routes.
+  - [ ] Beautiful, branded Banned IP Interstitial Screen (`app/banned/page.tsx` or dynamic error modal):
+    - Clear explanatory alert banner with dark/light theme support.
+    - Reference UUID for support inquiries.
+    - Real-time countdown timer for temporary cooling bans ("Access will be restored in 14:32").
+
+- [ ] **10.8 Automated Testing, Security Verification & Hardening**
+  - [ ] Unit tests for IPv4, IPv6, and CIDR subnet parser and validator.
+  - [ ] Unit test ensuring administrator's active IP cannot be banned (Self-Lockout Prevention Guard).
+  - [ ] Integration test: Multiple failed login attempts trigger automated temporary ban rule.
+  - [ ] Integration test: Whitelisted IP bypasses rate limit and automated lockout.
+  - [ ] Verification of Next.js production build (`npm run build`).
+
 

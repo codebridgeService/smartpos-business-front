@@ -516,7 +516,7 @@ function BusinessDashboardContent() {
       {/* 5. Middle Section: Sales & Purchase (2/3) + Overall Info & Customers Overview (1/3) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Sales & Purchase Bar Chart (8 Columns) */}
-        <div className="lg:col-span-8 p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
+        <div className="lg:col-span-8 p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between overflow-hidden">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-zinc-800">
             <div className="flex items-center gap-2">
               <ShoppingCart className="h-4 w-4 text-orange-500" />
@@ -524,13 +524,13 @@ function BusinessDashboardContent() {
             </div>
 
             {/* Timeframe selector pills */}
-            <div className="flex items-center gap-1 bg-slate-100 dark:bg-zinc-800 p-1 rounded-xl text-xs font-semibold">
+            <div className="flex items-center gap-1 bg-slate-100 dark:bg-zinc-800 p-1 rounded-xl text-xs font-semibold overflow-x-auto no-scrollbar max-w-full">
               {(["1D", "1W", "1M", "3M", "6M", "1Y"] as const).map((tf) => (
                 <button
                   key={tf}
                   type="button"
                   onClick={() => setSalesTimeframe(tf)}
-                  className={`px-2.5 py-1 rounded-lg transition-colors ${salesTimeframe === tf
+                  className={`px-2.5 py-1 rounded-lg transition-colors shrink-0 ${salesTimeframe === tf
                     ? "bg-orange-500 text-white shadow-2xs"
                     : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"
                     }`}
@@ -542,7 +542,7 @@ function BusinessDashboardContent() {
           </div>
 
           {/* Legends */}
-          <div className="flex items-center gap-6 mt-4 text-xs font-medium">
+          <div className="flex items-center gap-4 sm:gap-6 mt-4 text-xs font-medium">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-[#fed7aa]" />
               <span className="text-slate-500 dark:text-zinc-400">Total Purchase</span>
@@ -556,52 +556,54 @@ function BusinessDashboardContent() {
           </div>
 
           {/* Dual Bar Chart (Jan - Dec) */}
-          <div className="mt-6 flex items-end gap-2 sm:gap-3 h-56 pt-6">
-            {/* Y-Axis Labels */}
-            <div className="flex flex-col justify-between h-full text-[10px] text-slate-400 dark:text-zinc-500 pr-2">
-              <span>60K</span>
-              <span>50K</span>
-              <span>40K</span>
-              <span>30K</span>
-              <span>20K</span>
-              <span>10K</span>
-              <span>0</span>
-            </div>
+          <div className="mt-6 overflow-x-auto no-scrollbar pb-1">
+            <div className="flex items-end gap-2 sm:gap-3 h-56 pt-6 min-w-[460px]">
+              {/* Y-Axis Labels */}
+              <div className="flex flex-col justify-between h-full text-[10px] text-slate-400 dark:text-zinc-500 pr-2 shrink-0">
+                <span>60K</span>
+                <span>50K</span>
+                <span>40K</span>
+                <span>30K</span>
+                <span>20K</span>
+                <span>10K</span>
+                <span>0</span>
+              </div>
 
-            {/* Bars */}
-            <div className="flex-1 flex items-end justify-between h-full gap-2 sm:gap-3 border-b border-slate-100 dark:border-zinc-800 pb-1">
-              {[
-                { month: "Jan", purchase: 52, sales: 18 },
-                { month: "Feb", purchase: 60, sales: 28 },
-                { month: "Mar", purchase: 42, sales: 25 },
-                { month: "Apr", purchase: 30, sales: 12 },
-                { month: "May", purchase: 46, sales: 28 },
-                { month: "Jun", purchase: 62, sales: 30 },
-                { month: "July", purchase: 40, sales: 15 },
-                { month: "Aug", purchase: 38, sales: 12 },
-                { month: "Sep", purchase: 60, sales: 50 },
-                { month: "Oct", purchase: 44, sales: 20 },
-                { month: "Nov", purchase: 55, sales: 25 },
-                { month: "Dec", purchase: 42, sales: 28 },
-              ].map((col) => (
-                <div key={col.month} className="flex-1 flex flex-col items-center h-full justify-end group">
-                  <div className="w-full max-w-[28px] relative flex flex-col items-center justify-end h-full">
-                    {/* Background Purchase Bar */}
-                    <div
-                      className="w-full bg-[#fed7aa] dark:bg-amber-950/60 rounded-t-md transition-all duration-300"
-                      style={{ height: `${col.purchase}%` }}
-                    />
-                    {/* Foreground Sales Bar */}
-                    <div
-                      className="w-full bg-orange-500 rounded-t-md absolute bottom-0 transition-all duration-300 group-hover:bg-orange-600"
-                      style={{ height: `${col.sales}%` }}
-                    />
+              {/* Bars */}
+              <div className="flex-1 flex items-end justify-between h-full gap-2 sm:gap-3 border-b border-slate-100 dark:border-zinc-800 pb-1">
+                {[
+                  { month: "Jan", purchase: 52, sales: 18 },
+                  { month: "Feb", purchase: 60, sales: 28 },
+                  { month: "Mar", purchase: 42, sales: 25 },
+                  { month: "Apr", purchase: 30, sales: 12 },
+                  { month: "May", purchase: 46, sales: 28 },
+                  { month: "Jun", purchase: 62, sales: 30 },
+                  { month: "July", purchase: 40, sales: 15 },
+                  { month: "Aug", purchase: 38, sales: 12 },
+                  { month: "Sep", purchase: 60, sales: 50 },
+                  { month: "Oct", purchase: 44, sales: 20 },
+                  { month: "Nov", purchase: 55, sales: 25 },
+                  { month: "Dec", purchase: 42, sales: 28 },
+                ].map((col) => (
+                  <div key={col.month} className="flex-1 flex flex-col items-center h-full justify-end group">
+                    <div className="w-full max-w-[28px] relative flex flex-col items-center justify-end h-full">
+                      {/* Background Purchase Bar */}
+                      <div
+                        className="w-full bg-[#fed7aa] dark:bg-amber-950/60 rounded-t-md transition-all duration-300"
+                        style={{ height: `${col.purchase}%` }}
+                      />
+                      {/* Foreground Sales Bar */}
+                      <div
+                        className="w-full bg-orange-500 rounded-t-md absolute bottom-0 transition-all duration-300 group-hover:bg-orange-600"
+                        style={{ height: `${col.sales}%` }}
+                      />
+                    </div>
+                    <span className="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-zinc-400 mt-2">
+                      {col.month}
+                    </span>
                   </div>
-                  <span className="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-zinc-400 mt-2">
-                    {col.month}
-                  </span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -718,9 +720,9 @@ function BusinessDashboardContent() {
       </div>
 
       {/* 6. Triple Row: Top Selling Products + Low Stock Products + Recent Sales */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
         {/* Top Selling Products */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
+        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
             <div className="flex items-center gap-2">
               <span className="h-4 w-4 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-600 flex items-center justify-center text-[10px]">
@@ -739,22 +741,22 @@ function BusinessDashboardContent() {
 
           <div className="divide-y divide-slate-100 dark:divide-zinc-800 mt-2">
             {TOP_SELLING_PRODUCTS.map((prod) => (
-              <div key={prod.id} className="py-2.5 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className={`h-10 w-10 rounded-xl ${prod.bgColor} flex items-center justify-center text-lg shrink-0`}>
+              <div key={prod.id} className="py-2.5 flex items-center justify-between gap-2.5">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                  <div className={`h-9 w-9 sm:h-10 sm:w-10 rounded-xl ${prod.bgColor} flex items-center justify-center text-lg shrink-0`}>
                     {prod.image}
                   </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
+                  <div className="min-w-0">
+                    <div className="text-xs font-bold text-slate-900 dark:text-white leading-tight truncate">
                       {prod.name}
                     </div>
-                    <div className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">
+                    <div className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
                       <span className="font-semibold text-slate-800 dark:text-zinc-200">{prod.price}</span> • {prod.sales}
                     </div>
                   </div>
                 </div>
                 <span
-                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${prod.trend === "up"
+                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded border shrink-0 ${prod.trend === "up"
                     ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-950/50 dark:border-emerald-900"
                     : "bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-950/50 dark:border-rose-900"
                     }`}
@@ -767,7 +769,7 @@ function BusinessDashboardContent() {
         </div>
 
         {/* Low Stock Products */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
+        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-rose-500" />
@@ -780,21 +782,21 @@ function BusinessDashboardContent() {
 
           <div className="divide-y divide-slate-100 dark:divide-zinc-800 mt-2">
             {LOW_STOCK_PRODUCTS.map((prod) => (
-              <div key={prod.id} className="py-2.5 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className={`h-10 w-10 rounded-xl ${prod.bgColor} flex items-center justify-center text-lg shrink-0`}>
+              <div key={prod.id} className="py-2.5 flex items-center justify-between gap-2.5">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                  <div className={`h-9 w-9 sm:h-10 sm:w-10 rounded-xl ${prod.bgColor} flex items-center justify-center text-lg shrink-0`}>
                     {prod.image}
                   </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
+                  <div className="min-w-0">
+                    <div className="text-xs font-bold text-slate-900 dark:text-white leading-tight truncate">
                       {prod.name}
                     </div>
-                    <div className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">
+                    <div className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
                       ID : <span className="font-semibold">{prod.code}</span>
                     </div>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right shrink-0">
                   <div className="text-[10px] text-slate-400">Instock</div>
                   <div className="text-sm font-bold text-rose-600 dark:text-rose-400">{prod.stock}</div>
                 </div>
@@ -804,7 +806,7 @@ function BusinessDashboardContent() {
         </div>
 
         {/* Recent Sales */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
+        <div className="md:col-span-2 lg:col-span-1 p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
             <div className="flex items-center gap-2">
               <ShoppingCart className="h-4 w-4 text-blue-500" />
@@ -822,15 +824,15 @@ function BusinessDashboardContent() {
           <div className="divide-y divide-slate-100 dark:divide-zinc-800 mt-2">
             {RECENT_SALES.map((sale) => (
               <div key={sale.id} className="py-2.5 flex items-center justify-between gap-2">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center text-lg shrink-0">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                  <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center text-lg shrink-0">
                     {sale.image}
                   </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
+                  <div className="min-w-0">
+                    <div className="text-xs font-bold text-slate-900 dark:text-white leading-tight truncate">
                       {sale.name}
                     </div>
-                    <div className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">
+                    <div className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
                       {sale.category} • <span className="font-semibold text-slate-800 dark:text-zinc-200">{sale.price}</span>
                     </div>
                   </div>
@@ -850,7 +852,7 @@ function BusinessDashboardContent() {
       {/* 7. Middle Row: Sales Statics (1/2) + Recent Transactions (1/2) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Sales Statics (Bi-directional Bar Chart) */}
-        <div className="lg:col-span-6 p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
+        <div className="lg:col-span-6 p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between overflow-hidden">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-rose-500" />
@@ -867,83 +869,85 @@ function BusinessDashboardContent() {
           </div>
 
           {/* Revenue & Expense Pills */}
-          <div className="flex items-center gap-4 mt-4">
-            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200/60 dark:border-zinc-700/60 flex items-center gap-3 flex-1">
+          <div className="flex flex-col xs:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mt-4">
+            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200/60 dark:border-zinc-700/60 flex items-center justify-between gap-3 flex-1">
               <div>
                 <div className="text-base font-extrabold text-slate-900 dark:text-white">$48,988,078</div>
                 <div className="text-[11px] text-slate-500 dark:text-zinc-400">Revenue</div>
               </div>
-              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-200">
+              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-200 shrink-0">
                 +25%
               </span>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200/60 dark:border-zinc-700/60 flex items-center gap-3 flex-1">
+            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200/60 dark:border-zinc-700/60 flex items-center justify-between gap-3 flex-1">
               <div>
                 <div className="text-base font-extrabold text-slate-900 dark:text-white">$12,189</div>
                 <div className="text-[11px] text-slate-500 dark:text-zinc-400">Expense</div>
               </div>
-              <span className="text-[10px] font-bold text-rose-600 bg-rose-50 dark:bg-rose-950 px-1.5 py-0.5 rounded border border-rose-200">
+              <span className="text-[10px] font-bold text-rose-600 bg-rose-50 dark:bg-rose-950 px-1.5 py-0.5 rounded border border-rose-200 shrink-0">
                 -5.9%
               </span>
             </div>
           </div>
 
           {/* Divergent Bars Chart: -30K to +30K */}
-          <div className="mt-6 flex items-center h-48">
-            <div className="flex flex-col justify-between h-full text-[10px] text-slate-400 pr-2">
-              <span>30K</span>
-              <span>20K</span>
-              <span>10K</span>
-              <span>0</span>
-              <span>-10K</span>
-              <span>-20K</span>
-              <span>-30K</span>
-            </div>
+          <div className="mt-6 overflow-x-auto no-scrollbar pb-1">
+            <div className="flex items-center h-48 min-w-[420px]">
+              <div className="flex flex-col justify-between h-full text-[10px] text-slate-400 pr-2 shrink-0">
+                <span>30K</span>
+                <span>20K</span>
+                <span>10K</span>
+                <span>0</span>
+                <span>-10K</span>
+                <span>-20K</span>
+                <span>-30K</span>
+              </div>
 
-            {/* Bars container */}
-            <div className="flex-1 flex justify-between items-center h-full relative border-l border-slate-100 dark:border-zinc-800 pl-2">
-              {/* Center baseline 0 line */}
-              <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[1px] bg-slate-200 dark:bg-zinc-700" />
+              {/* Bars container */}
+              <div className="flex-1 flex justify-between items-center h-full relative border-l border-slate-100 dark:border-zinc-800 pl-2">
+                {/* Center baseline 0 line */}
+                <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[1px] bg-slate-200 dark:bg-zinc-700" />
 
-              {[
-                { month: "Jan", rev: 10, exp: 20 },
-                { month: "Feb", rev: 35, exp: 35 },
-                { month: "Mar", rev: 32, exp: 30 },
-                { month: "Apr", rev: 25, exp: 20 },
-                { month: "May", rev: 28, exp: 36 },
-                { month: "Jun", rev: 25, exp: 38 },
-                { month: "Jul", rev: 38, exp: 40 },
-                { month: "Aug", rev: 26, exp: 28 },
-                { month: "Sep", rev: 32, exp: 30 },
-                { month: "Oct", rev: 12, exp: 16 },
-                { month: "Nov", rev: 10, exp: 12 },
-                { month: "Dec", rev: 30, exp: 28 },
-              ].map((item) => (
-                <div key={item.month} className="flex flex-col items-center justify-between h-full z-10">
-                  {/* Revenue bar (above 0, Teal) */}
-                  <div className="flex-1 flex items-end justify-center w-3">
-                    <div
-                      className="w-2.5 bg-teal-500 rounded-t-sm"
-                      style={{ height: `${item.rev}%` }}
-                    />
+                {[
+                  { month: "Jan", rev: 10, exp: 20 },
+                  { month: "Feb", rev: 35, exp: 35 },
+                  { month: "Mar", rev: 32, exp: 30 },
+                  { month: "Apr", rev: 25, exp: 20 },
+                  { month: "May", rev: 28, exp: 36 },
+                  { month: "Jun", rev: 25, exp: 38 },
+                  { month: "Jul", rev: 38, exp: 40 },
+                  { month: "Aug", rev: 26, exp: 28 },
+                  { month: "Sep", rev: 32, exp: 30 },
+                  { month: "Oct", rev: 12, exp: 16 },
+                  { month: "Nov", rev: 10, exp: 12 },
+                  { month: "Dec", rev: 30, exp: 28 },
+                ].map((item) => (
+                  <div key={item.month} className="flex flex-col items-center justify-between h-full z-10">
+                    {/* Revenue bar (above 0, Teal) */}
+                    <div className="flex-1 flex items-end justify-center w-3">
+                      <div
+                        className="w-2.5 bg-teal-500 rounded-t-sm"
+                        style={{ height: `${item.rev}%` }}
+                      />
+                    </div>
+                    <span className="text-[9px] font-semibold text-slate-400 py-1">{item.month}</span>
+                    {/* Expense bar (below 0, Orange) */}
+                    <div className="flex-1 flex items-start justify-center w-3">
+                      <div
+                        className="w-2.5 bg-orange-500 rounded-b-sm"
+                        style={{ height: `${item.exp}%` }}
+                      />
+                    </div>
                   </div>
-                  <span className="text-[9px] font-semibold text-slate-400 py-1">{item.month}</span>
-                  {/* Expense bar (below 0, Orange) */}
-                  <div className="flex-1 flex items-start justify-center w-3">
-                    <div
-                      className="w-2.5 bg-orange-500 rounded-b-sm"
-                      style={{ height: `${item.exp}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
         {/* Recent Transactions Table */}
-        <div className="lg:col-span-6 p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
+        <div className="lg:col-span-6 p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between overflow-hidden">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
             <div className="flex items-center gap-2">
               <CreditCard className="h-4 w-4 text-orange-500" />
@@ -955,7 +959,7 @@ function BusinessDashboardContent() {
           </div>
 
           {/* Category Tabs */}
-          <div className="flex items-center gap-4 mt-3 border-b border-slate-100 dark:border-zinc-800 text-xs font-semibold">
+          <div className="flex items-center gap-4 mt-3 border-b border-slate-100 dark:border-zinc-800 text-xs font-semibold overflow-x-auto no-scrollbar whitespace-nowrap">
             {(["Sale", "Purchase", "Quotation", "Expenses", "Invoices"] as const).map((tab) => (
               <button
                 key={tab}
@@ -1016,9 +1020,9 @@ function BusinessDashboardContent() {
       </div>
 
       {/* 8. Bottom Row: Top Customers + Top Categories + Order Statistics */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
         {/* Top Customers */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
+        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-orange-500" />
@@ -1032,20 +1036,20 @@ function BusinessDashboardContent() {
           <div className="divide-y divide-slate-100 dark:divide-zinc-800 mt-2">
             {TOP_CUSTOMERS.map((cust, idx) => (
               <div key={idx} className="py-2.5 flex items-center justify-between gap-2">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                   <img
                     src={cust.avatar}
                     alt={cust.name}
-                    className="h-9 w-9 rounded-full object-cover shrink-0 border border-slate-200 dark:border-zinc-700"
+                    className="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover shrink-0 border border-slate-200 dark:border-zinc-700"
                   />
-                  <div>
-                    <div className="text-xs font-bold text-slate-900 dark:text-white">{cust.name}</div>
-                    <div className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">
+                  <div className="min-w-0">
+                    <div className="text-xs font-bold text-slate-900 dark:text-white truncate">{cust.name}</div>
+                    <div className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
                       {cust.country} • {cust.orders}
                     </div>
                   </div>
                 </div>
-                <div className="text-right text-xs font-extrabold text-slate-900 dark:text-white">
+                <div className="text-right text-xs font-extrabold text-slate-900 dark:text-white shrink-0">
                   {cust.total}
                 </div>
               </div>
@@ -1054,7 +1058,7 @@ function BusinessDashboardContent() {
         </div>
 
         {/* Top Categories */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
+        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-rose-500" />
@@ -1070,9 +1074,9 @@ function BusinessDashboardContent() {
           </div>
 
           {/* Donut Chart & Breakdown */}
-          <div className="mt-4 flex items-center justify-between gap-4">
+          <div className="mt-4 flex flex-wrap xs:flex-nowrap items-center justify-between gap-4">
             {/* Donut Chart */}
-            <div className="relative w-32 h-32 shrink-0 flex items-center justify-center">
+            <div className="relative w-28 h-28 sm:w-32 sm:h-32 shrink-0 flex items-center justify-center mx-auto xs:mx-0">
               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                 <path
                   className="text-[#fed7aa]"
@@ -1110,7 +1114,7 @@ function BusinessDashboardContent() {
             </div>
 
             {/* Sales breakdown */}
-            <div className="space-y-3 text-xs flex-1">
+            <div className="space-y-3 text-xs flex-1 w-full">
               <div>
                 <div className="flex items-center gap-1.5 text-slate-500 dark:text-zinc-400">
                   <span className="h-2 w-2 rounded-full bg-blue-500" />
@@ -1166,7 +1170,7 @@ function BusinessDashboardContent() {
         </div>
 
         {/* Order Statistics Heatmap Grid */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
+        <div className="md:col-span-2 lg:col-span-1 p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between overflow-hidden">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
             <div className="flex items-center gap-2">
               <Layers className="h-4 w-4 text-blue-500" />
@@ -1182,51 +1186,53 @@ function BusinessDashboardContent() {
           </div>
 
           {/* Matrix Heatmap */}
-          <div className="mt-4">
-            <div className="flex items-center gap-2 mb-2 pl-8">
-              {HEATMAP_DAYS.map((d) => (
-                <span key={d} className="flex-1 text-center text-[10px] font-semibold text-slate-400 dark:text-zinc-500">
-                  {d}
-                </span>
-              ))}
-            </div>
-
-            <div className="space-y-1.5">
-              {HEATMAP_HOURS.map((hr, rowIdx) => (
-                <div key={hr} className="flex items-center gap-2">
-                  <span className="w-8 text-[10px] text-slate-400 dark:text-zinc-500 text-right shrink-0">
-                    {hr}
+          <div className="mt-4 overflow-x-auto no-scrollbar pb-1">
+            <div className="min-w-[260px]">
+              <div className="flex items-center gap-2 mb-2 pl-8">
+                {HEATMAP_DAYS.map((d) => (
+                  <span key={d} className="flex-1 text-center text-[10px] font-semibold text-slate-400 dark:text-zinc-500">
+                    {d}
                   </span>
-                  <div className="flex-1 flex items-center gap-1.5">
-                    {HEATMAP_DAYS.map((_, colIdx) => {
-                      const val = HEATMAP_VALUES[rowIdx]?.[colIdx] ?? 0;
-                      // Determine background color based on intensity val
-                      let bgClass = "bg-orange-50/80 dark:bg-orange-950/20";
-                      if (val === 1) bgClass = "bg-[#ffedd5] dark:bg-orange-900/30";
-                      if (val === 2) bgClass = "bg-[#fed7aa] dark:bg-orange-800/40";
-                      if (val === 3) bgClass = "bg-orange-500";
-                      if (val === 4) bgClass = "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"; // Tooltip cell
+                ))}
+              </div>
 
-                      return (
-                        <div
-                          key={colIdx}
-                          className={`h-4.5 flex-1 rounded-sm ${bgClass} transition-colors flex items-center justify-center relative group cursor-pointer`}
-                        >
-                          {val === 4 ? (
-                            <span className="text-[8px] font-bold px-1 whitespace-nowrap">
-                              297 Orders
-                            </span>
-                          ) : (
-                            <div className="hidden group-hover:flex absolute -top-6 bg-slate-900 text-white text-[9px] px-1.5 py-0.5 rounded shadow whitespace-nowrap z-20 pointer-events-none">
-                              {val * 75 + 20} Orders
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+              <div className="space-y-1.5">
+                {HEATMAP_HOURS.map((hr, rowIdx) => (
+                  <div key={hr} className="flex items-center gap-2">
+                    <span className="w-8 text-[10px] text-slate-400 dark:text-zinc-500 text-right shrink-0">
+                      {hr}
+                    </span>
+                    <div className="flex-1 flex items-center gap-1.5">
+                      {HEATMAP_DAYS.map((_, colIdx) => {
+                        const val = HEATMAP_VALUES[rowIdx]?.[colIdx] ?? 0;
+                        // Determine background color based on intensity val
+                        let bgClass = "bg-orange-50/80 dark:bg-orange-950/20";
+                        if (val === 1) bgClass = "bg-[#ffedd5] dark:bg-orange-900/30";
+                        if (val === 2) bgClass = "bg-[#fed7aa] dark:bg-orange-800/40";
+                        if (val === 3) bgClass = "bg-orange-500";
+                        if (val === 4) bgClass = "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"; // Tooltip cell
+
+                        return (
+                          <div
+                            key={colIdx}
+                            className={`h-4.5 flex-1 rounded-sm ${bgClass} transition-colors flex items-center justify-center relative group cursor-pointer`}
+                          >
+                            {val === 4 ? (
+                              <span className="text-[8px] font-bold px-1 whitespace-nowrap">
+                                297 Orders
+                              </span>
+                            ) : (
+                              <div className="hidden group-hover:flex absolute -top-6 bg-slate-900 text-white text-[9px] px-1.5 py-0.5 rounded shadow whitespace-nowrap z-20 pointer-events-none">
+                                {val * 75 + 20} Orders
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 

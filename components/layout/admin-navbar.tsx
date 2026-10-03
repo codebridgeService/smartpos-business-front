@@ -238,21 +238,47 @@ export function AdminNavbar({
         <div
           onMouseEnter={onSidebarMouseEnter}
           onMouseLeave={onSidebarMouseLeave}
-          className={`${isCollapsed ? "w-20 px-2 justify-center" : "w-64 px-3.5 justify-between"
-            } h-full border-r ${topBarPreset.borderClass} flex items-center relative shrink-0 transition-[width,padding] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-[width]`}
+          className={`${
+            isCollapsed
+              ? "lg:w-20 lg:px-2 lg:justify-center"
+              : "lg:w-64 lg:px-3.5 lg:justify-between"
+          } w-auto px-2 sm:px-3 justify-start gap-1.5 sm:gap-2.5 h-full border-r ${
+            topBarPreset.borderClass
+          } flex items-center relative shrink-0 transition-[width,padding] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-[width]`}
         >
+          {/* Mobile hamburger button */}
+          {onOpenMobileMenu && (
+            <button
+              type="button"
+              onClick={onOpenMobileMenu}
+              className={`lg:hidden p-1.5 rounded-xl transition-colors cursor-pointer shrink-0 ${
+                topBarPreset.isDark
+                  ? "text-white hover:bg-white/10"
+                  : "text-slate-600 hover:bg-slate-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+              }`}
+              aria-label="Toggle menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+          )}
+
           {/* Brand Logo with Orange Bag & Modern Typography */}
           <Link href="/" className="flex items-center min-w-0 group">
             <div className="h-8.5 w-8.5 rounded-xl bg-gradient-to-tr from-orange-600 to-orange-400 text-white flex items-center justify-center shadow-md shadow-orange-500/25 group-hover:scale-105 transition-transform shrink-0">
               <ShoppingBag className="h-5 w-5" />
             </div>
             <div
-              className={`flex items-baseline gap-0.5 truncate transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden whitespace-nowrap ${isCollapsed
-                ? "max-w-0 w-0 opacity-0 -translate-x-2 pointer-events-none ml-0"
-                : "max-w-[120px] opacity-100 translate-x-0 ml-2.5"
-                }`}
+              className={`flex items-baseline gap-0.5 truncate transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden whitespace-nowrap ${
+                isCollapsed
+                  ? "max-w-0 w-0 opacity-0 -translate-x-2 pointer-events-none ml-0"
+                  : "max-w-[120px] opacity-100 translate-x-0 ml-2 sm:ml-2.5"
+              }`}
             >
-              <span className={`font-extrabold text-lg tracking-tight ${topBarPreset.isDark ? "text-white" : "text-slate-900 dark:text-white"}`}>
+              <span
+                className={`font-extrabold text-base sm:text-lg tracking-tight ${
+                  topBarPreset.isDark ? "text-white" : "text-slate-900 dark:text-white"
+                }`}
+              >
                 Dreams
               </span>
               <span className="text-[10px] font-extrabold uppercase tracking-wider text-orange-500 font-mono ml-0.5">
@@ -280,45 +306,62 @@ export function AdminNavbar({
               )}
             </button>
           )}
-
-          {/* Mobile hamburger button */}
-          {onOpenMobileMenu && (
-            <button
-              type="button"
-              onClick={onOpenMobileMenu}
-              className={`lg:hidden p-1.5 rounded-xl transition-colors cursor-pointer ${topBarPreset.isDark ? "text-white hover:bg-white/10" : "text-slate-600 hover:bg-slate-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                }`}
-              aria-label="Toggle menu"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-          )}
         </div>
 
         {/* Right Section: Global Search Bar, Store Selector, Quick Action Buttons & Status Badges */}
-        <div className="flex-1 flex items-center justify-between px-4 sm:px-6 h-full min-w-0">
+        <div className="flex-1 flex items-center justify-between px-2 sm:px-4 lg:px-6 h-full min-w-0">
           {/* Global Search Bar with ⌘ K Shortcut */}
           <div className="flex items-center">
+            {/* Desktop & Tablet Search Bar */}
             <div
               onClick={() => setIsSearchOpen(true)}
-              className={`flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl border transition-all cursor-pointer w-48 sm:w-60 md:w-72 shadow-2xs ${topBarPreset.isDark
-                ? "border-white/20 bg-white/10 text-white/70 hover:bg-white/15 hover:text-white"
-                : "border-slate-200 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-800/50 hover:bg-white dark:hover:bg-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 text-slate-400 hover:text-slate-600"
-                }`}
+              className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all cursor-pointer w-36 sm:w-48 md:w-60 lg:w-72 shadow-2xs ${
+                topBarPreset.isDark
+                  ? "border-white/20 bg-white/10 text-white/70 hover:bg-white/15 hover:text-white"
+                  : "border-slate-200 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-800/50 hover:bg-white dark:hover:bg-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 text-slate-400 hover:text-slate-600"
+              }`}
             >
-              <Search className={`h-4 w-4 shrink-0 ${topBarPreset.isDark ? "text-white/70" : "text-slate-400"}`} />
-              <span className={`text-xs font-normal flex-1 ${topBarPreset.isDark ? "text-white/70" : "text-slate-400"}`}>Search</span>
-              <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded font-semibold border ${topBarPreset.isDark
-                ? "bg-white/20 text-white border-white/30"
-                : "bg-slate-200/70 dark:bg-zinc-700 text-slate-500 dark:text-zinc-400 border-slate-300/60 dark:border-zinc-600"
-                }`}>
+              <Search
+                className={`h-4 w-4 shrink-0 ${
+                  topBarPreset.isDark ? "text-white/70" : "text-slate-400"
+                }`}
+              />
+              <span
+                className={`text-xs font-normal flex-1 truncate ${
+                  topBarPreset.isDark ? "text-white/70" : "text-slate-400"
+                }`}
+              >
+                Search
+              </span>
+              <span
+                className={`hidden md:inline-block text-[10px] font-mono px-1.5 py-0.5 rounded font-semibold border ${
+                  topBarPreset.isDark
+                    ? "bg-white/20 text-white border-white/30"
+                    : "bg-slate-200/70 dark:bg-zinc-700 text-slate-500 dark:text-zinc-400 border-slate-300/60 dark:border-zinc-600"
+                }`}
+              >
                 ⌘ K
               </span>
             </div>
+
+            {/* Mobile Compact Search Button */}
+            <button
+              type="button"
+              onClick={() => setIsSearchOpen(true)}
+              className={`sm:hidden p-1.5 rounded-xl border transition-all cursor-pointer ${
+                topBarPreset.isDark
+                  ? "border-white/20 bg-white/10 text-white/80 hover:bg-white/15"
+                  : "border-slate-200 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-800/50 text-slate-500 hover:text-slate-700 dark:text-zinc-300"
+              }`}
+              title="Search"
+              aria-label="Search"
+            >
+              <Search className="h-4 w-4" />
+            </button>
           </div>
 
           {/* Right Section: Store Selector, Quick Action Buttons & Status Badges */}
-          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             {/* Outlet / Store Selector Dropdown */}
             <div className="relative">
               <button
@@ -328,18 +371,23 @@ export function AdminNavbar({
                   setIsAddNewMenuOpen(false);
                   setIsUserMenuOpen(false);
                 }}
-                className={`flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-semibold transition-colors shadow-2xs ${topBarPreset.isDark
-                  ? "border-white/20 bg-white/10 text-white hover:bg-white/20"
-                  : "border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-850 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-800 dark:text-zinc-200"
-                  }`}
+                className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-xl border text-xs font-semibold transition-colors shadow-2xs ${
+                  topBarPreset.isDark
+                    ? "border-white/20 bg-white/10 text-white hover:bg-white/20"
+                    : "border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-850 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-800 dark:text-zinc-200"
+                }`}
               >
                 <div className="h-5 w-5 rounded-md bg-slate-900 text-white dark:bg-slate-700 flex items-center justify-center font-bold text-[10px] shrink-0">
                   <Store className="h-3 w-3 text-orange-400" />
                 </div>
-                <span className="truncate max-w-[90px] sm:max-w-[130px] text-slate-800 dark:text-zinc-100">
+                <span className="truncate max-w-[70px] xs:max-w-[95px] sm:max-w-[130px] md:max-w-[160px] text-slate-800 dark:text-zinc-100">
                   {activeOutlet?.name || activeBusiness?.name || "Store"}
                 </span>
-                <ChevronDown className={`h-3.5 w-3.5 shrink-0 ml-auto ${topBarPreset.isDark ? "text-white/70" : "text-slate-400 dark:text-zinc-400"}`} />
+                <ChevronDown
+                  className={`h-3.5 w-3.5 shrink-0 ml-auto ${
+                    topBarPreset.isDark ? "text-white/70" : "text-slate-400 dark:text-zinc-400"
+                  }`}
+                />
               </button>
 
               {isOutletMenuOpen && (
@@ -404,10 +452,12 @@ export function AdminNavbar({
               <button
                 type="button"
                 onClick={() => handleToggleAddNew(!isAddNewMenuOpen)}
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold shadow-md shadow-orange-500/25 transition-all active:scale-95 cursor-pointer"
+                className="flex items-center gap-1.5 px-2 sm:px-3.5 py-1.5 sm:py-2 rounded-full bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold shadow-md shadow-orange-500/25 transition-all active:scale-95 cursor-pointer"
+                title="Add New"
+                aria-label="Add New"
               >
                 <PlusCircle className="h-4 w-4 shrink-0 text-white" />
-                <span>Add New</span>
+                <span className="hidden sm:inline">Add New</span>
               </button>
 
               {isAddNewMenuOpen && mounted &&

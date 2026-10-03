@@ -46,7 +46,9 @@ import {
   BatchCreatePermissionModal,
   EditPermissionModal,
   DeletePermissionModal,
+  PermissionsPageSkeleton,
 } from "@/components/admin/permissions";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import type { Permission } from "@/types";
 import {
   Card,
@@ -244,10 +246,15 @@ export default function AdminPermissionsPage() {
     closeDeleteModal,
     fetchPermissions,
     getModules,
+    getFilteredPermissions,
     getGroupedMatrix,
   } = usePermissionStore();
 
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
+  // Pagination State (limit 10 items per page)
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const perPage = 10;
 
   useEffect(() => {
     void fetchPermissions();
@@ -268,10 +275,48 @@ export default function AdminPermissionsPage() {
 
   // Derive unique modules and grouped permissions directly from PermissionState getters
   const allModules = useMemo(() => getModules(), [permissions, getModules]);
-  const groupedPermissions = useMemo(
-    () => getGroupedMatrix(),
-    [permissions, searchQuery, selectedModule, selectedAction, getGroupedMatrix]
+
+  // Filtered permissions matching search, module, and action
+  const filteredPermissions = useMemo(
+    () => getFilteredPermissions(),
+    [permissions, searchQuery, selectedModule, selectedAction, getFilteredPermissions]
   );
+
+  const totalCount = filteredPermissions.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
+
+  // Reset to first page when search filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedModule, selectedAction]);
+
+  // Paginated permissions for the active page
+  const paginatedPermissions = useMemo(() => {
+    const startIndex = (currentPage - 1) * perPage;
+    return filteredPermissions.slice(startIndex, startIndex + perPage);
+  }, [filteredPermissions, currentPage, perPage]);
+
+  // Group paginated items into modules for matrix presentation
+  const paginatedGroupedMatrix = useMemo(() => {
+    const groups: Record<string, Permission[]> = {};
+    paginatedPermissions.forEach((p) => {
+      const mod = (p.module || "other").trim().toLowerCase();
+      if (!groups[mod]) {
+        groups[mod] = [];
+      }
+      groups[mod].push(p);
+    });
+
+    Object.keys(groups).forEach((mod) => {
+      groups[mod].sort((a, b) => a.code.localeCompare(b.code));
+    });
+
+    return {
+      sortedModuleKeys: Object.keys(groups).sort(),
+      groups,
+      totalMatching: totalCount,
+    };
+  }, [paginatedPermissions, totalCount]);
 
   // Helper for action badge styling
   const getActionBadge = (code: string) => {
@@ -323,6 +368,10 @@ export default function AdminPermissionsPage() {
 
   const areAllCollapsed =
     allModules.length > 0 && allModules.every((mod) => collapsedModules[mod]);
+
+  if (isLoading && permissions.length === 0) {
+    return <PermissionsPageSkeleton />;
+  }
 
   return (
     <div className="space-y-6 w-full pb-12">
@@ -412,7 +461,7 @@ export default function AdminPermissionsPage() {
           <div>
             <div className="text-xs font-medium text-slate-500 dark:text-zinc-400">Total Permissions</div>
             <div className="text-xl font-bold text-slate-900 dark:text-white">
-              {permissions.length}
+              <AnimatedNumber value={permissions.length} />
             </div>
           </div>
         </div>
@@ -424,7 +473,7 @@ export default function AdminPermissionsPage() {
           <div>
             <div className="text-xs font-medium text-slate-500 dark:text-zinc-400">Active Modules</div>
             <div className="text-xl font-bold text-slate-900 dark:text-white">
-              {allModules.length}
+              <AnimatedNumber value={allModules.length} />
             </div>
           </div>
         </div>
@@ -449,7 +498,7 @@ export default function AdminPermissionsPage() {
           <div>
             <div className="text-xs font-medium text-slate-500 dark:text-zinc-400">Filtered Results</div>
             <div className="text-xl font-bold text-slate-900 dark:text-white">
-              {groupedPermissions.totalMatching}
+              <AnimatedNumber value={totalCount} />
             </div>
           </div>
         </div>
@@ -523,7 +572,7 @@ export default function AdminPermissionsPage() {
       </div>
 
       {/* Permissions List Grouped and Ordered by Module */}
-      {groupedPermissions.sortedModuleKeys.length === 0 ? (
+      {paginatedGroupedMatrix.sortedModuleKeys.length === 0 ? (
         <div className="p-12 text-center rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800">
           <AlertCircle className="h-10 w-10 text-slate-400 mx-auto mb-3" />
           <h3 className="text-base font-semibold text-slate-800 dark:text-zinc-200">
@@ -548,8 +597,8 @@ export default function AdminPermissionsPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {groupedPermissions.sortedModuleKeys.map((moduleKey) => {
-            const modulePerms = groupedPermissions.groups[moduleKey];
+          {paginatedGroupedMatrix.sortedModuleKeys.map((moduleKey) => {
+            const modulePerms = paginatedGroupedMatrix.groups[moduleKey];
             const meta = MODULE_REGISTRY[moduleKey] || {
               title: moduleKey.charAt(0).toUpperCase() + moduleKey.slice(1),
               description: `Operations and access control for ${moduleKey}`,
@@ -676,6 +725,31 @@ export default function AdminPermissionsPage() {
               </div>
             );
           })}
+
+          {/* Pagination Footer */}
+          {totalCount > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 shadow-sm text-xs text-slate-500">
+              <span>
+                Page {currentPage} of {totalPages} ({totalCount} total permissions)
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  disabled={currentPage <= 1}
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-700 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-200 transition-colors cursor-pointer disabled:cursor-not-allowed font-medium"
+                >
+                  Previous
+                </button>
+                <button
+                  disabled={currentPage >= totalPages}
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-700 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-200 transition-colors cursor-pointer disabled:cursor-not-allowed font-medium"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
