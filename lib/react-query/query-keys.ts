@@ -45,6 +45,14 @@ export const queryKeys = {
     units: (businessId?: string | number) =>
       businessId ? ([...queryKeys.products.all, "units", businessId] as const) : ([...queryKeys.products.all, "units"] as const),
   },
+  brands: {
+    all: ["brands"] as const,
+    lists: () => [...queryKeys.brands.all, "list"] as const,
+    list: (params?: Record<string, unknown>) =>
+      params ? ([...queryKeys.brands.lists(), params] as const) : queryKeys.brands.lists(),
+    details: () => [...queryKeys.brands.all, "detail"] as const,
+    detail: (uuid: string) => [...queryKeys.brands.details(), uuid] as const,
+  },
   users: {
     all: ["users"] as const,
     lists: () => [...queryKeys.users.all, "list"] as const,

@@ -22,6 +22,8 @@ import {
   type OfflineDataStatus,
 } from "./storage-types";
 
+export type { CacheCategory, CacheMetadataRecord, OfflineDataStatus };
+
 export const DB_NAME = "smartpos_storage_v1";
 export const DB_VERSION = 2;
 

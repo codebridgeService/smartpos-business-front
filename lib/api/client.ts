@@ -138,6 +138,29 @@ async function request<T>(
     }
   }
 
+  // Inject Business Context (X-Business-Uuid)
+  if (!headers.has("X-Business-Uuid")) {
+    let bizUuid: string | null = null;
+
+    if (params?.business_uuid) {
+      bizUuid = String(params.business_uuid);
+    } else if (body instanceof FormData && body.get("business_uuid")) {
+      bizUuid = String(body.get("business_uuid"));
+    } else if (body && typeof body === "object" && "business_uuid" in (body as Record<string, unknown>)) {
+      bizUuid = String((body as Record<string, unknown>).business_uuid);
+    } else if (typeof window !== "undefined") {
+      try {
+        bizUuid = localStorage.getItem("smartpos_active_business_uuid");
+      } catch {
+        // Ignore localStorage retrieval error
+      }
+    }
+
+    if (bizUuid && bizUuid.trim()) {
+      headers.set("X-Business-Uuid", bizUuid.trim());
+    }
+  }
+
   // Handle body formatting
   let requestBody: BodyInit | undefined;
 

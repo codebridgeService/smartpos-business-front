@@ -209,9 +209,9 @@ export function BusinessSidebar({
           icon: <Package className="h-4.5 w-4.5 shrink-0" />,
         },
         {
-          label: "Category & Brands",
-          href: "/coming-soon?feature=category",
-          icon: <FolderTree className="h-4.5 w-4.5 shrink-0" />,
+          label: "Brands Catalog",
+          href: "/businesses/brands",
+          icon: <BadgeCheck className="h-4.5 w-4.5 shrink-0" />,
         },
         {
           label: "Units & Scaling",

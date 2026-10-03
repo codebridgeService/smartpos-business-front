@@ -9,3 +9,4 @@ export * from "./image-cache";
 export * from "./sync-engine";
 export * from "./offline-sales";
 export * from "./api-cache";
+export * from "./brand-cache";

@@ -190,15 +190,15 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* 2. Vibrant Orange Hero Banner with 3D Spheres */}
-        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-orange-500 via-orange-500 to-amber-500 p-6 sm:p-7 text-white shadow-lg shadow-orange-500/15">
+        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-orange-500 via-orange-500 to-amber-500 p-4 xs:p-5 sm:p-7 text-white shadow-lg shadow-orange-500/15">
           {/* Subtle decorative 3D sphere glows */}
           <div className="absolute -top-12 -left-12 w-40 h-40 bg-white/15 rounded-full blur-2xl pointer-events-none" />
           <div className="absolute -bottom-16 -right-8 w-48 h-48 bg-amber-400/30 rounded-full blur-xl pointer-events-none" />
           <div className="absolute top-4 right-1/4 w-16 h-16 bg-white/10 rounded-full blur-lg pointer-events-none" />
 
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
             <div className="space-y-1">
-              <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+              <h2 className="text-lg xs:text-xl sm:text-2xl font-bold tracking-tight">
                 Welcome Back, {user?.name?.split(" ")[0] || "Adrian"}
               </h2>
               <p className="text-orange-100 text-xs sm:text-sm font-medium">
@@ -206,16 +206,16 @@ export default function AdminDashboardPage() {
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
               <Link
                 href="/admin/companies"
-                className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-black text-white text-xs font-bold shadow-md transition-all active:scale-95"
+                className="px-3.5 sm:px-4 py-2 rounded-xl bg-zinc-900 hover:bg-black text-white text-xs font-bold shadow-md transition-all active:scale-95"
               >
                 Companies
               </Link>
               <Link
                 href="/coming-soon?feature=packages"
-                className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-900 text-xs font-bold shadow-md transition-all active:scale-95"
+                className="px-3.5 sm:px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-900 text-xs font-bold shadow-md transition-all active:scale-95"
               >
                 All Packages
               </Link>
@@ -224,7 +224,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* 3. 4-Column KPI Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
           {/* Total Companies */}
           <Link
             href="/admin/companies"
@@ -325,9 +325,9 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* 4. Middle Analytics Row (Companies Weekly, Revenue Monthly, Top Plans) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-5">
           {/* Companies Weekly Chart */}
-          <div className="lg:col-span-3 p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
+          <div className="md:col-span-6 lg:col-span-3 p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">Companies</h3>
               <button
@@ -382,8 +382,8 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Revenue 12-Month Bar Chart */}
-          <div className="lg:col-span-6 p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
-            <div className="flex items-center justify-between">
+          <div className="md:col-span-12 lg:col-span-6 md:order-last lg:order-none p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between overflow-hidden">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="space-y-0.5">
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white">Revenue</h3>
                 <div className="flex items-baseline gap-2">
@@ -412,7 +412,8 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* 12 Months Bars */}
-            <div className="mt-6 flex items-end justify-between h-44 gap-1.5 sm:gap-2 px-1">
+            <div className="mt-6 overflow-x-auto no-scrollbar pb-1">
+              <div className="flex items-end justify-between h-44 gap-1.5 sm:gap-2 px-1 min-w-[320px]">
               {[
                 { m: "Jan", val: 55 },
                 { m: "Feb", val: 42 },
@@ -445,11 +446,12 @@ export default function AdminDashboardPage() {
                   </span>
                 </div>
               ))}
+              </div>
             </div>
           </div>
 
           {/* Top Plans Donut Chart */}
-          <div className="lg:col-span-3 p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
+          <div className="md:col-span-6 lg:col-span-3 p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">Top Plans</h3>
               <button
@@ -540,10 +542,10 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* 5. Bottom 3-Column Tables & Lists */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* 5. Bottom Tables & Lists: Adaptive 1-col (mobile/cover), 2-col (foldable open/tablet), 3-col (desktop) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {/* Recent Transactions */}
-          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">Recent Transactions</h3>
               <Link
@@ -557,9 +559,9 @@ export default function AdminDashboardPage() {
             <div className="divide-y divide-slate-100 dark:divide-zinc-800/60 mt-1">
               {RECENT_TRANSACTIONS.map((tx) => (
                 <div key={tx.id} className="py-2.5 flex items-center justify-between">
-                  <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                     <div
-                      className={`h-9 w-9 rounded-xl ${tx.color} text-white flex items-center justify-center text-xs shadow-xs shrink-0`}
+                      className={`h-8 w-8 sm:h-9 sm:w-9 rounded-xl ${tx.color} text-white flex items-center justify-center text-xs shadow-xs shrink-0`}
                     >
                       {tx.initial}
                     </div>
@@ -585,7 +587,7 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Recently Registered */}
-          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">Recently Registered</h3>
               <Link
@@ -599,9 +601,9 @@ export default function AdminDashboardPage() {
             <div className="divide-y divide-slate-100 dark:divide-zinc-800/60 mt-1">
               {RECENTLY_REGISTERED.map((reg, idx) => (
                 <div key={idx} className="py-2.5 flex items-center justify-between">
-                  <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                     <div
-                      className={`h-9 w-9 rounded-xl ${reg.bg} flex items-center justify-center font-bold text-xs shadow-xs shrink-0`}
+                      className={`h-8 w-8 sm:h-9 sm:w-9 rounded-xl ${reg.bg} flex items-center justify-center font-bold text-xs shadow-xs shrink-0`}
                     >
                       {reg.initial}
                     </div>
@@ -622,7 +624,7 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Recent Plan Expired */}
-          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+          <div className="md:col-span-2 lg:col-span-1 p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">Recent Plan Expired</h3>
               <Link
@@ -638,10 +640,10 @@ export default function AdminDashboardPage() {
                 const hasReminded = remindedList[exp.name];
 
                 return (
-                  <div key={idx} className="py-2.5 flex items-center justify-between">
-                    <div className="flex items-center gap-3 min-w-0">
+                  <div key={idx} className="py-2.5 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                       <div
-                        className={`h-9 w-9 rounded-xl ${exp.icon} text-white flex items-center justify-center font-bold text-xs shadow-xs shrink-0`}
+                        className={`h-8 w-8 sm:h-9 sm:w-9 rounded-xl ${exp.icon} text-white flex items-center justify-center font-bold text-xs shadow-xs shrink-0`}
                       >
                         {exp.initial}
                       </div>
@@ -659,7 +661,7 @@ export default function AdminDashboardPage() {
                       type="button"
                       onClick={() => handleSendReminder(exp.name)}
                       disabled={hasReminded}
-                      className={`text-xs font-semibold px-2.5 py-1 rounded-lg transition-colors shrink-0 ${hasReminded
+                      className={`text-xs font-semibold px-2 sm:px-2.5 py-1 rounded-lg transition-colors shrink-0 ${hasReminded
                           ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50"
                           : "text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/40"
                         }`}

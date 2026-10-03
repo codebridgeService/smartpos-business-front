@@ -7,4 +7,7 @@ export * from "./pos-pin-view";
 export * from "./dreampos-profile-view";
 export * from "./dreampos-settings-shell";
 export * from "./storage-cache-view";
-
+export * from "./company-settings-view";
+export * from "./localization-settings-view";
+export * from "./appearance-settings-view";
+export * from "./invoice-settings-view";

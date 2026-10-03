@@ -16,6 +16,7 @@ import {
   KeyRound,
   SlidersHorizontal,
   ShieldAlert,
+  RotateCcw,
 } from "lucide-react";
 import {
   type CacheCategory,
@@ -29,6 +30,7 @@ import { Button } from "@/components/ui/button";
 interface AutoRemoveSettingsProps {
   policy: PosStoragePolicy;
   onUpdatePolicy: (newPolicy: PosStoragePolicy) => void;
+  onTriggerCleanup?: () => Promise<void>;
   className?: string;
 }
 
@@ -106,15 +108,27 @@ const CATEGORY_ITEMS: CategoryRowItem[] = [
 export function AutoRemoveSettings({
   policy,
   onUpdatePolicy,
+  onTriggerCleanup,
   className = "",
 }: AutoRemoveSettingsProps) {
   const [activeCategory, setActiveCategory] = useState<CategoryRowItem | null>(
     null
   );
+  const [isPruning, setIsPruning] = useState(false);
 
   const getRetentionLabel = (retention: CacheRetention): string => {
     const opt = RETENTION_OPTIONS.find((o) => o.value === retention);
     return opt ? opt.label : retention;
+  };
+
+  const handleRunPruning = async () => {
+    if (!onTriggerCleanup || isPruning) return;
+    setIsPruning(true);
+    try {
+      await onTriggerCleanup();
+    } finally {
+      setIsPruning(false);
+    }
   };
 
   const handleSelectRetention = (retention: CacheRetention) => {
@@ -151,6 +165,19 @@ export function AutoRemoveSettings({
             </p>
           </div>
         </div>
+
+        {onTriggerCleanup && (
+          <button
+            type="button"
+            onClick={handleRunPruning}
+            disabled={isPruning}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 text-xs font-semibold cursor-pointer disabled:opacity-50 transition-all shadow-xs"
+            title="Trigger auto-remove cleanup now to purge expired records"
+          >
+            <RotateCcw className={`w-3.5 h-3.5 ${isPruning ? "animate-spin" : ""}`} />
+            <span>{isPruning ? "Pruning..." : "Prune Expired"}</span>
+          </button>
+        )}
       </div>
 
       {/* Grid of Category Rows */}

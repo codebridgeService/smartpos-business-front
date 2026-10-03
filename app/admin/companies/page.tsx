@@ -442,11 +442,11 @@ export default function CompaniesPage() {
       </div>
 
       {/* Main Feature Tabs Switcher */}
-      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-zinc-800 pb-2">
+      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-zinc-800 pb-2 overflow-x-auto no-scrollbar whitespace-nowrap">
         <button
           type="button"
           onClick={() => setActiveTab("companies")}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+          className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
             activeTab === "companies"
               ? "bg-orange-500 text-white shadow-md shadow-orange-500/25"
               : "bg-white dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-zinc-700"
@@ -464,7 +464,7 @@ export default function CompaniesPage() {
         <button
           type="button"
           onClick={() => setActiveTab("subscriptions")}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+          className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
             activeTab === "subscriptions"
               ? "bg-orange-500 text-white shadow-md shadow-orange-500/25"
               : "bg-white dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-zinc-700"
@@ -551,7 +551,7 @@ export default function CompaniesPage() {
             </div>
 
             {/* POS Terminals & Devices */}
-            <div className="group bg-white dark:bg-zinc-900 p-4.5 rounded-2xl border border-slate-200/80 dark:border-zinc-800 shadow-xs hover:shadow-md hover:border-purple-300/80 dark:hover:border-purple-500/40 transition-all duration-200 hover:-translate-y-0.5">
+            <div className="group bg-white dark:bg-zinc-900 p-4.5 rounded-2xl border border-slate-200/80 dark:border-zinc-800 shadow-xs hover:shadow-md hover:border-purple-300/80 dark:border-purple-500/40 transition-all duration-200 hover:-translate-y-0.5">
               <div className="flex items-center justify-between">
                 <div className="h-11 w-11 rounded-xl bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 flex items-center justify-center border border-purple-200/60 dark:border-purple-900/40 group-hover:scale-105 transition-transform">
                   <Tablet className="h-5 w-5" />
@@ -574,7 +574,7 @@ export default function CompaniesPage() {
           {/* Main Companies Table & Search Bar */}
           <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 shadow-xs overflow-hidden">
             {/* Filter & View Bar */}
-            <div className="p-4 border-b border-slate-200/80 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/40 dark:bg-zinc-850/20">
+            <div className="p-3 sm:p-4 border-b border-slate-200/80 dark:border-zinc-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-50/40 dark:bg-zinc-850/20">
               <div className="relative w-full sm:w-88">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
@@ -586,15 +586,15 @@ export default function CompaniesPage() {
                 />
               </div>
 
-              <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+              <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end overflow-x-auto no-scrollbar">
                 {/* Status Pills */}
-                <div className="flex items-center bg-slate-100 dark:bg-zinc-800 p-1 rounded-xl text-xs font-medium">
+                <div className="flex items-center bg-slate-100 dark:bg-zinc-800 p-1 rounded-xl text-xs font-medium shrink-0">
                   {["All", "Active", "Inactive", "Suspended"].map((status) => (
                     <button
                       key={status}
                       type="button"
                       onClick={() => setStatusFilter(status)}
-                      className={`px-3 py-1.5 rounded-lg text-xs transition-all cursor-pointer ${
+                      className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs transition-all cursor-pointer ${
                         statusFilter === status
                           ? "bg-white dark:bg-zinc-700 text-orange-600 dark:text-orange-400 shadow-xs font-semibold"
                           : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"
@@ -606,7 +606,7 @@ export default function CompaniesPage() {
                 </div>
 
                 {/* View Mode Switcher */}
-                <div className="flex items-center bg-slate-100 dark:bg-zinc-800 p-1 rounded-xl">
+                <div className="flex items-center bg-slate-100 dark:bg-zinc-800 p-1 rounded-xl shrink-0">
                   <button
                     type="button"
                     onClick={() => setViewMode("table")}
@@ -1053,11 +1053,11 @@ export default function CompaniesPage() {
               </div>
 
               {/* Billing Cycle Switcher */}
-              <div className="flex items-center bg-slate-100 dark:bg-zinc-800 p-1 rounded-xl text-xs">
+              <div className="flex items-center bg-slate-100 dark:bg-zinc-800 p-1 rounded-xl text-xs overflow-x-auto no-scrollbar whitespace-nowrap shrink-0">
                 <button
                   type="button"
                   onClick={() => setBillingCycle("monthly")}
-                  className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer shrink-0 ${
                     billingCycle === "monthly"
                       ? "bg-white dark:bg-zinc-700 text-orange-600 dark:text-orange-400 shadow-xs"
                       : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"
@@ -1068,7 +1068,7 @@ export default function CompaniesPage() {
                 <button
                   type="button"
                   onClick={() => setBillingCycle("annually")}
-                  className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
                     billingCycle === "annually"
                       ? "bg-white dark:bg-zinc-700 text-orange-600 dark:text-orange-400 shadow-xs"
                       : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"

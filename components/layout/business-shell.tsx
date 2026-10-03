@@ -67,10 +67,38 @@ export function BusinessShell({ children }: BusinessShellProps) {
     }
   }, [isLoading, isAuthenticated, user, pathname, router]);
 
-  // Sidebar Layout States
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isSidebarHovered, setIsSidebarHovered] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Sync with appearance settings (Expand Sidebar, Sidebar Size)
+  useEffect(() => {
+    const applyAppearanceSettings = () => {
+      try {
+        const stored = localStorage.getItem("smartpos_appearance_settings");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (typeof parsed.expandSidebar === "boolean") {
+            setIsSidebarCollapsed(!parsed.expandSidebar);
+          }
+          if (parsed.sidebarSize) {
+            const sizeMap: Record<string, string> = {
+              "Small - 85px": "85px",
+              "Medium - 200px": "200px",
+              "Default - 240px": "240px",
+              "Large - 260px": "260px",
+            };
+            const w = sizeMap[parsed.sidebarSize] || "240px";
+            document.documentElement.style.setProperty("--sidebar-width", w);
+          }
+        }
+      } catch {}
+    };
+
+    applyAppearanceSettings();
+    window.addEventListener("smartpos:appearance-updated", applyAppearanceSettings);
+    return () => window.removeEventListener("smartpos:appearance-updated", applyAppearanceSettings);
+  }, []);
 
   // Theme & Layout Context
   const {
@@ -173,15 +201,16 @@ export function BusinessShell({ children }: BusinessShellProps) {
         {/* Desktop Sidebar */}
         {layoutMode !== "horizontal" && (
           <div
+            style={{
+              width: layoutMode === "two-column"
+                ? "18.5rem"
+                : isEffectiveCollapsed
+                ? "5rem"
+                : "var(--sidebar-width, 15rem)"
+            }}
             className={`hidden lg:block relative shrink-0 sticky ${
               layoutMode === "without-header" ? "top-0 h-screen" : "top-16 h-[calc(100vh-4rem)]"
-            } transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-[width] ${
-              layoutMode === "two-column"
-                ? "w-74"
-                : isEffectiveCollapsed
-                ? "w-20"
-                : "w-64"
-            }`}
+            } transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-[width]`}
           >
             {layoutMode === "two-column" ? (
               <aside className={`hidden lg:flex w-full h-full overflow-hidden border-r ${sidebarPreset.borderClass}`}>

@@ -268,6 +268,7 @@ function PosCashierTerminalContent() {
 
   // Modals & UI States
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [barcodeInput, setBarcodeInput] = useState("");
@@ -673,15 +674,31 @@ function PosCashierTerminalContent() {
         </div>
 
         {/* Right Utility Buttons & Controls */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-1.5 sm:gap-2.5">
+          {/* Mobile/Tablet Cart Toggle Button */}
+          <button
+            type="button"
+            onClick={() => setIsMobileCartOpen((prev) => !prev)}
+            className="lg:hidden relative p-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white shadow-xs flex items-center justify-center cursor-pointer transition-transform active:scale-95"
+            title="Toggle Cart"
+            aria-label="Toggle Cart"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            {cart.length > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 h-5 min-w-5 px-1 bg-slate-900 text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white dark:ring-zinc-900 shadow-xs">
+                {cart.reduce((sum, item) => sum + item.quantity, 0)}
+              </span>
+            )}
+          </button>
+
           {/* Dashboard Button */}
           <Link href="/businesses">
             <button
               type="button"
-              className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+              className="px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Dashboard</span>
+              <span className="hidden sm:inline">Dashboard</span>
             </button>
           </Link>
 
@@ -695,7 +712,7 @@ function PosCashierTerminalContent() {
                 selectOutlet(newUuid);
                 router.push(`/pos?outlet=${newUuid}`);
               }}
-              className="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800 text-xs font-bold text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-orange-500 cursor-pointer shadow-2xs"
+              className="max-w-[110px] sm:max-w-[180px] px-2.5 sm:px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800 text-xs font-bold text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-orange-500 cursor-pointer shadow-2xs truncate"
             >
               {outlets.map((o) => (
                 <option key={o.uuid} value={o.uuid}>
@@ -887,13 +904,13 @@ function PosCashierTerminalContent() {
           </div>
 
           {/* PRODUCT CARDS GRID */}
-          <div className="flex-1 overflow-y-auto pr-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 auto-rows-max">
+          <div className="flex-1 overflow-y-auto pr-1 grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4 auto-rows-max pb-24 lg:pb-4">
             {filteredProducts.map((product) => {
               const inCart = cart.find((i) => i.id === product.id);
               return (
                 <div
                   key={product.id}
-                  className="product-card smooth-card group relative p-4 rounded-2xl border border-zinc-200/90 dark:border-zinc-800/80 bg-white dark:bg-zinc-900 hover:border-orange-500 hover:shadow-xl hover:shadow-orange-500/10 flex flex-col justify-between cursor-pointer"
+                  className="product-card smooth-card group relative p-3.5 sm:p-4 rounded-2xl border border-zinc-200/90 dark:border-zinc-800/80 bg-white dark:bg-zinc-900 hover:border-orange-500 hover:shadow-xl hover:shadow-orange-500/10 flex flex-col justify-between cursor-pointer"
                   onClick={(e) => addToCart(product, e)}
                 >
                   {/* Selected Green Checkmark Badge */}
@@ -904,23 +921,23 @@ function PosCashierTerminalContent() {
                   )}
 
                   {/* Product Thumbnail with Clean White Center Frame */}
-                  <div className="h-32 w-full rounded-xl bg-zinc-50 dark:bg-zinc-800/40 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform overflow-hidden relative">
-                    <span className="text-5xl select-none drop-shadow-sm">{product.image}</span>
+                  <div className="h-28 sm:h-32 w-full rounded-xl bg-zinc-50 dark:bg-zinc-800/40 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform overflow-hidden relative">
+                    <span className="text-4xl sm:text-5xl select-none drop-shadow-sm">{product.image}</span>
                   </div>
 
                   {/* Product Details */}
                   <div>
-                    <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider block">
+                    <span className="text-[10px] sm:text-[11px] font-medium text-zinc-400 uppercase tracking-wider block">
                       {product.category}
                     </span>
-                    <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 truncate mt-0.5">
+                    <h3 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-100 truncate mt-0.5">
                       {product.name}
                     </h3>
                   </div>
 
                   {/* Price & Quantity Controls */}
                   <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-zinc-100 dark:border-zinc-800/80">
-                    <span className="text-base font-extrabold text-zinc-900 dark:text-zinc-50 font-mono">
+                    <span className="text-sm sm:text-base font-extrabold text-zinc-900 dark:text-zinc-50 font-mono">
                       ${product.price.toLocaleString()}
                     </span>
 
@@ -968,10 +985,22 @@ function PosCashierTerminalContent() {
           </div>
         </main>
 
+        {/* Mobile Backdrop for Cart Drawer */}
+        {isMobileCartOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-xs z-40 lg:hidden animate-fade-in"
+            onClick={() => setIsMobileCartOpen(false)}
+          />
+        )}
+
         {/* RIGHT: ORDER LIST / CART PANEL (Matches Dreams POS exact structure) */}
         <aside
           ref={cartContainerRef}
-          className={`w-96 lg:w-[420px] bg-white dark:bg-zinc-900 border-l border-zinc-200 dark:border-zinc-800 flex flex-col shrink-0 shadow-lg transition-transform duration-200 ${
+          className={`${
+            isMobileCartOpen
+              ? "fixed inset-y-0 right-0 z-50 w-full sm:w-[420px] max-w-full flex"
+              : "hidden lg:flex"
+          } lg:relative lg:z-auto w-full lg:w-96 xl:w-[420px] bg-white dark:bg-zinc-900 border-l border-zinc-200 dark:border-zinc-800 flex-col shrink-0 shadow-2xl lg:shadow-lg transition-transform duration-200 ${
             cartBump ? "scale-[1.01] ring-2 ring-orange-500/40" : ""
           }`}
         >
@@ -983,16 +1012,27 @@ function PosCashierTerminalContent() {
                 {orderNumber}
               </span>
             </div>
-            {cart.length > 0 && (
+            <div className="flex items-center gap-1.5">
+              {cart.length > 0 && (
+                <button
+                  type="button"
+                  onClick={clearCart}
+                  className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
+                  title="Clear all items"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+              {/* Close Drawer Button on Mobile/Tablet */}
               <button
                 type="button"
-                onClick={clearCart}
-                className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
-                title="Clear all items"
+                onClick={() => setIsMobileCartOpen(false)}
+                className="lg:hidden p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                title="Close Cart"
               >
-                <Trash2 className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
-            )}
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -1526,6 +1566,28 @@ function PosCashierTerminalContent() {
             if (selectedOutletUuid) fetchCurrentSession(selectedOutletUuid);
           }}
         />
+      )}
+
+      {/* Mobile Floating Cart Action Pill */}
+      {cart.length > 0 && !isMobileCartOpen && (
+        <div className="lg:hidden fixed bottom-4 left-4 right-4 z-40 animate-scale-in">
+          <button
+            type="button"
+            onClick={() => setIsMobileCartOpen(true)}
+            className="w-full py-3.5 px-4 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white shadow-xl shadow-orange-500/35 flex items-center justify-between font-bold text-sm cursor-pointer transition-transform active:scale-[0.99]"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-mono font-bold">
+                {cart.reduce((sum, i) => sum + i.quantity, 0)}
+              </div>
+              <span>View Order</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-base">${grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span className="text-xs bg-white/20 px-2 py-0.5 rounded-lg">&rarr;</span>
+            </div>
+          </button>
+        </div>
       )}
     </div>
   );
