@@ -10,3 +10,4 @@ export * from "./sync-engine";
 export * from "./offline-sales";
 export * from "./api-cache";
 export * from "./brand-cache";
+export * from "./category-cache";

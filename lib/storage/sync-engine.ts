@@ -130,6 +130,7 @@ export async function applyDeltaSync<T extends { uuid?: string; id?: string | nu
 }
 
 import { productsApi, type Product, type ProductCategory, type ProductBrand, type ProductUnit } from "@/lib/api/products";
+import { categoriesApi } from "@/lib/api/categories";
 import { apiClient } from "@/lib/api/client";
 import { batchCacheImages } from "./image-cache";
 import { saveCacheMetadata } from "./indexeddb-storage";
@@ -164,11 +165,35 @@ export async function syncCatalogFromApi(businessId?: string | number): Promise<
   }
 
   try {
-    const [categories, brands, units] = await Promise.all([
-      productsApi.getCategories(businessId).catch(() => []),
+    let rawCategories: any[] = [];
+    try {
+      const res = await productsApi.getCategories(businessId);
+      if (Array.isArray(res) && res.length > 0) {
+        rawCategories = res;
+      }
+    } catch {
+      // Fall through to dedicated categoriesApi
+    }
+
+    if (rawCategories.length === 0) {
+      try {
+        const catRes = await categoriesApi.getCategories(
+          businessId ? { business_uuid: String(businessId) } : undefined
+        );
+        if (catRes && Array.isArray(catRes.data) && catRes.data.length > 0) {
+          rawCategories = catRes.data;
+        }
+      } catch {
+        // Offline / fallback
+      }
+    }
+
+    const [brands, units] = await Promise.all([
       productsApi.getBrands(businessId).catch(() => []),
       productsApi.getUnits(businessId).catch(() => []),
     ]);
+
+    const categories = rawCategories as ProductCategory[];
 
     if (categories.length > 0) {
       await putStoreItemsBatch("categories", categories);
@@ -176,7 +201,7 @@ export async function syncCatalogFromApi(businessId?: string | number): Promise<
       const catSize = new Blob([JSON.stringify(categories)]).size;
       await saveCacheMetadata({
         cache_key: "/api/categories",
-        category: "products",
+        category: "categories",
         size_bytes: catSize,
         cached_at: Date.now(),
         last_accessed_at: Date.now(),

@@ -35,6 +35,10 @@ import { runStorageCleanup } from "@/lib/storage/storage-cleanup";
 import { storageCache } from "@/lib/storage/storage-cache";
 import { usePermissionStore } from "@/stores/usePermissionStore";
 import { permissionsApi } from "@/lib/api/permissions";
+import {
+  getCachedCategoriesFromIndexedDb,
+  fetchCategoriesWithIndexedDbCache,
+} from "@/lib/storage/category-cache";
 
 export { StorageCacheSkeleton, type StorageCacheSkeletonProps } from "@/components/storage";
 
@@ -91,6 +95,12 @@ export function StorageCacheView({ className = "" }: StorageCacheViewProps) {
               // Non-blocking offline
             }
           }
+        }
+
+        // Check & ensure categories are cached in IndexedDB
+        const cachedCats = await getCachedCategoriesFromIndexedDb().catch(() => []);
+        if (cachedCats.length === 0) {
+          await fetchCategoriesWithIndexedDbCache().catch(() => {});
         }
       } catch {
         // Non-blocking

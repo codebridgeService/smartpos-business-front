@@ -17,6 +17,7 @@ import {
   SlidersHorizontal,
   ShieldAlert,
   RotateCcw,
+  FolderTree,
 } from "lucide-react";
 import {
   type CacheCategory,
@@ -47,6 +48,12 @@ const CATEGORY_ITEMS: CategoryRowItem[] = [
     label: "Products",
     icon: Package,
     iconBg: "bg-blue-500 text-white shadow-xs",
+  },
+  {
+    key: "categories",
+    label: "Categories",
+    icon: FolderTree,
+    iconBg: "bg-[#FE9F43] text-white shadow-xs",
   },
   {
     key: "images",

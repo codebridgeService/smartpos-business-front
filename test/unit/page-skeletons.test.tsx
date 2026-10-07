@@ -4,6 +4,7 @@ import React from "react";
 import { PermissionsPageSkeleton } from "@/components/admin/permissions/PermissionsPageSkeleton";
 import { RolesPageSkeleton } from "@/components/admin/roles/RolesPageSkeleton";
 import { BrandsListSkeleton } from "@/components/brands/BrandsListSkeleton";
+import { CategoriesListSkeleton } from "@/components/categories/CategoriesListSkeleton";
 import { PosPageSkeleton } from "@/components/pos/PosPageSkeleton";
 import { SettingsPageSkeleton } from "@/components/settings/SettingsPageSkeleton";
 import { AuthPageSkeleton } from "@/components/auth/AuthPageSkeleton";
@@ -36,6 +37,20 @@ describe("Page Skeletons & Animated Elements", () => {
     expect(skeletonContainer).toBeDefined();
     const shimmers = skeletonContainer.querySelectorAll(".animate-shimmer");
     expect(shimmers.length).toBeGreaterThan(10);
+  });
+
+  it("renders CategoriesListSkeleton with shimmer and respects SkeletonProps animation", () => {
+    const { rerender } = render(<CategoriesListSkeleton />);
+    const skeletonContainer = screen.getByTestId("categories-list-skeleton");
+    expect(skeletonContainer).toBeDefined();
+
+    const shimmers = skeletonContainer.querySelectorAll(".animate-shimmer");
+    expect(shimmers.length).toBeGreaterThan(10);
+
+    // Test SkeletonProps custom animation (pulse)
+    rerender(<CategoriesListSkeleton animation="pulse" />);
+    const pulses = skeletonContainer.querySelectorAll(".animate-pulse");
+    expect(pulses.length).toBeGreaterThan(10);
   });
 
   it("renders PosPageSkeleton with product grid and checkout sidebar placeholders", () => {

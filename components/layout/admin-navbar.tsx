@@ -40,6 +40,7 @@ import {
   Building2,
   Users,
   Package,
+  BadgeCheck,
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { useBusiness } from "@/context/business-context";
@@ -58,8 +59,9 @@ interface QuickAddItem {
 }
 
 const QUICK_ADD_ITEMS: QuickAddItem[] = [
-  { label: "Category", href: "/coming-soon?feature=category", icon: <Boxes className="h-5 w-5" /> },
+  { label: "Category", href: "/businesses/category?action=create", icon: <Boxes className="h-5 w-5" /> },
   { label: "Product", href: "/coming-soon?feature=create-product", icon: <PlusSquare className="h-5 w-5" /> },
+  { label: "Brand", href: "/businesses/brands?action=create", icon: <BadgeCheck className="h-5 w-5" /> },
   { label: "Purchase", href: "/coming-soon?feature=create-purchase", icon: <ShoppingBag className="h-5 w-5" /> },
   { label: "Sale / POS", href: "/pos", icon: <ShoppingCart className="h-5 w-5" /> },
   { label: "Expense", href: "/coming-soon?feature=create-expense", icon: <FileText className="h-5 w-5" /> },
@@ -208,6 +210,7 @@ export function AdminNavbar({
     { label: "Permissions Directory", href: "/admin/permissions", icon: <Key className="h-4 w-4 text-amber-500" /> },
     { label: "Roles & RBAC Management", href: "/admin/roles", icon: <ShieldCheck className="h-4 w-4 text-blue-500" /> },
     { label: "Products Catalog", href: "/coming-soon?feature=products", icon: <Package className="h-4 w-4 text-emerald-500" /> },
+    { label: "Brands Catalog", href: "/businesses/brands", icon: <BadgeCheck className="h-4 w-4 text-orange-500" /> },
     { label: "Outlets & Branches", href: "/admin/businesses/outlets", icon: <Building2 className="h-4 w-4 text-indigo-500" /> },
     { label: "Cash Registers", href: "/admin/businesses/registers", icon: <Store className="h-4 w-4 text-teal-500" /> },
     { label: "System Settings", href: "/admin/settings", icon: <Settings className="h-4 w-4 text-slate-500" /> },

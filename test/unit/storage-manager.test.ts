@@ -122,6 +122,7 @@ describe("SmartPOS Telegram Storage & Policy System", () => {
     it("provides designated Telegram-inspired colors for each category", () => {
       const categories: CacheCategory[] = [
         "products",
+        "categories",
         "images",
         "inventory",
         "reports",

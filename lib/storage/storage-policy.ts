@@ -15,6 +15,7 @@ export const DEFAULT_STORAGE_POLICY: PosStoragePolicy = {
   maxCacheBytes: 524288000, // 500 MB
   retention: {
     products: "never",     // Blue icon with Never >
+    categories: "never",   // Amber/Orange icon with Never >
     images: "1_month",     // Green icon with 1 month >
     inventory: "1_week",   // Orange icon with 1 week >
     reports: "1_week",     // Pink/Red icon with 1 week >
@@ -60,7 +61,12 @@ export const CATEGORY_METADATA: Record<
   products: {
     name: "Products",
     color: "#3b82f6", // Blue (--primary-500)
-    description: "Cached product catalog and category metadata",
+    description: "Cached product catalog and pricing metadata",
+  },
+  categories: {
+    name: "Categories",
+    color: "#FE9F43", // Warm Orange / Amber (--amber-500)
+    description: "Cached hierarchical category trees, taxonomy, and subcategories",
   },
   images: {
     name: "Product Images",

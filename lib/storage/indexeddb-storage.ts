@@ -256,13 +256,20 @@ export async function clearCategoryIndexedDb(
     const storesToClear = [
       "products",
       "cached_products",
-      "categories",
-      "cached_categories",
-      "brands",
       "units",
       "prices",
     ].filter((s) => db.objectStoreNames.contains(s));
 
+    if (storesToClear.length > 0) {
+      const tx = db.transaction(storesToClear, "readwrite");
+      for (const s of storesToClear) {
+        tx.objectStore(s).clear();
+      }
+    }
+  } else if (category === "categories") {
+    const storesToClear = ["categories", "cached_categories"].filter((s) =>
+      db.objectStoreNames.contains(s)
+    );
     if (storesToClear.length > 0) {
       const tx = db.transaction(storesToClear, "readwrite");
       for (const s of storesToClear) {

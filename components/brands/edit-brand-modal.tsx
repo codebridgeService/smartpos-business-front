@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import {
   X,
@@ -46,6 +47,11 @@ export function EditBrandModal({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -66,7 +72,27 @@ export function EditBrandModal({
     }
   }, [brand, isOpen]);
 
+  // ESC key listener & body scroll lock
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen || !brand) return null;
+  if (!mounted && typeof window === "undefined") return null;
 
   // Handle Logo File Selection for Image Replacement
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -166,8 +192,15 @@ export function EditBrandModal({
 
   const currentDisplayLogo = previewUrl || brand.logo_url;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+  const modalContent = (
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 animate-in fade-in duration-200"
+    >
       <div className="bg-white dark:bg-zinc-900 rounded-2xl max-w-lg w-full border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
         {/* Modal Header */}
         <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-850/50">
@@ -442,4 +475,8 @@ export function EditBrandModal({
       </div>
     </div>
   );
+
+  return typeof document !== "undefined"
+    ? createPortal(modalContent, document.body)
+    : null;
 }

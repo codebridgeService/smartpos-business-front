@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import {
   Search,
@@ -38,7 +39,7 @@ import {
 import { deleteFakeDemoBrandsFromIndexedDb } from "@/lib/storage/brand-cache";
 import type { Brand } from "@/lib/api/brands";
 import dynamic from "next/dynamic";
-import { Badge } from "@/components/ui/badge";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useBrandStore } from "@/stores/useBrandStore";
 import { getUserRoleCodes } from "@/lib/utils/roles";
@@ -133,6 +134,15 @@ export function BrandsListView() {
     }
     return activeBusiness?.uuid || undefined;
   }, [isAdmin, selectedBusinessUuid, activeBusiness]);
+
+  // Auto-open create modal if navigated from Navbar Quick Add (?action=create)
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    if (searchParams?.get("action") === "create") {
+      setIsCreateModalOpen(true);
+      openCreateModal(effectiveBusinessUuid);
+    }
+  }, [searchParams, openCreateModal, effectiveBusinessUuid]);
 
   // Main Brands Query (backed by IndexedDB cache layer)
   const {
@@ -309,11 +319,10 @@ export function BrandsListView() {
                     setStatusFilter(tab.id);
                     setPage(1);
                   }}
-                  className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer text-center ${
-                    isSelected
-                      ? "bg-white dark:bg-zinc-900 text-slate-900 dark:text-zinc-100 shadow-2xs font-bold"
-                      : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100"
-                  }`}
+                  className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer text-center ${isSelected
+                    ? "bg-white dark:bg-zinc-900 text-slate-900 dark:text-zinc-100 shadow-2xs font-bold"
+                    : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100"
+                    }`}
                 >
                   {tab.label}
                 </button>
@@ -557,22 +566,19 @@ export function BrandsListView() {
                           disabled={toggleStatusMutation.isPending}
                           onClick={() => handleToggleStatus(brand)}
                           title={`Click to turn ${brand.is_active ? "Off (Inactive)" : "On (Active)"}`}
-                          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                            brand.is_active ? "bg-emerald-500" : "bg-slate-300 dark:bg-zinc-700"
-                          }`}
+                          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${brand.is_active ? "bg-emerald-500" : "bg-slate-300 dark:bg-zinc-700"
+                            }`}
                         >
                           <span
-                            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
-                              brand.is_active ? "translate-x-4" : "translate-x-0"
-                            }`}
+                            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${brand.is_active ? "translate-x-4" : "translate-x-0"
+                              }`}
                           />
                         </button>
                         <span
-                          className={`text-[11px] font-semibold ${
-                            brand.is_active
-                              ? "text-emerald-600 dark:text-emerald-400"
-                              : "text-slate-400 dark:text-zinc-500"
-                          }`}
+                          className={`text-[11px] font-semibold ${brand.is_active
+                            ? "text-emerald-600 dark:text-emerald-400"
+                            : "text-slate-400 dark:text-zinc-500"
+                            }`}
                         >
                           {brand.is_active ? "Active" : "Inactive"}
                         </span>
@@ -583,10 +589,10 @@ export function BrandsListView() {
                     <td className="py-3.5 px-4 text-slate-500 dark:text-zinc-400 text-[11px]">
                       {brand.updated_at
                         ? new Date(brand.updated_at).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })
                         : "—"}
                     </td>
 
@@ -700,8 +706,15 @@ export function BrandsListView() {
       </div>
 
       {/* Brand Detail Modal */}
-      {activeBrandModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+      {activeBrandModal && typeof document !== "undefined" && createPortal(
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setActiveBrandModal(null);
+            }
+          }}
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 animate-in fade-in duration-200"
+        >
           <div className="bg-white dark:bg-zinc-900 rounded-2xl max-w-lg w-full border border-slate-200 dark:border-zinc-800 shadow-2xl p-6 space-y-5 animate-in zoom-in-95 duration-200">
             <div className="flex items-start justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
               <div className="flex items-center gap-3">
@@ -824,7 +837,8 @@ export function BrandsListView() {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Create Brand Modal (Zustand + TanStack Query) */}

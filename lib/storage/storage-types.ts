@@ -5,6 +5,7 @@
 
 export type CacheCategory =
   | "products"
+  | "categories"
   | "images"
   | "inventory"
   | "reports"
@@ -47,6 +48,7 @@ export interface PosStoragePolicy {
   maxCacheBytes: number | null; // null represents "No Limit"
   retention: {
     products: CacheRetention;
+    categories?: CacheRetention;
     images: CacheRetention;
     inventory: CacheRetention;
     reports: CacheRetention;
