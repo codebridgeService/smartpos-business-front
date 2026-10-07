@@ -64,6 +64,10 @@ export const queryKeys = {
         : ([...queryKeys.categories.all, "tree"] as const),
     details: () => [...queryKeys.categories.all, "detail"] as const,
     detail: (uuid: string) => [...queryKeys.categories.details(), uuid] as const,
+    trash: (params?: Record<string, unknown>) =>
+      params
+        ? ([...queryKeys.categories.all, "trash", params] as const)
+        : ([...queryKeys.categories.all, "trash"] as const),
   },
   users: {
     all: ["users"] as const,

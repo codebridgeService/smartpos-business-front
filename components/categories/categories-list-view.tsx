@@ -42,7 +42,7 @@ import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { useCategoryStore } from "@/stores/useCategoryStore";
-import { getUserRoleCodes } from "@/lib/utils/roles";
+import { getUserRoleCodes, hasPermission } from "@/lib/utils/roles";
 
 const CreateCategoryModal = dynamic(
   () => import("./create-category-modal").then((mod) => mod.CreateCategoryModal),
@@ -58,6 +58,10 @@ const DeleteCategoryModal = dynamic(
 );
 const CategoryDetailModal = dynamic(
   () => import("./category-detail-modal").then((mod) => mod.CategoryDetailModal),
+  { ssr: false }
+);
+const CategoryTrashModal = dynamic(
+  () => import("./category-trash-modal").then((mod) => mod.CategoryTrashModal),
   { ssr: false }
 );
 
@@ -91,7 +95,17 @@ export function CategoriesListView() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
+  const [isTrashModalOpen, setIsTrashModalOpen] = useState<boolean>(false);
   const [defaultParentIdForCreate, setDefaultParentIdForCreate] = useState<number | null>(null);
+
+  // Permission to view trash
+  const canViewTrash = useMemo(() => {
+    return (
+      isAdmin ||
+      hasPermission(user, "categories.delete") ||
+      hasPermission(user, "categories.view")
+    );
+  }, [user, isAdmin]);
 
   // Sync action=create query param
   useEffect(() => {
@@ -429,6 +443,18 @@ export function CategoriesListView() {
             />
             <span className="hidden sm:inline">Refresh</span>
           </Button>
+
+          {canViewTrash && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsTrashModalOpen(true)}
+              className="rounded-xl h-9 text-xs font-semibold gap-1.5 cursor-pointer text-slate-700 dark:text-zinc-300 hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-300 dark:hover:border-rose-800"
+            >
+              <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+              <span className="hidden sm:inline">Trash Bin</span>
+            </Button>
+          )}
 
           <Button
             size="sm"
@@ -948,6 +974,17 @@ export function CategoriesListView() {
         isOpen={Boolean(activeCategoryModal)}
         onClose={() => setActiveCategoryModal(null)}
         onEdit={(cat) => setEditingCategory(cat)}
+      />
+
+      {/* Category Trash Modal */}
+      <CategoryTrashModal
+        isOpen={isTrashModalOpen}
+        onClose={() => setIsTrashModalOpen(false)}
+        businessUuid={currentBusinessUuid}
+        onRestored={() => {
+          refetchCategories();
+          refetchTree();
+        }}
       />
     </div>
   );

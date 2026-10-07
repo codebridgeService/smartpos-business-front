@@ -68,4 +68,42 @@ describe("Category Zustand Store", () => {
     expect(useCategoryStore.getState().searchQuery).toBe("organic");
     expect(useCategoryStore.getState().statusFilter).toBe("active");
   });
+
+  it("handles trash modal opening, closing, and trashed categories state", () => {
+    expect(useCategoryStore.getState().isTrashModalOpen).toBe(false);
+
+    useCategoryStore.getState().openTrashModal();
+    expect(useCategoryStore.getState().isTrashModalOpen).toBe(true);
+
+    useCategoryStore.getState().closeTrashModal();
+    expect(useCategoryStore.getState().isTrashModalOpen).toBe(false);
+
+    const trashedCat = {
+      id: 99,
+      uuid: "cat-trash-99",
+      name: "Old Produce",
+      code: "OPROD",
+      business_uuid: "biz-1",
+      parent_id: null,
+      description: null,
+      image_path: null,
+      sort_order: 0,
+      is_active: false,
+      created_at: null,
+      updated_at: null,
+      deleted_at: "2026-03-01T12:00:00Z",
+      image_url: "",
+    };
+
+    useCategoryStore.getState().setTrashedCategories([trashedCat], {
+      current_page: 1,
+      last_page: 1,
+      per_page: 10,
+      total: 1,
+    });
+
+    expect(useCategoryStore.getState().trashedCategories).toHaveLength(1);
+    expect(useCategoryStore.getState().trashedCategories[0].name).toBe("Old Produce");
+    expect(useCategoryStore.getState().trashedMeta.total).toBe(1);
+  });
 });
