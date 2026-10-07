@@ -32,6 +32,7 @@ import {
   getAllCacheMetadata,
   removeCacheMetadata,
   getAllStoreItems,
+  getIndexDb,
 } from "@/lib/storage/indexeddb-storage";
 import { getPendingSales, getSyncQueueItems } from "@/lib/storage/offline-sales";
 import { POS_CACHES } from "@/lib/storage/storage-manager";
@@ -208,8 +209,12 @@ export function StorageDrilldownList({
     const realItems: DrilldownItem[] = [];
 
     try {
-      // 1. Catalog Items (Products from IndexedDB)
-      const products = await getAllStoreItems("products");
+      // 1. Catalog Items (Products & Categories from IndexedDB)
+      const [products, categories] = await Promise.all([
+        getAllStoreItems("products").catch(() => []),
+        getAllStoreItems("categories").catch(() => []),
+      ]);
+
       for (const p of products.slice(0, 10)) {
         const pSize = new Blob([JSON.stringify(p)]).size;
         realItems.push({
@@ -219,6 +224,19 @@ export function StorageDrilldownList({
           sizeBytes: pSize,
           subtitle: p.barcode ? `Barcode: ${p.barcode}` : "Cached in IndexedDB",
           avatarColor: "bg-blue-500",
+        });
+      }
+
+      for (const c of categories.slice(0, 10)) {
+        const cSize = new Blob([JSON.stringify(c)]).size;
+        realItems.push({
+          id: c.uuid || c.id || `cat-${Math.random()}`,
+          name: c.name || "Category",
+          category: "catalog",
+          sizeBytes: cSize,
+          subtitle: `Code: ${c.code || "N/A"} • Category in IndexedDB`,
+          avatarColor: "bg-[#FE9F43]",
+          icon: <Layers className="w-4 h-4 text-white" />,
         });
       }
 
@@ -337,6 +355,21 @@ export function StorageDrilldownList({
         if (typeof window !== "undefined") {
           localStorage.removeItem(id);
         }
+      } else if (activeTab === "catalog") {
+        try {
+          const db = await getIndexDb();
+          if (db.objectStoreNames.contains("categories")) {
+            const tx = db.transaction("categories", "readwrite");
+            tx.objectStore("categories").delete(id);
+          }
+          if (db.objectStoreNames.contains("products")) {
+            const tx = db.transaction("products", "readwrite");
+            tx.objectStore("products").delete(id);
+          }
+        } catch {
+          // Non-blocking
+        }
+        await removeCacheMetadata(id);
       } else {
         // Remove from metadata
         await removeCacheMetadata(id);

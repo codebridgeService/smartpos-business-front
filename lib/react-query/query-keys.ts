@@ -53,6 +53,18 @@ export const queryKeys = {
     details: () => [...queryKeys.brands.all, "detail"] as const,
     detail: (uuid: string) => [...queryKeys.brands.details(), uuid] as const,
   },
+  categories: {
+    all: ["categories"] as const,
+    lists: () => [...queryKeys.categories.all, "list"] as const,
+    list: (params?: Record<string, unknown>) =>
+      params ? ([...queryKeys.categories.lists(), params] as const) : queryKeys.categories.lists(),
+    tree: (businessUuid?: string) =>
+      businessUuid
+        ? ([...queryKeys.categories.all, "tree", businessUuid] as const)
+        : ([...queryKeys.categories.all, "tree"] as const),
+    details: () => [...queryKeys.categories.all, "detail"] as const,
+    detail: (uuid: string) => [...queryKeys.categories.details(), uuid] as const,
+  },
   users: {
     all: ["users"] as const,
     lists: () => [...queryKeys.users.all, "list"] as const,

@@ -31,6 +31,7 @@ import { getQueryClient } from "@/lib/react-query/query-client";
 
 export const POS_CACHES = {
   products: "smartpos-products-v1",
+  categories: "smartpos-categories-v1",
   images: "smartpos-images-v1",
   inventory: "smartpos-inventory-v1",
   reports: "smartpos-reports-v1",
@@ -206,6 +207,7 @@ export async function getCachedResponse(
 export async function getStorageCategoryUsage(): Promise<CacheCategoryUsage[]> {
   const categoriesList: CacheCategory[] = [
     "products",
+    "categories",
     "images",
     "inventory",
     "reports",
@@ -229,6 +231,7 @@ export async function getStorageCategoryUsage(): Promise<CacheCategoryUsage[]> {
   // Group by category
   const categoryBytes: Record<CacheCategory, number> = {
     products: 0,
+    categories: 0,
     images: 0,
     inventory: 0,
     reports: 0,
@@ -244,6 +247,7 @@ export async function getStorageCategoryUsage(): Promise<CacheCategoryUsage[]> {
 
   const categoryCounts: Record<CacheCategory, number> = {
     products: 0,
+    categories: 0,
     images: 0,
     inventory: 0,
     reports: 0,
@@ -271,14 +275,19 @@ export async function getStorageCategoryUsage(): Promise<CacheCategoryUsage[]> {
 
   // 2. Measure actual physical IndexedDB store sizes if metadata is unpopulated
   try {
-    const [prodBytes, invBytes] = await Promise.all([
+    const [prodBytes, catBytes, invBytes] = await Promise.all([
       getStoreEstimatedBytes("products"),
+      getStoreEstimatedBytes("categories"),
       getStoreEstimatedBytes("inventory"),
     ]);
 
     if (prodBytes > 0 && categoryBytes.products === 0) {
       categoryBytes.products = prodBytes;
       categoryCounts.products = Math.max(1, categoryCounts.products);
+    }
+    if (catBytes > 0 && categoryBytes.categories === 0) {
+      categoryBytes.categories = catBytes;
+      categoryCounts.categories = Math.max(1, categoryCounts.categories);
     }
     if (invBytes > 0 && categoryBytes.inventory === 0) {
       categoryBytes.inventory = invBytes;
@@ -338,9 +347,11 @@ export async function getStorageCategoryUsage(): Promise<CacheCategoryUsage[]> {
         ) {
           categoryBytes.other += keyBytes;
           categoryCounts.other += 1;
+        } else if (key === "smartpos:cache:categories") {
+          categoryBytes.categories += keyBytes;
+          categoryCounts.categories += 1;
         } else if (
           key === "smartpos:cache:products" ||
-          key === "smartpos:cache:categories" ||
           key === "smartpos:cache:brands"
         ) {
           categoryBytes.products += keyBytes;
@@ -472,8 +483,9 @@ export async function clearCategory(
         localStorage.removeItem("smartpos:cache:security-events");
       } else if (category === "products") {
         localStorage.removeItem("smartpos:cache:products");
-        localStorage.removeItem("smartpos:cache:categories");
         localStorage.removeItem("smartpos:cache:brands");
+      } else if (category === "categories") {
+        localStorage.removeItem("smartpos:cache:categories");
       } else if (category === "api") {
         localStorage.removeItem("smartpos:cache:react-query");
       } else if (category === "other") {
@@ -499,6 +511,8 @@ export async function clearCategory(
         queryClient.removeQueries({ queryKey: ["roles"] });
       } else if (category === "permissions") {
         queryClient.removeQueries({ queryKey: ["permissions"] });
+      } else if (category === "categories") {
+        queryClient.removeQueries({ queryKey: ["categories"] });
       } else if (category === "products") {
         queryClient.removeQueries({ queryKey: ["products"] });
       } else if (category === "audit") {

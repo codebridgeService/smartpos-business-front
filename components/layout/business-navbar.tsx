@@ -41,6 +41,9 @@ import {
   Sparkles,
   Wallet,
   ArrowRight,
+  BadgeCheck,
+  FolderTree,
+  HardDrive,
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { useBusiness } from "@/context/business-context";
@@ -64,7 +67,8 @@ const BUSINESS_QUICK_ADD_ITEMS: QuickAddItem[] = [
   { label: "Cash Drawer", href: "/businesses/pos/drawer", icon: <Wallet className="h-5 w-5" /> },
   { label: "Register Shift", href: "/businesses/pos/shifts", icon: <History className="h-5 w-5" /> },
   { label: "Product", href: "/coming-soon?feature=create-product", icon: <PlusSquare className="h-5 w-5" /> },
-  { label: "Category", href: "/coming-soon?feature=category", icon: <Boxes className="h-5 w-5" /> },
+  { label: "Category", href: "/businesses/category?action=create", icon: <Boxes className="h-5 w-5" /> },
+  { label: "Brand", href: "/businesses/brands?action=create", icon: <BadgeCheck className="h-5 w-5" /> },
   { label: "Outlet / Branch", href: "/businesses/outlets", icon: <Building2 className="h-5 w-5" /> },
   { label: "Staff Member", href: "/businesses/staff/create", icon: <Users className="h-5 w-5" /> },
   { label: "Customer", href: "/coming-soon?feature=customers", icon: <UserIcon className="h-5 w-5" /> },
@@ -203,7 +207,10 @@ export function BusinessNavbar({
     { label: "POS Devices & Hardware", href: "/admin/businesses/pos-devices", icon: <Tablet className="h-4 w-4 text-amber-500" /> },
     { label: "Manage Stock & Warehouses", href: "/businesses/warehouses", icon: <Boxes className="h-4 w-4 text-emerald-500" /> },
     { label: "Products Catalog", href: "/coming-soon?feature=products", icon: <Package className="h-4 w-4 text-purple-500" /> },
+    { label: "Categories Catalog", href: "/businesses/category", icon: <FolderTree className="h-4 w-4 text-amber-500" /> },
+    { label: "Brands Catalog", href: "/businesses/brands", icon: <BadgeCheck className="h-4 w-4 text-orange-500" /> },
     { label: "Staff & Members", href: "/businesses/staff", icon: <Users className="h-4 w-4 text-pink-500" /> },
+    { label: "Storage & Cache Management", href: "/businesses/storage", icon: <HardDrive className="h-4 w-4 text-teal-500" /> },
     { label: "Business Settings & Profile", href: businessSettingsHref, icon: <Settings className="h-4 w-4 text-slate-500" /> },
     { label: "Business Master (All Tenants)", href: "/businesses", icon: <Sparkles className="h-4 w-4 text-orange-400" /> },
   ];
@@ -499,7 +506,7 @@ export function BusinessNavbar({
               {isAddNewMenuOpen && (
                 <>
                   <div
-                    className="fixed inset-0 z-40 bg-black/15 dark:bg-black/40 backdrop-blur-xs"
+                    className="fixed inset-0 z-40 bg-black/25 dark:bg-black/50"
                     onClick={() => setIsAddNewMenuOpen(false)}
                   />
                   <div className="absolute right-0 top-full mt-3 z-50 w-[640px] max-w-[94vw] rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xl p-4 animate-slide-up">

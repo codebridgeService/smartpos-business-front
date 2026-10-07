@@ -7,7 +7,7 @@ import {
   X,
   Upload,
   Building2,
-  Tag,
+  FolderTree,
   Code2,
   FileText,
   AlertCircle,
@@ -15,30 +15,38 @@ import {
   CheckCircle2,
   Trash2,
   Image as ImageIcon,
+  Sparkles,
+  ArrowUpDown,
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { useBusiness } from "@/context/business-context";
 import { useToast } from "@/components/ui/toast";
 import { useBusinessesQuery } from "@/lib/react-query/hooks/use-businesses";
-import { useCreateBrandMutation } from "@/lib/react-query/hooks/use-brands";
-import { useBrandStore } from "@/stores/useBrandStore";
+import { useCreateCategoryMutation, useCategoriesQuery } from "@/lib/react-query/hooks/use-categories";
+import { useCategoryStore } from "@/stores/useCategoryStore";
 import { Button } from "@/components/ui/button";
+import { getUserRoleCodes } from "@/lib/utils/roles";
+import type { Category } from "@/lib/api/categories";
 
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5120 KB (5MB)
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 
-export interface CreateBrandModalProps {
+export interface CreateCategoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  defaultParentId?: number | null;
 }
 
-import { getUserRoleCodes } from "@/lib/utils/roles";
-
-export function CreateBrandModal({ isOpen, onClose, onSuccess }: CreateBrandModalProps) {
+export function CreateCategoryModal({
+  isOpen,
+  onClose,
+  onSuccess,
+  defaultParentId = null,
+}: CreateCategoryModalProps) {
   const { user } = useAuth();
   const { activeBusiness } = useBusiness();
   const toast = useToast();
-  const storeActiveBizUuid = useBrandStore((state) => state.activeBusinessUuid);
+  const storeActiveBizUuid = useCategoryStore((state) => state.activeBusinessUuid);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -55,7 +63,9 @@ export function CreateBrandModal({ isOpen, onClose, onSuccess }: CreateBrandModa
   // Form State
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
+  const [parentId, setParentId] = useState<number | null>(defaultParentId);
   const [description, setDescription] = useState("");
+  const [sortOrder, setSortOrder] = useState<number>(0);
   const [businessUuid, setBusinessUuid] = useState(
     storeActiveBizUuid || activeBusiness?.uuid || ""
   );
@@ -67,6 +77,13 @@ export function CreateBrandModal({ isOpen, onClose, onSuccess }: CreateBrandModa
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Fetch categories for the selected business to populate Parent dropdown
+  const { data: existingCategoriesData } = useCategoriesQuery(
+    businessUuid ? { business_uuid: businessUuid, per_page: 100 } : undefined,
+    isOpen && Boolean(businessUuid)
+  );
+  const existingCategories = existingCategoriesData?.data || [];
+
   // Sync businessUuid when activeBusiness changes or store provides it
   useEffect(() => {
     if (!businessUuid) {
@@ -77,50 +94,57 @@ export function CreateBrandModal({ isOpen, onClose, onSuccess }: CreateBrandModa
     }
   }, [storeActiveBizUuid, activeBusiness?.uuid, businessUuid]);
 
+  // Sync defaultParentId
+  useEffect(() => {
+    if (defaultParentId !== undefined) {
+      setParentId(defaultParentId);
+    }
+  }, [defaultParentId]);
+
   // ESC key listener & body scroll lock
   useEffect(() => {
-    if (!isOpen) return;
-
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === "Escape" && isOpen) {
         onClose();
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    document.body.style.overflow = "hidden";
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+      window.addEventListener("keydown", handleKeyDown);
+    }
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "unset";
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen, onClose]);
 
-  // Create Mutation (TanStack Query)
-  const createMutation = useCreateBrandMutation();
-
-  if (!isOpen) return null;
-  if (!mounted && typeof window === "undefined") return null;
-
-  // Auto-generate code from name if code is empty or untouched
-  const handleNameChange = (val: string) => {
-    setName(val);
-    if (formErrors.name) {
-      setFormErrors((prev) => {
-        const next = { ...prev };
-        delete next.name;
-        return next;
-      });
+  // Reset state when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setName("");
+      setCode("");
+      setParentId(defaultParentId ?? null);
+      setDescription("");
+      setSortOrder(0);
+      setIsActive(true);
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      setFileError(null);
+      setFormErrors({});
+      setBusinessUuid(storeActiveBizUuid || activeBusiness?.uuid || "");
     }
-  };
+  }, [isOpen, defaultParentId, storeActiveBizUuid, activeBusiness?.uuid]);
 
+  // Auto-generate code from name
   const handleGenerateCode = () => {
     if (!name.trim()) return;
     const generated = name
       .trim()
       .toUpperCase()
-      .replace(/[^A-Z0-9]/g, "")
-      .slice(0, 10);
+      .replace(/[^A-Z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
     setCode(generated);
     if (formErrors.code) {
       setFormErrors((prev) => {
@@ -131,33 +155,34 @@ export function CreateBrandModal({ isOpen, onClose, onSuccess }: CreateBrandModa
     }
   };
 
-  // Handle Logo File Selection
+  // Image handling
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    setFileError(null);
-
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      setFileError("Please select a valid image file (PNG, JPG, SVG, WEBP).");
-      return;
-    }
-
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      setFileError("File exceeds the maximum allowed size of 5MB (5120 KB).");
+      setFileError("Image file exceeds 5MB limit. Please upload a smaller file.");
       return;
     }
 
+    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/svg+xml"];
+    if (!validTypes.includes(file.type)) {
+      setFileError("Invalid image type. Please select PNG, JPG, WEBP, or SVG.");
+      return;
+    }
+
+    setFileError(null);
     setSelectedFile(file);
-    const objectUrl = URL.createObjectURL(file);
-    setPreviewUrl(objectUrl);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewUrl(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleRemoveFile = () => {
     setSelectedFile(null);
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
     setPreviewUrl(null);
     setFileError(null);
     if (fileInputRef.current) {
@@ -165,53 +190,49 @@ export function CreateBrandModal({ isOpen, onClose, onSuccess }: CreateBrandModa
     }
   };
 
-  // Form Validation
-  const validate = (): boolean => {
+  const createMutation = useCreateCategoryMutation();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     const errors: Record<string, string> = {};
 
     if (!name.trim()) {
-      errors.name = "Brand name is required.";
-    } else if (name.trim().length > 150) {
-      errors.name = "Brand name must be 150 characters or fewer.";
+      errors.name = "Category name is required";
     }
-
     if (!code.trim()) {
-      errors.code = "Brand code is required.";
-    } else if (code.trim().length > 50) {
-      errors.code = "Brand code must be 50 characters or fewer.";
+      errors.code = "Category code is required";
+    }
+    if (!businessUuid.trim()) {
+      errors.business_uuid = "Business context is required";
     }
 
-    const targetBizUuid = businessUuid || activeBusiness?.uuid;
-    if (!targetBizUuid) {
-      errors.business_uuid = "Business assignment is required.";
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
     }
 
-    if (selectedFile && selectedFile.size > MAX_FILE_SIZE_BYTES) {
-      errors.logo = "Logo file exceeds maximum size of 5MB.";
-    }
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  // Form Submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validate()) return;
-
-    const targetBizUuid = businessUuid || activeBusiness?.uuid || "";
+    setFormErrors({});
 
     try {
-      await createMutation.mutateAsync({
-        name: name.trim(),
-        code: code.trim().toUpperCase(),
-        business_uuid: targetBizUuid,
-        description: description.trim() || null,
-        logo: selectedFile,
-        is_active: isActive,
-      });
+      const formData = new FormData();
+      formData.append("name", name.trim());
+      formData.append("code", code.trim());
+      formData.append("business_uuid", businessUuid.trim());
+      if (parentId !== null && parentId !== undefined) {
+        formData.append("parent_id", String(parentId));
+      }
+      if (description.trim()) {
+        formData.append("description", description.trim());
+      }
+      formData.append("sort_order", String(sortOrder));
+      formData.append("is_active", isActive ? "1" : "0");
+      if (selectedFile) {
+        formData.append("image", selectedFile);
+      }
 
-      toast.success("Brand created successfully.");
+      await createMutation.mutateAsync(formData);
+
+      toast.success(`Category "${name}" created successfully!`);
       handleRemoveFile();
       onSuccess?.();
       onClose();
@@ -225,9 +246,11 @@ export function CreateBrandModal({ isOpen, onClose, onSuccess }: CreateBrandModa
         });
         setFormErrors(backendErrors);
       }
-      toast.error(err?.message || "Failed to create brand. Please check submitted fields.");
+      toast.error(err?.message || "Failed to create category. Please check submitted fields.");
     }
   };
+
+  if (!isOpen || !mounted) return null;
 
   const modalContent = (
     <div
@@ -243,56 +266,44 @@ export function CreateBrandModal({ isOpen, onClose, onSuccess }: CreateBrandModa
         <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-850/50">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-[#FE9F43]/10 text-[#FE9F43] flex items-center justify-center font-bold">
-              <Tag className="w-5 h-5" />
+              <FolderTree className="w-5 h-5" />
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-900 dark:text-zinc-50">
-                Create New Brand
+                Create New Category
               </h2>
               <p className="text-xs text-slate-500 dark:text-zinc-400">
-                Add a product brand with image logo upload support
+                Add a product category or subcategory to your catalog
               </p>
             </div>
           </div>
           <button
-            type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 cursor-pointer"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+            aria-label="Close modal"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Modal Form Body */}
+        {/* Modal Body */}
         <form onSubmit={handleSubmit} className="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
-          {/* Business Entity Selection (Admin or Regular) */}
-          {isAdmin ? (
+          {/* Business Selector (Admin only) */}
+          {isAdmin && businesses.length > 0 && (
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
                 <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                <span>Target Business <strong className="text-rose-500">*</strong></span>
+                Target Business <span className="text-rose-500">*</span>
               </label>
               <select
-                aria-label="Target Business"
                 value={businessUuid}
-                onChange={(e) => {
-                  setBusinessUuid(e.target.value);
-                  if (formErrors.business_uuid) {
-                    setFormErrors((prev) => {
-                      const next = { ...prev };
-                      delete next.business_uuid;
-                      return next;
-                    });
-                  }
-                }}
-                className={`w-full py-2 px-3 text-xs bg-slate-50 dark:bg-zinc-800/80 border rounded-xl text-slate-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-[#FE9F43]/20 focus:border-[#FE9F43] ${
-                  formErrors.business_uuid ? "border-rose-500" : "border-slate-200 dark:border-zinc-700"
-                }`}
+                onChange={(e) => setBusinessUuid(e.target.value)}
+                className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-zinc-750 bg-white dark:bg-zinc-850 text-xs text-slate-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-[#FE9F43]/20 focus:border-[#FE9F43] transition-all cursor-pointer"
               >
-                <option value="">Select a Business...</option>
+                <option value="">Select a business...</option>
                 {businesses.map((biz) => (
                   <option key={biz.uuid} value={biz.uuid}>
-                    {biz.name} ({biz.uuid.slice(0, 8)}...)
+                    {biz.name}
                   </option>
                 ))}
               </select>
@@ -303,34 +314,31 @@ export function CreateBrandModal({ isOpen, onClose, onSuccess }: CreateBrandModa
                 </p>
               )}
             </div>
-          ) : (
-            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-850 border border-slate-200/80 dark:border-zinc-800 flex items-center gap-2 text-xs">
-              <Building2 className="w-4 h-4 text-slate-400" />
-              <div className="flex-1 truncate">
-                <span className="text-slate-400 text-[10px] block">Assigned Business</span>
-                <span className="font-semibold text-slate-800 dark:text-zinc-200 truncate">
-                  {activeBusiness?.name || "Current Business"}
-                </span>
-              </div>
-            </div>
           )}
 
-          {/* Row 1: Brand Name & Code */}
+          {/* Name & Code Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {/* Name */}
+            {/* Category Name */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-700 dark:text-zinc-300">
-                Brand Name <strong className="text-rose-500">*</strong>
+              <label className="text-xs font-semibold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
+                <FolderTree className="w-3.5 h-3.5 text-slate-400" />
+                Category Name <span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
-                placeholder="e.g. Apple, Nike, Sony"
+                placeholder="e.g. Beverages, Electronics"
                 value={name}
-                maxLength={150}
-                onChange={(e) => handleNameChange(e.target.value)}
-                className={`w-full py-2 px-3 text-xs bg-slate-50 dark:bg-zinc-800/80 border rounded-xl text-slate-900 dark:text-zinc-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FE9F43]/20 focus:border-[#FE9F43] ${
-                  formErrors.name ? "border-rose-500" : "border-slate-200 dark:border-zinc-700"
-                }`}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (formErrors.name) {
+                    setFormErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.name;
+                      return next;
+                    });
+                  }
+                }}
+                className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-zinc-750 bg-white dark:bg-zinc-850 text-xs text-slate-800 dark:text-zinc-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FE9F43]/20 focus:border-[#FE9F43] transition-all"
               />
               {formErrors.name && (
                 <p className="text-[11px] text-rose-500 flex items-center gap-1 mt-0.5">
@@ -340,27 +348,27 @@ export function CreateBrandModal({ isOpen, onClose, onSuccess }: CreateBrandModa
               )}
             </div>
 
-            {/* Code */}
+            {/* Category Code */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-slate-700 dark:text-zinc-300">
-                  Brand Code <strong className="text-rose-500">*</strong>
+                <label className="text-xs font-semibold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
+                  <Code2 className="w-3.5 h-3.5 text-slate-400" />
+                  Code <span className="text-rose-500">*</span>
                 </label>
-                {name && !code && (
-                  <button
-                    type="button"
-                    onClick={handleGenerateCode}
-                    className="text-[10px] text-[#FE9F43] font-semibold hover:underline cursor-pointer"
-                  >
-                    Auto-generate
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={handleGenerateCode}
+                  disabled={!name.trim()}
+                  className="text-[11px] text-[#FE9F43] hover:underline flex items-center gap-0.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  Auto-slug
+                </button>
               </div>
               <input
                 type="text"
-                placeholder="e.g. APPL, NIKE, SONY"
+                placeholder="e.g. BEV, ELEC"
                 value={code}
-                maxLength={50}
                 onChange={(e) => {
                   setCode(e.target.value.toUpperCase());
                   if (formErrors.code) {
@@ -371,9 +379,7 @@ export function CreateBrandModal({ isOpen, onClose, onSuccess }: CreateBrandModa
                     });
                   }
                 }}
-                className={`w-full py-2 px-3 text-xs font-mono font-bold uppercase bg-slate-50 dark:bg-zinc-800/80 border rounded-xl text-slate-900 dark:text-zinc-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FE9F43]/20 focus:border-[#FE9F43] ${
-                  formErrors.code ? "border-rose-500" : "border-slate-200 dark:border-zinc-700"
-                }`}
+                className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-zinc-750 bg-white dark:bg-zinc-850 text-xs text-slate-800 dark:text-zinc-200 font-mono placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FE9F43]/20 focus:border-[#FE9F43] transition-all"
               />
               {formErrors.code && (
                 <p className="text-[11px] text-rose-500 flex items-center gap-1 mt-0.5">
@@ -384,52 +390,92 @@ export function CreateBrandModal({ isOpen, onClose, onSuccess }: CreateBrandModa
             </div>
           </div>
 
+          {/* Parent Category & Sort Order */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Parent Category Dropdown */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
+                <FolderTree className="w-3.5 h-3.5 text-slate-400" />
+                Parent Category (Optional)
+              </label>
+              <select
+                value={parentId ?? ""}
+                onChange={(e) => setParentId(e.target.value ? Number(e.target.value) : null)}
+                className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-zinc-750 bg-white dark:bg-zinc-850 text-xs text-slate-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-[#FE9F43]/20 focus:border-[#FE9F43] transition-all cursor-pointer"
+              >
+                <option value="">None (Top-level Root Category)</option>
+                {existingCategories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name} ({cat.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Sort Order */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
+                <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                Display Sort Order
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                placeholder="0"
+                value={sortOrder}
+                onChange={(e) => setSortOrder(Number(e.target.value) || 0)}
+                className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-zinc-750 bg-white dark:bg-zinc-850 text-xs text-slate-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-[#FE9F43]/20 focus:border-[#FE9F43] transition-all"
+              />
+            </div>
+          </div>
+
           {/* Description */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-700 dark:text-zinc-300">
-              Description <span className="text-slate-400 font-normal">(Optional)</span>
+            <label className="text-xs font-semibold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5 text-slate-400" />
+              Description (Optional)
             </label>
             <textarea
               rows={2}
-              placeholder="Brief description or categories associated with this brand..."
+              placeholder="Brief description for category context..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full py-2 px-3 text-xs bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 rounded-xl text-slate-900 dark:text-zinc-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FE9F43]/20 focus:border-[#FE9F43]"
+              className="w-full p-3 rounded-xl border border-slate-200 dark:border-zinc-750 bg-white dark:bg-zinc-850 text-xs text-slate-800 dark:text-zinc-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FE9F43]/20 focus:border-[#FE9F43] transition-all resize-none"
             />
           </div>
 
-          {/* Logo Image Upload with Preview */}
+          {/* Category Image Upload */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-700 dark:text-zinc-300 block">
-              Brand Logo Image <span className="text-slate-400 font-normal">(Max 5MB)</span>
+            <label className="text-xs font-semibold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
+              <ImageIcon className="w-3.5 h-3.5 text-slate-400" />
+              Category Image (Optional, Max 5MB)
             </label>
 
-            <div className="flex items-center gap-4 p-3 bg-slate-50 dark:bg-zinc-850 rounded-xl border border-slate-200 dark:border-zinc-800">
-              {/* Thumbnail Preview Box */}
-              <div className="w-16 h-16 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 overflow-hidden flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="flex items-start gap-3">
+              {/* Preview Thumbnail */}
+              <div className="w-16 h-16 rounded-xl border border-dashed border-slate-300 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-850 flex items-center justify-center shrink-0 overflow-hidden relative">
                 {previewUrl ? (
                   <Image
                     src={previewUrl}
-                    alt="Logo preview"
-                    width={64}
-                    height={64}
+                    alt="Category preview"
+                    fill
                     unoptimized
-                    className="w-full h-full object-cover"
+                    className="object-cover"
                   />
                 ) : (
-                  <ImageIcon className="w-6 h-6 text-slate-300 dark:text-zinc-600" />
+                  <FolderTree className="w-6 h-6 text-slate-300 dark:text-zinc-600" />
                 )}
               </div>
 
-              {/* Upload Action / File Info */}
+              {/* Upload & Clear Controls */}
               <div className="flex-1 space-y-1.5">
                 <input
-                  ref={fileInputRef}
                   type="file"
+                  ref={fileInputRef}
                   accept="image/png,image/jpeg,image/webp,image/svg+xml"
                   onChange={handleFileChange}
                   className="hidden"
-                  id="brand-logo-file-input"
                 />
 
                 <div className="flex items-center gap-2">
@@ -438,10 +484,10 @@ export function CreateBrandModal({ isOpen, onClose, onSuccess }: CreateBrandModa
                     variant="outline"
                     size="sm"
                     onClick={() => fileInputRef.current?.click()}
-                    className="rounded-xl h-8 px-3 text-xs font-semibold border-slate-200 dark:border-zinc-700 hover:bg-white dark:hover:bg-zinc-800 cursor-pointer"
+                    className="rounded-xl h-8 px-3 text-xs cursor-pointer"
                   >
-                    <Upload className="w-3.5 h-3.5 mr-1.5 text-[#FE9F43]" />
-                    {selectedFile ? "Change Logo" : "Choose Image"}
+                    <Upload className="w-3.5 h-3.5 mr-1 text-[#FE9F43]" />
+                    {selectedFile ? "Change Image" : "Upload Image"}
                   </Button>
 
                   {selectedFile && (
@@ -482,8 +528,8 @@ export function CreateBrandModal({ isOpen, onClose, onSuccess }: CreateBrandModa
               </span>
               <span className="text-[10px] text-slate-400">
                 {isActive
-                  ? "Brand will immediately appear in POS product catalog and search"
-                  : "Brand will be hidden from active POS operations"}
+                  ? "Category will immediately appear in POS product catalog and navigation"
+                  : "Category will be hidden from POS operations"}
               </span>
             </div>
 
@@ -526,12 +572,12 @@ export function CreateBrandModal({ isOpen, onClose, onSuccess }: CreateBrandModa
               {createMutation.isPending ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Saving Brand...</span>
+                  <span>Saving Category...</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Create Brand</span>
+                  <span>Create Category</span>
                 </>
               )}
             </Button>

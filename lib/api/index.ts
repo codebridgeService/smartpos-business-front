@@ -19,4 +19,4 @@ export * from "./cashier-profiles";
 export * from "./security";
 export * from "./security-events";
 export * from "./brands";
-
+export * from "./categories";

@@ -209,6 +209,11 @@ export function BusinessSidebar({
           icon: <Package className="h-4.5 w-4.5 shrink-0" />,
         },
         {
+          label: "Categories Catalog",
+          href: "/businesses/category",
+          icon: <FolderTree className="h-4.5 w-4.5 shrink-0" />,
+        },
+        {
           label: "Brands Catalog",
           href: "/businesses/brands",
           icon: <BadgeCheck className="h-4.5 w-4.5 shrink-0" />,
@@ -506,6 +511,11 @@ export function BusinessSidebar({
           idle: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20",
           open: "bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border-indigo-500/40 shadow-xs shadow-indigo-500/20",
         };
+      case "Categories Catalog":
+        return {
+          idle: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+          open: "bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40 shadow-xs shadow-amber-500/20",
+        };
       case "Category & Brands":
         return {
           idle: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20",
@@ -748,11 +758,10 @@ export function BusinessSidebar({
                           <div className={`flex items-center ${isCollapsed ? "justify-center w-full" : "w-full min-w-0"}`}>
                             {/* Color-coded Icon Box */}
                             <div
-                              className={`w-7 h-7 rounded-xl flex items-center justify-center border transition-all duration-200 shrink-0 ${
-                                isTopLevelActive || isOpen
+                              className={`w-7 h-7 rounded-xl flex items-center justify-center border transition-all duration-200 shrink-0 ${isTopLevelActive || isOpen
                                   ? iconTheme.open
                                   : `${iconTheme.idle} group-hover:scale-105`
-                              }`}
+                                }`}
                             >
                               {item.icon}
                             </div>
@@ -798,11 +807,10 @@ export function BusinessSidebar({
                           <div className={`flex items-center ${isCollapsed ? "justify-center w-full" : "w-full min-w-0"}`}>
                             {/* Color-coded Icon Box */}
                             <div
-                              className={`w-7 h-7 rounded-xl flex items-center justify-center border transition-all duration-200 shrink-0 ${
-                                isTopLevelActive
+                              className={`w-7 h-7 rounded-xl flex items-center justify-center border transition-all duration-200 shrink-0 ${isTopLevelActive
                                   ? iconTheme.open
                                   : `${iconTheme.idle} group-hover:scale-105`
-                              }`}
+                                }`}
                             >
                               {item.icon}
                             </div>
@@ -838,7 +846,7 @@ export function BusinessSidebar({
                               }
                               const currentHref =
                                 typeof window !== "undefined" && window.location.search
-                                    ? `${pathname}${window.location.search}`
+                                  ? `${pathname}${window.location.search}`
                                   : pathname;
                               return currentHref === child.href;
                             })();
@@ -864,11 +872,10 @@ export function BusinessSidebar({
                                 <div className="flex items-center gap-2.5 min-w-0">
                                   {child.icon ? (
                                     <span
-                                      className={`shrink-0 transition-colors ${
-                                        isChildActive
+                                      className={`shrink-0 transition-colors ${isChildActive
                                           ? "text-orange-500 dark:text-orange-400"
                                           : "text-slate-400 dark:text-zinc-500 group-hover:text-slate-700 dark:group-hover:text-zinc-200"
-                                      }`}
+                                        }`}
                                     >
                                       {child.icon}
                                     </span>

@@ -32,6 +32,7 @@ import {
   Tablet,
   GitCommit,
   Scale,
+  HardDrive,
 } from "lucide-react";
 import { useTheme } from "@/context/theme-context";
 import { useOutlet } from "@/context/outlet-context";
@@ -193,9 +194,9 @@ export function HorizontalNav() {
         { label: "Create Product", href: "/coming-soon?feature=create-product", icon: <Package className="h-3.5 w-3.5" /> },
         { label: "Expired Products", href: "/coming-soon?feature=expired-products", icon: <ClockAlert className="h-3.5 w-3.5" /> },
         { label: "Low Stocks", href: "/coming-soon?feature=low-stocks", icon: <TrendingDown className="h-3.5 w-3.5" />, badge: "Alert", badgeVariant: "warning" },
-        { label: "Category", href: "/coming-soon?feature=category", icon: <FolderTree className="h-3.5 w-3.5" /> },
-        { label: "Sub Category", href: "/coming-soon?feature=sub-category", icon: <GitFork className="h-3.5 w-3.5" /> },
-        { label: "Brands", href: "/coming-soon?feature=brands", icon: <Award className="h-3.5 w-3.5" /> },
+        { label: "Category", href: "/businesses/category", icon: <FolderTree className="h-3.5 w-3.5" /> },
+        { label: "Sub Category", href: "/businesses/category", icon: <GitFork className="h-3.5 w-3.5" /> },
+        { label: "Brands", href: "/businesses/brands", icon: <Award className="h-3.5 w-3.5" /> },
         { label: "Units & Scaling", href: "/coming-soon?feature=units", icon: <Scale className="h-3.5 w-3.5" /> },
       ],
     },
@@ -218,6 +219,7 @@ export function HorizontalNav() {
       icon: <Settings className="h-4 w-4" />,
       children: [
         { label: "General Settings", href: "/admin/settings?tab=profile", icon: <Settings className="h-3.5 w-3.5" /> },
+        { label: "Storage & Cache", href: "/businesses/storage", icon: <HardDrive className="h-3.5 w-3.5" /> },
         { label: "System Information", href: "/admin/settings?tab=system-info", icon: <LayoutGrid className="h-3.5 w-3.5" /> },
         { label: "Security & 2FA", href: "/admin/settings?tab=security", icon: <ShieldAlert className="h-3.5 w-3.5" /> },
         { label: "Payment Gateways", href: "/admin/settings?tab=payment-gateways", icon: <CreditCard className="h-3.5 w-3.5" /> },

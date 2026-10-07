@@ -4,25 +4,25 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Trash2, AlertTriangle, X, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
-import { useDeleteBrandMutation } from "@/lib/react-query/hooks/use-brands";
-import type { Brand } from "@/lib/api/brands";
+import { useDeleteCategoryMutation } from "@/lib/react-query/hooks/use-categories";
+import type { Category } from "@/lib/api/categories";
 import { Button } from "@/components/ui/button";
 
-export interface DeleteBrandModalProps {
-  brand: Brand | null;
+export interface DeleteCategoryModalProps {
+  category: Category | null;
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
 }
 
-export function DeleteBrandModal({
-  brand,
+export function DeleteCategoryModal({
+  category,
   isOpen,
   onClose,
   onSuccess,
-}: DeleteBrandModalProps) {
+}: DeleteCategoryModalProps) {
   const toast = useToast();
-  const deleteMutation = useDeleteBrandMutation();
+  const deleteMutation = useDeleteCategoryMutation();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -48,21 +48,21 @@ export function DeleteBrandModal({
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen || !brand) return null;
+  if (!isOpen || !category) return null;
   if (!mounted && typeof window === "undefined") return null;
 
   const handleDelete = async () => {
     try {
       await deleteMutation.mutateAsync({
-        idOrUuid: brand.id || brand.uuid,
-        business_uuid: brand.business_uuid,
+        idOrUuid: category.uuid || category.id,
+        businessUuid: category.business_uuid,
       });
 
-      toast.success("Brand deleted successfully.");
+      toast.success(`Category "${category.name}" deleted successfully.`);
       onSuccess?.();
       onClose();
     } catch (err: any) {
-      toast.error(err?.message || "Failed to delete brand. Please try again.");
+      toast.error(err?.message || "Failed to delete category. Please try again.");
     }
   };
 
@@ -84,10 +84,10 @@ export function DeleteBrandModal({
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-900 dark:text-zinc-50">
-                Delete Brand
+                Delete Category
               </h2>
               <p className="text-xs text-slate-500 dark:text-zinc-400">
-                Confirm removal of brand from catalog
+                Confirm removal of category from catalog
               </p>
             </div>
           </div>
@@ -103,15 +103,22 @@ export function DeleteBrandModal({
         {/* Modal Body */}
         <div className="p-5 space-y-4 text-xs">
           <p className="text-slate-600 dark:text-zinc-300 leading-relaxed">
-            Are you sure you want to delete brand{" "}
+            Are you sure you want to delete category{" "}
             <strong className="text-slate-900 dark:text-zinc-100 font-bold">
-              &quot;{brand.name}&quot;
+              &quot;{category.name}&quot;
             </strong>{" "}
-            (<span className="font-mono font-semibold">{brand.code}</span>)?
+            (<span className="font-mono font-semibold">{category.code}</span>)?
           </p>
 
+          {category.children && category.children.length > 0 && (
+            <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/40 text-rose-700 dark:text-rose-300 text-[11px] leading-relaxed">
+              <strong>Warning:</strong> This category contains{" "}
+              {category.children.length} subcategory/subcategories. Deleting it may detach or impact its child categories.
+            </div>
+          )}
+
           <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 text-[11px] leading-relaxed">
-            This will permanently remove the brand and its associated image from cloud storage and local IndexedDB offline storage.
+            This will remove the category from catalog searches, product categorization, and local offline cache.
           </div>
         </div>
 
@@ -143,7 +150,7 @@ export function DeleteBrandModal({
             ) : (
               <>
                 <Trash2 className="w-3.5 h-3.5" />
-                <span>Confirm Delete</span>
+                <span>Delete Category</span>
               </>
             )}
           </Button>

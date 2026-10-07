@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { BrandsListSkeleton } from "@/components/brands/BrandsListSkeleton";
@@ -15,5 +16,10 @@ export const metadata: Metadata = {
 };
 
 export default function BusinessBrandsPage() {
-  return <BrandsListView />;
+  return (
+    <Suspense fallback={<BrandsListSkeleton />}>
+      <BrandsListView />
+    </Suspense>
+  );
 }
+

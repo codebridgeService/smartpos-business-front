@@ -1,21 +1,21 @@
 import React from "react";
 import { Skeleton, type SkeletonProps, type SkeletonAnimation } from "@/components/ui/skeleton";
 
-export interface BrandsListSkeletonProps extends SkeletonProps {
+export interface CategoriesListSkeletonProps extends SkeletonProps {
   className?: string;
   animation?: SkeletonAnimation;
 }
 
-export function BrandsListSkeleton({
+export function CategoriesListSkeleton({
   animation = "shimmer",
   className = "",
   ...props
-}: BrandsListSkeletonProps) {
+}: CategoriesListSkeletonProps) {
   return (
     <div
-      data-testid="brands-list-skeleton"
+      data-testid="categories-list-skeleton"
       role="status"
-      aria-label="Loading brands catalog"
+      aria-label="Loading categories catalog"
       aria-busy="true"
       className={`space-y-6 w-full pb-12 animate-in fade-in duration-200 ${className}`}
       {...props}
@@ -72,25 +72,22 @@ export function BrandsListSkeleton({
         </div>
       </div>
 
-      {/* Brands Cards / Table Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {Array.from({ length: 8 }).map((_, idx) => (
+      {/* Table / Tree rows Skeleton */}
+      <div className="rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-sm p-4 space-y-3">
+        {Array.from({ length: 6 }).map((_, idx) => (
           <div
             key={idx}
-            className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-sm space-y-4"
+            className="p-3 rounded-xl border border-slate-100 dark:border-zinc-800/80 flex items-center justify-between gap-4"
           >
-            <div className="flex items-start justify-between">
-              <Skeleton animation={animation} className="h-12 w-12 rounded-xl" />
-              <Skeleton animation={animation} className="h-5 w-16 rounded-full" />
+            <div className="flex items-center gap-3 flex-1">
+              <Skeleton animation={animation} className="h-9 w-9 rounded-lg shrink-0" />
+              <div className="space-y-1.5 flex-1">
+                <Skeleton animation={animation} className="h-4 w-44 rounded-md" />
+                <Skeleton animation={animation} className="h-3 w-28 rounded-md" />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Skeleton animation={animation} className="h-5 w-3/4 rounded-md" />
-              <Skeleton animation={animation} className="h-3 w-1/2 rounded-md" />
-            </div>
-            <div className="pt-2 border-t border-slate-100 dark:border-zinc-800/80 flex items-center justify-between">
-              <Skeleton animation={animation} className="h-4 w-20 rounded-md" />
-              <Skeleton animation={animation} className="h-8 w-16 rounded-lg" />
-            </div>
+            <Skeleton animation={animation} className="h-5 w-20 rounded-full" />
+            <Skeleton animation={animation} className="h-8 w-24 rounded-lg" />
           </div>
         ))}
       </div>
