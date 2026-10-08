@@ -3,7 +3,6 @@
 import React, { Suspense, useState, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { DashboardShell } from "@/components/layout";
 import { useToast } from "@/components/ui/toast";
 import { FeatureGuard } from "@/components/feature-control/FeatureGuard";
 import {
@@ -671,330 +670,326 @@ function ComingSoonContent() {
     selectedKey === "products"
       ? "dashboard.products"
       : selectedKey === "create-product"
-      ? "product.create"
-      : selectedKey === "expired-products"
-      ? "product.expired"
-      : `dashboard.${selectedKey}`;
+        ? "product.create"
+        : selectedKey === "expired-products"
+          ? "product.expired"
+          : `dashboard.${selectedKey}`;
 
   return (
     <FeatureGuard featureKey={targetFeatureKey} fallbackTitle={currentModule.title}>
       <div className="w-full max-w-6xl mx-auto py-6 sm:py-8 space-y-8 animate-slide-up">
-      {/* Top Navigation & Breadcrumbs */}
-      <div className="flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-xs font-semibold text-slate-700 dark:text-zinc-300 hover:text-orange-600 hover:border-orange-300 transition-all shadow-2xs cursor-pointer"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          <span>Back</span>
-        </button>
-
-        <div className="flex items-center gap-2.5">
-          <Link
-            href="/admin/dashboard"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-xs font-semibold text-slate-700 dark:text-zinc-300 hover:text-orange-600 hover:border-orange-300 transition-all shadow-2xs"
+        {/* Top Navigation & Breadcrumbs */}
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-xs font-semibold text-slate-700 dark:text-zinc-300 hover:text-orange-600 hover:border-orange-300 transition-all shadow-2xs cursor-pointer"
           >
-            <LayoutDashboard className="h-3.5 w-3.5 text-orange-500" />
-            <span>Dashboard</span>
-          </Link>
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span>Back</span>
+          </button>
 
-          <Link
-            href="/admin/pos"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold shadow-sm shadow-orange-500/25 transition-all"
-          >
-            <Monitor className="h-3.5 w-3.5" />
-            <span>Launch POS</span>
-          </Link>
-        </div>
-      </div>
+          <div className="flex items-center gap-2.5">
+            <Link
+              href="/admin/dashboard"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-xs font-semibold text-slate-700 dark:text-zinc-300 hover:text-orange-600 hover:border-orange-300 transition-all shadow-2xs"
+            >
+              <LayoutDashboard className="h-3.5 w-3.5 text-orange-500" />
+              <span>Dashboard</span>
+            </Link>
 
-      {/* Interactive Module Switcher Bar */}
-      <div className="space-y-2.5">
-        <div className="flex items-center justify-between px-1">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 flex items-center gap-1.5">
-            <Layers className="h-3.5 w-3.5 text-orange-500" />
-            <span>Roadmap Announcements & Upcoming Modules</span>
-          </span>
-          <span className="text-xs font-medium text-orange-600 dark:text-orange-400">
-            Select module to view roadmap
-          </span>
+            <Link
+              href="/admin/pos"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold shadow-sm shadow-orange-500/25 transition-all"
+            >
+              <Monitor className="h-3.5 w-3.5" />
+              <span>Launch POS</span>
+            </Link>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
-          {Object.values(MODULE_CONFIGS).map((mod) => {
-            const isSelected = mod.key === selectedKey;
-            return (
-              <button
-                key={mod.key}
-                type="button"
-                onClick={() => handleSelectModule(mod.key)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
-                  isSelected
+        {/* Interactive Module Switcher Bar */}
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 flex items-center gap-1.5">
+              <Layers className="h-3.5 w-3.5 text-orange-500" />
+              <span>Roadmap Announcements & Upcoming Modules</span>
+            </span>
+            <span className="text-xs font-medium text-orange-600 dark:text-orange-400">
+              Select module to view roadmap
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
+            {Object.values(MODULE_CONFIGS).map((mod) => {
+              const isSelected = mod.key === selectedKey;
+              return (
+                <button
+                  key={mod.key}
+                  type="button"
+                  onClick={() => handleSelectModule(mod.key)}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all shrink-0 cursor-pointer ${isSelected
                     ? "bg-orange-500 text-white shadow-md shadow-orange-500/25 ring-2 ring-orange-500/20 scale-[1.02]"
                     : "bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:border-orange-400 hover:text-orange-600 dark:hover:text-orange-400 shadow-2xs"
-                }`}
-              >
-                <span className={isSelected ? "text-white" : "text-slate-500 dark:text-zinc-400"}>
-                  {React.cloneElement(mod.icon as React.ReactElement<{ className?: string }>, {
-                    className: "h-4 w-4",
-                  })}
-                </span>
-                <span>{mod.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Main Hero Showcase Card */}
-      <div className="relative rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-gradient-to-b from-white to-orange-50/20 dark:from-zinc-900 dark:to-orange-950/10 p-6 sm:p-10 shadow-lg shadow-orange-500/5 backdrop-blur-md overflow-hidden">
-        {/* Glow ambient background accents */}
-        <div className="absolute -top-20 -right-20 w-72 h-72 bg-orange-500/10 dark:bg-orange-500/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-amber-500/10 dark:bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 space-y-8">
-          {/* Header Row */}
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-            <div className="space-y-3.5 max-w-2xl">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#FFF0E0] dark:bg-orange-950/60 text-[#E05305] dark:text-orange-400 border border-orange-200/60 dark:border-orange-500/20 shadow-2xs">
-                  <Flame className="h-3.5 w-3.5 text-orange-500" />
-                  <span>{currentModule.badgeText}</span>
-                </span>
-
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300">
-                  <Layers className="h-3 w-3 text-slate-500" />
-                  <span>{currentModule.category}</span>
-                </span>
-
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300">
-                  <Clock className="h-3 w-3 text-amber-500" />
-                  <span>Expected: {currentModule.expectedDate}</span>
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 text-white flex items-center justify-center shadow-md shadow-orange-500/25 shrink-0">
-                  {currentModule.icon}
-                </div>
-                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                  {currentModule.title}
-                </h1>
-              </div>
-
-              <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 leading-relaxed max-w-xl">
-                {currentModule.description}
-              </p>
-            </div>
-
-            {/* Development Progress Box */}
-            <div className="w-full lg:w-72 rounded-2xl bg-white dark:bg-zinc-800/80 p-5 border border-slate-200/90 dark:border-zinc-700/80 shadow-sm shrink-0 space-y-3">
-              <div className="flex items-center justify-between text-xs font-bold">
-                <span className="text-slate-700 dark:text-zinc-300">Development Progress</span>
-                <span className="text-orange-600 dark:text-orange-400 text-sm font-black">
-                  {currentModule.progressPercentage}%
-                </span>
-              </div>
-
-              <div className="h-2.5 w-full bg-slate-100 dark:bg-zinc-700 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full transition-all duration-700"
-                  style={{ width: `${currentModule.progressPercentage}%` }}
-                />
-              </div>
-
-              <div className="pt-1 flex items-center justify-between text-[11px] text-slate-500 dark:text-zinc-400">
-                <span className="flex items-center gap-1">
-                  <Sparkles className="h-3 w-3 text-amber-500" />
-                  <span>Sprint In Progress</span>
-                </span>
-                <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                  <ShieldCheck className="h-3 w-3" />
-                  <span>QA Verified</span>
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Countdown Clock */}
-          <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-zinc-900 to-slate-900 p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
-            <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-orange-500/10 to-transparent pointer-events-none" />
-
-            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-orange-400">
-                  <Rocket className="h-4 w-4" />
-                  <span>Estimated Deployment Countdown</span>
-                </div>
-                <div className="text-sm text-slate-300">
-                  Feature branches are staging in continuous integration builds.
-                </div>
-              </div>
-
-              <div className="grid grid-cols-4 gap-2.5 sm:gap-4 text-center">
-                <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 sm:p-3 min-w-[60px] sm:min-w-[72px] border border-white/10">
-                  <div className="text-xl sm:text-2xl font-black text-white font-mono">
-                    {String(timeLeft.days).padStart(2, "0")}
-                  </div>
-                  <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mt-0.5">
-                    Days
-                  </div>
-                </div>
-
-                <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 sm:p-3 min-w-[60px] sm:min-w-[72px] border border-white/10">
-                  <div className="text-xl sm:text-2xl font-black text-white font-mono">
-                    {String(timeLeft.hours).padStart(2, "0")}
-                  </div>
-                  <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mt-0.5">
-                    Hours
-                  </div>
-                </div>
-
-                <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 sm:p-3 min-w-[60px] sm:min-w-[72px] border border-white/10">
-                  <div className="text-xl sm:text-2xl font-black text-white font-mono">
-                    {String(timeLeft.minutes).padStart(2, "0")}
-                  </div>
-                  <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mt-0.5">
-                    Mins
-                  </div>
-                </div>
-
-                <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 sm:p-3 min-w-[60px] sm:min-w-[72px] border border-white/10">
-                  <div className="text-xl sm:text-2xl font-black text-orange-400 font-mono">
-                    {String(timeLeft.seconds).padStart(2, "0")}
-                  </div>
-                  <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mt-0.5">
-                    Secs
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Feature Highlight Cards Grid */}
-          <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 flex items-center gap-1.5">
-              <Zap className="h-3.5 w-3.5 text-orange-500" />
-              <span>Core Capabilities in this Release</span>
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {currentModule.features.map((feat, index) => (
-                <div
-                  key={index}
-                  className="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-5 space-y-2.5 shadow-2xs hover:border-orange-300 dark:hover:border-orange-500/40 transition-all"
+                    }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span
-                      className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md ${
-                        feat.status === "ready"
+                  <span className={isSelected ? "text-white" : "text-slate-500 dark:text-zinc-400"}>
+                    {React.cloneElement(mod.icon as React.ReactElement<{ className?: string }>, {
+                      className: "h-4 w-4",
+                    })}
+                  </span>
+                  <span>{mod.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Main Hero Showcase Card */}
+        <div className="relative rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-gradient-to-b from-white to-orange-50/20 dark:from-zinc-900 dark:to-orange-950/10 p-6 sm:p-10 shadow-lg shadow-orange-500/5 backdrop-blur-md overflow-hidden">
+          {/* Glow ambient background accents */}
+          <div className="absolute -top-20 -right-20 w-72 h-72 bg-orange-500/10 dark:bg-orange-500/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-amber-500/10 dark:bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 space-y-8">
+            {/* Header Row */}
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+              <div className="space-y-3.5 max-w-2xl">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#FFF0E0] dark:bg-orange-950/60 text-[#E05305] dark:text-orange-400 border border-orange-200/60 dark:border-orange-500/20 shadow-2xs">
+                    <Flame className="h-3.5 w-3.5 text-orange-500" />
+                    <span>{currentModule.badgeText}</span>
+                  </span>
+
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300">
+                    <Layers className="h-3 w-3 text-slate-500" />
+                    <span>{currentModule.category}</span>
+                  </span>
+
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300">
+                    <Clock className="h-3 w-3 text-amber-500" />
+                    <span>Expected: {currentModule.expectedDate}</span>
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 text-white flex items-center justify-center shadow-md shadow-orange-500/25 shrink-0">
+                    {currentModule.icon}
+                  </div>
+                  <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                    {currentModule.title}
+                  </h1>
+                </div>
+
+                <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 leading-relaxed max-w-xl">
+                  {currentModule.description}
+                </p>
+              </div>
+
+              {/* Development Progress Box */}
+              <div className="w-full lg:w-72 rounded-2xl bg-white dark:bg-zinc-800/80 p-5 border border-slate-200/90 dark:border-zinc-700/80 shadow-sm shrink-0 space-y-3">
+                <div className="flex items-center justify-between text-xs font-bold">
+                  <span className="text-slate-700 dark:text-zinc-300">Development Progress</span>
+                  <span className="text-orange-600 dark:text-orange-400 text-sm font-black">
+                    {currentModule.progressPercentage}%
+                  </span>
+                </div>
+
+                <div className="h-2.5 w-full bg-slate-100 dark:bg-zinc-700 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full transition-all duration-700"
+                    style={{ width: `${currentModule.progressPercentage}%` }}
+                  />
+                </div>
+
+                <div className="pt-1 flex items-center justify-between text-[11px] text-slate-500 dark:text-zinc-400">
+                  <span className="flex items-center gap-1">
+                    <Sparkles className="h-3 w-3 text-amber-500" />
+                    <span>Sprint In Progress</span>
+                  </span>
+                  <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                    <ShieldCheck className="h-3 w-3" />
+                    <span>QA Verified</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Countdown Clock */}
+            <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-zinc-900 to-slate-900 p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+              <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-orange-500/10 to-transparent pointer-events-none" />
+
+              <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-orange-400">
+                    <Rocket className="h-4 w-4" />
+                    <span>Estimated Deployment Countdown</span>
+                  </div>
+                  <div className="text-sm text-slate-300">
+                    Feature branches are staging in continuous integration builds.
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-4 gap-2.5 sm:gap-4 text-center">
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 sm:p-3 min-w-[60px] sm:min-w-[72px] border border-white/10">
+                    <div className="text-xl sm:text-2xl font-black text-white font-mono">
+                      {String(timeLeft.days).padStart(2, "0")}
+                    </div>
+                    <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mt-0.5">
+                      Days
+                    </div>
+                  </div>
+
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 sm:p-3 min-w-[60px] sm:min-w-[72px] border border-white/10">
+                    <div className="text-xl sm:text-2xl font-black text-white font-mono">
+                      {String(timeLeft.hours).padStart(2, "0")}
+                    </div>
+                    <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mt-0.5">
+                      Hours
+                    </div>
+                  </div>
+
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 sm:p-3 min-w-[60px] sm:min-w-[72px] border border-white/10">
+                    <div className="text-xl sm:text-2xl font-black text-white font-mono">
+                      {String(timeLeft.minutes).padStart(2, "0")}
+                    </div>
+                    <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mt-0.5">
+                      Mins
+                    </div>
+                  </div>
+
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 sm:p-3 min-w-[60px] sm:min-w-[72px] border border-white/10">
+                    <div className="text-xl sm:text-2xl font-black text-orange-400 font-mono">
+                      {String(timeLeft.seconds).padStart(2, "0")}
+                    </div>
+                    <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mt-0.5">
+                      Secs
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature Highlight Cards Grid */}
+            <div className="space-y-4">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 flex items-center gap-1.5">
+                <Zap className="h-3.5 w-3.5 text-orange-500" />
+                <span>Core Capabilities in this Release</span>
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {currentModule.features.map((feat, index) => (
+                  <div
+                    key={index}
+                    className="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-5 space-y-2.5 shadow-2xs hover:border-orange-300 dark:hover:border-orange-500/40 transition-all"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span
+                        className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md ${feat.status === "ready"
                           ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60"
                           : feat.status === "in_progress"
-                          ? "bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200/60"
-                          : "bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400"
-                      }`}
-                    >
-                      {feat.status === "ready"
-                        ? "Completed"
-                        : feat.status === "in_progress"
-                        ? "Engineering"
-                        : "Planned"}
-                    </span>
-                    <CheckCircle2
-                      className={`h-4 w-4 ${
-                        feat.status === "ready"
+                            ? "bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200/60"
+                            : "bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400"
+                          }`}
+                      >
+                        {feat.status === "ready"
+                          ? "Completed"
+                          : feat.status === "in_progress"
+                            ? "Engineering"
+                            : "Planned"}
+                      </span>
+                      <CheckCircle2
+                        className={`h-4 w-4 ${feat.status === "ready"
                           ? "text-emerald-500"
                           : feat.status === "in_progress"
-                          ? "text-amber-500"
-                          : "text-slate-300 dark:text-zinc-700"
-                      }`}
-                    />
+                            ? "text-amber-500"
+                            : "text-slate-300 dark:text-zinc-700"
+                          }`}
+                      />
+                    </div>
+
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                      {feat.title}
+                    </h4>
+
+                    <p className="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
+                      {feat.description}
+                    </p>
                   </div>
-
-                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                    {feat.title}
-                  </h4>
-
-                  <p className="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
-                    {feat.description}
-                  </p>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Early Access Notification Subscription Box */}
-      <div className="rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
-        <div className="space-y-1.5 text-center md:text-left">
-          <div className="flex items-center justify-center md:justify-start gap-2">
-            <div className="h-7 w-7 rounded-lg bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center">
-              <Bell className="h-4 w-4" />
+        {/* Early Access Notification Subscription Box */}
+        <div className="rounded-3xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+          <div className="space-y-1.5 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-2">
+              <div className="h-7 w-7 rounded-lg bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center">
+                <Bell className="h-4 w-4" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                Get Notified on Launch Day
+              </h3>
             </div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">
-              Get Notified on Launch Day
-            </h3>
+            <p className="text-xs text-slate-500 dark:text-zinc-400 max-w-md">
+              Join the priority beta release channel. We will send you early release notes and immediate access the day this module deploys.
+            </p>
           </div>
-          <p className="text-xs text-slate-500 dark:text-zinc-400 max-w-md">
-            Join the priority beta release channel. We will send you early release notes and immediate access the day this module deploys.
-          </p>
-        </div>
 
-        <form onSubmit={handleSubscribe} className="flex items-center gap-2 w-full md:w-auto max-w-md">
-          <input
-            type="email"
-            placeholder="Enter your work email address..."
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={subscribed}
-            className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800/80 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
-            required
-          />
-          <button
-            type="submit"
-            disabled={subscribed}
-            className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white shadow-sm transition-all shrink-0 cursor-pointer ${
-              subscribed
+          <form onSubmit={handleSubscribe} className="flex items-center gap-2 w-full md:w-auto max-w-md">
+            <input
+              type="email"
+              placeholder="Enter your work email address..."
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={subscribed}
+              className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800/80 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+              required
+            />
+            <button
+              type="submit"
+              disabled={subscribed}
+              className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white shadow-sm transition-all shrink-0 cursor-pointer ${subscribed
                 ? "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20"
                 : "bg-orange-500 hover:bg-orange-600 shadow-orange-500/25"
-            }`}
-          >
-            {subscribed ? (
-              <>
-                <CheckCircle2 className="h-3.5 w-3.5" />
-                <span>Subscribed!</span>
-              </>
-            ) : (
-              <>
-                <Send className="h-3.5 w-3.5" />
-                <span>Notify Me</span>
-              </>
-            )}
-          </button>
-        </form>
+                }`}
+            >
+              {subscribed ? (
+                <>
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  <span>Subscribed!</span>
+                </>
+              ) : (
+                <>
+                  <Send className="h-3.5 w-3.5" />
+                  <span>Notify Me</span>
+                </>
+              )}
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
     </FeatureGuard>
   );
 }
 
 export default function ComingSoonPage() {
   return (
-    <DashboardShell variant="admin">
-      <Suspense
-        fallback={
-          <div className="flex items-center justify-center p-20">
-            <div className="flex items-center gap-3 text-slate-500 text-sm">
-              <Layers className="h-5 w-5 animate-spin text-orange-500" />
-              <span>Loading roadmap announcement...</span>
-            </div>
+
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center p-20">
+          <div className="flex items-center gap-3 text-slate-500 text-sm">
+            <Layers className="h-5 w-5 animate-spin text-orange-500" />
+            <span>Loading roadmap announcement...</span>
           </div>
-        }
-      >
-        <ComingSoonContent />
-      </Suspense>
-    </DashboardShell>
+        </div>
+      }
+    >
+      <ComingSoonContent />
+    </Suspense>
+
   );
 }

@@ -11,3 +11,4 @@ export * from "./company-settings-view";
 export * from "./localization-settings-view";
 export * from "./appearance-settings-view";
 export * from "./invoice-settings-view";
+export * from "./label-templates-view";

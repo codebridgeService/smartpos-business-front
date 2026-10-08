@@ -26,15 +26,6 @@ export function AnimatedNumber({
   loading = false,
   skeletonClassName,
 }: AnimatedNumberProps) {
-  if (loading) {
-    return (
-      <Skeleton
-        animation="shimmer"
-        className={skeletonClassName || "h-6 w-14 inline-block rounded-md"}
-      />
-    );
-  }
-
   const isTest = typeof process !== "undefined" && process.env?.NODE_ENV === "test";
   const [displayValue, setDisplayValue] = useState<number>(() => (isTest ? value : 0));
   const startTimestampRef = useRef<number | null>(null);
@@ -42,6 +33,8 @@ export function AnimatedNumber({
   const animationFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
+    if (loading) return;
+
     if (isTest) {
       setDisplayValue(value);
       return;
@@ -80,7 +73,16 @@ export function AnimatedNumber({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [value, duration, isTest]);
+  }, [value, duration, isTest, loading]);
+
+  if (loading) {
+    return (
+      <Skeleton
+        animation="shimmer"
+        className={skeletonClassName || "h-6 w-14 inline-block rounded-md"}
+      />
+    );
+  }
 
   const formattedText = (() => {
     if (formatter) {

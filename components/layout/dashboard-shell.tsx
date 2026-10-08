@@ -218,26 +218,23 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
 
       {/* Main Container with Sidebar */}
       <div
-        className={`flex-1 flex relative ${
-          layoutWidth === "boxed"
+        className={`flex-1 flex relative ${layoutWidth === "boxed"
             ? "max-w-[1536px] mx-auto w-full shadow-lg my-2 rounded-2xl overflow-hidden"
             : "w-full"
-        }`}
+          }`}
       >
         {/* Sidebar for Desktop */}
         {layoutMode !== "horizontal" && (
           <div
             onMouseEnter={handleSidebarMouseEnter}
             onMouseLeave={handleSidebarMouseLeave}
-            className={`hidden lg:block sticky top-16 shrink-0 ${
-              layoutMode === "detached" ? "h-[calc(100vh-4rem-1.5rem)] my-3 ml-3" : "h-[calc(100vh-4rem)]"
-            } transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-[width] z-30 ${
-              layoutMode === "two-column"
+            className={`hidden lg:block sticky top-16 shrink-0 ${layoutMode === "detached" ? "h-[calc(100vh-4rem-1.5rem)] my-3 ml-3" : "h-[calc(100vh-4rem)]"
+              } transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-[width] z-30 ${layoutMode === "two-column"
                 ? "w-74"
                 : showAdminSidebar && isEffectiveCollapsed
-                ? "w-20"
-                : "w-64"
-            }`}
+                  ? "w-20"
+                  : "w-64"
+              }`}
           >
             {layoutMode === "two-column" ? (
               <aside className={`hidden lg:flex w-full h-full border-r ${sidebarPreset.borderClass}`}>
@@ -247,70 +244,64 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
               <aside
                 onMouseEnter={handleSidebarMouseEnter}
                 onMouseLeave={handleSidebarMouseLeave}
-                className={`hidden lg:flex flex-col w-full h-full overflow-hidden ${
-                  showAdminSidebar && isEffectiveCollapsed ? "px-2 py-3" : "p-3"
-                } border-r transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${sidebarPreset.colorClass} ${sidebarPreset.borderClass} ${sidebarPreset.textClass} ${
-                  layoutMode === "detached" ? "rounded-3xl shadow-xl border" : ""
-                }`}
+                className={`hidden lg:flex flex-col w-full h-full overflow-hidden ${showAdminSidebar && isEffectiveCollapsed ? "px-2 py-3" : "p-3"
+                  } border-r transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${sidebarPreset.colorClass} ${sidebarPreset.borderClass} ${sidebarPreset.textClass} ${layoutMode === "detached" ? "rounded-3xl shadow-xl border" : ""
+                  }`}
               >
-              {showAdminSidebar ? (
-                <AdminSidebar
-                  isCollapsed={isEffectiveCollapsed}
-                  onToggleCollapse={handleToggleCollapse}
-                />
-              ) : (
-                <div className="space-y-1 flex-1 min-h-0 sidebar-scrollbar overflow-y-auto">
-                  {navItems.map((item, idx) => {
-                    const isActive = pathname === item.href;
-                    return (
-                      <Link
-                        key={`${item.label}-${item.href}-${idx}`}
-                        href={item.href}
-                        className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                          isActive
-                            ? "bg-blue-600 text-white shadow-sm shadow-blue-600/25 font-semibold"
-                            : "text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-zinc-100"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          {item.icon}
-                          <span>{item.label}</span>
-                        </div>
-                        {item.badge && (
-                          <span
-                            className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                              isActive
-                                ? "bg-white/20 text-white"
-                                : "bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
+                {showAdminSidebar ? (
+                  <AdminSidebar
+                    isCollapsed={isEffectiveCollapsed}
+                    onToggleCollapse={handleToggleCollapse}
+                  />
+                ) : (
+                  <div className="space-y-1 flex-1 min-h-0 sidebar-scrollbar overflow-y-auto">
+                    {navItems.map((item, idx) => {
+                      const isActive = pathname === item.href;
+                      return (
+                        <Link
+                          key={`${item.label}-${item.href}-${idx}`}
+                          href={item.href}
+                          className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${isActive
+                              ? "bg-blue-600 text-white shadow-sm shadow-blue-600/25 font-semibold"
+                              : "text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-zinc-100"
                             }`}
-                          >
-                            {item.badge}
-                          </span>
-                        )}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </aside>
+                        >
+                          <div className="flex items-center gap-3">
+                            {item.icon}
+                            <span>{item.label}</span>
+                          </div>
+                          {item.badge && (
+                            <span
+                              className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${isActive
+                                  ? "bg-white/20 text-white"
+                                  : "bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
+                                }`}
+                            >
+                              {item.badge}
+                            </span>
+                          )}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </aside>
             )}
           </div>
         )}
 
         {/* Mobile Navigation Drawer */}
         <div
-          className={`fixed inset-0 z-60 lg:hidden transition-opacity duration-300 ${
-            isMobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-          }`}
+          className={`fixed inset-0 z-60 lg:hidden transition-opacity duration-300 ${isMobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+            }`}
         >
           <div
             className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity duration-300"
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <div
-            className={`relative w-[270px] xs:w-72 max-w-[85vw] bg-white dark:bg-zinc-900 h-full p-3.5 sm:p-4 flex flex-col z-50 shadow-2xl transform transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${
-              isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-            }`}
+            className={`relative w-[270px] xs:w-72 max-w-[85vw] bg-white dark:bg-zinc-900 h-full p-3.5 sm:p-4 flex flex-col z-50 shadow-2xl transform transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+              }`}
           >
             <div className="flex items-center justify-between pb-4 mb-3 border-b border-slate-100 dark:border-zinc-800">
               <span className="font-bold text-sm tracking-tight text-slate-900 dark:text-white">
@@ -334,11 +325,10 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
                       key={`mobile-${item.label}-${item.href}-${idx}`}
                       href={item.href}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium ${
-                        pathname === item.href
+                      className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium ${pathname === item.href
                           ? "bg-blue-600 text-white font-semibold"
                           : "text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-3">
                         {item.icon}
@@ -354,9 +344,8 @@ export function DashboardShell({ children, variant = "auto" }: DashboardShellPro
 
         {/* Page Content */}
         <main
-          className={`flex-1 p-3 xs:p-4 sm:p-6 lg:p-7 w-full min-w-0 ${
-            layoutWidth === "boxed" ? "max-w-7xl mx-auto" : ""
-          }`}
+          className={`flex-1 p-3 xs:p-4 sm:p-6 lg:p-7 w-full min-w-0 ${layoutWidth === "boxed" ? "max-w-7xl mx-auto" : ""
+            }`}
         >
           <div className="w-full flex-1 flex flex-col min-w-0 animate-fade-in">
             <PageFeatureGuard>{children}</PageFeatureGuard>

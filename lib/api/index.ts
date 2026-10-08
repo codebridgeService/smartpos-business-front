@@ -20,3 +20,5 @@ export * from "./security";
 export * from "./security-events";
 export * from "./brands";
 export * from "./categories";
+export * from "./label-templates";
+export * from "./units";

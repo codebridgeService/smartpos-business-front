@@ -126,4 +126,20 @@ export const queryKeys = {
       params ? ([...queryKeys.security.all, "events", params] as const) : ([...queryKeys.security.all, "events"] as const),
     event: (uuid: string) => [...queryKeys.security.all, "event", uuid] as const,
   },
+  labelTemplates: {
+    all: ["label-templates"] as const,
+    lists: () => [...queryKeys.labelTemplates.all, "list"] as const,
+    list: (params?: Record<string, unknown>) =>
+      params ? ([...queryKeys.labelTemplates.lists(), params] as const) : queryKeys.labelTemplates.lists(),
+    details: () => [...queryKeys.labelTemplates.all, "detail"] as const,
+    detail: (id: string | number) => [...queryKeys.labelTemplates.details(), String(id)] as const,
+  },
+  units: {
+    all: ["units"] as const,
+    lists: () => [...queryKeys.units.all, "list"] as const,
+    list: (params?: Record<string, unknown>) =>
+      params ? ([...queryKeys.units.lists(), params] as const) : queryKeys.units.lists(),
+    details: () => [...queryKeys.units.all, "detail"] as const,
+    detail: (idOrUuid: string | number) => [...queryKeys.units.details(), String(idOrUuid)] as const,
+  },
 } as const;

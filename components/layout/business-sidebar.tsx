@@ -220,7 +220,7 @@ export function BusinessSidebar({
         },
         {
           label: "Units & Scaling",
-          href: "/coming-soon?feature=units",
+          href: "/businesses/units",
           icon: <Scale className="h-4.5 w-4.5 shrink-0" />,
         },
         {
