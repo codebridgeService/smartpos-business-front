@@ -113,7 +113,7 @@ export function TwoColumnSidebar() {
         { label: "Products Catalog", href: "/coming-soon?feature=products", icon: <Package className="h-4 w-4" /> },
         { label: "Category", href: "/businesses/category", icon: <FolderTree className="h-4 w-4" /> },
         { label: "Brands Catalog", href: "/businesses/brands", icon: <BadgeCheck className="h-4 w-4" /> },
-        { label: "Units & Scaling", href: "/coming-soon?feature=units", icon: <Scale className="h-4 w-4" /> },
+        { label: "Units & Scaling", href: "/businesses/units", icon: <Scale className="h-4 w-4" /> },
         { label: "Stock Adjustment", href: "/coming-soon?feature=stock-adjustment", icon: <TrendingUp className="h-4 w-4" /> },
         { label: "Stock Transfer", href: "/coming-soon?feature=stock-transfer", icon: <ArrowLeftRight className="h-4 w-4" /> },
       ],

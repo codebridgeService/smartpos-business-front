@@ -13,4 +13,6 @@ export * from "./hooks/use-products";
 export * from "./hooks/use-shifts";
 export * from "./hooks/use-security-events";
 export * from "./hooks/use-brands";
+export * from "./hooks/use-label-templates";
+export * from "./hooks/use-units";
 

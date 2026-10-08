@@ -227,6 +227,12 @@ export function ProfileView({ className }: ProfileViewProps = {}) {
     }
   };
 
+  const avatarSrc = user ? getAvatarUrl(user.avatar_url, user.avatar) : "";
+
+  useEffect(() => {
+    setImageError(false);
+  }, [avatarSrc]);
+
   if (isAuthLoading && !user) {
     return (
       <div className="p-4 sm:p-6 space-y-6 max-w-5xl mx-auto">
@@ -270,12 +276,6 @@ export function ProfileView({ className }: ProfileViewProps = {}) {
       .slice(0, 2)
       .join("")
       .toUpperCase() || "U";
-
-  const avatarSrc = getAvatarUrl(user.avatar_url, user.avatar);
-
-  useEffect(() => {
-    setImageError(false);
-  }, [avatarSrc]);
 
   return (
     <div className={className || "p-4 sm:p-6 lg:p-8 space-y-6 max-w-5xl mx-auto"}>

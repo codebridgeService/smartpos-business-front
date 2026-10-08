@@ -7,6 +7,10 @@ import {
   type CreateCategoryInput,
   type UpdateCategoryInput,
   type CategoryDeleteResponse,
+  type GetTrashedCategoriesParams,
+  type TrashedCategoryRestoreResponse,
+  type TrashedCategoryForceDeleteResponse,
+  type CategoryListResponse,
   categoriesApi,
 } from "@/lib/api/categories";
 import {
@@ -129,6 +133,7 @@ export function useDeleteCategoryMutation() {
         current.filter((c) => c.uuid !== variables.idOrUuid && c.id !== variables.idOrUuid)
       );
       queryClient.invalidateQueries({ queryKey: queryKeys.categories.lists() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.categories.trash() });
       queryClient.invalidateQueries({ queryKey: queryKeys.categories.all });
     },
   });
@@ -155,6 +160,85 @@ export function useToggleCategoryStatusMutation() {
         current.map((c) => (c.uuid === updated.uuid || c.id === updated.id ? updated : c))
       );
       queryClient.invalidateQueries({ queryKey: queryKeys.categories.lists() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.categories.all });
+    },
+  });
+}
+
+/**
+ * Hook to fetch paginated soft-deleted categories from trash bin
+ */
+export function useTrashedCategoriesQuery(params?: GetTrashedCategoriesParams, enabled = true) {
+  return useQuery<CategoryListResponse>({
+    queryKey: queryKeys.categories.trash(params as Record<string, unknown>),
+    queryFn: async () => {
+      const res = await categoriesApi.getTrashedCategories(params);
+      if (res?.data) {
+        useCategoryStore.getState().setTrashedCategories(res.data, res.meta);
+      }
+      return res;
+    },
+    enabled,
+    staleTime: 30 * 1000,
+  });
+}
+
+/**
+ * Hook to restore a soft-deleted category
+ */
+export function useRestoreCategoryMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    TrashedCategoryRestoreResponse,
+    Error,
+    { idOrUuid: string | number; businessUuid?: string }
+  >({
+    mutationFn: async ({ idOrUuid, businessUuid }) => {
+      return await categoriesApi.restoreCategory(idOrUuid, businessUuid);
+    },
+    onSuccess: (res, variables) => {
+      const restored = res.data;
+      if (restored) {
+        saveCategoriesToIndexedDb([restored]).catch(() => {});
+        const currentActive = useCategoryStore.getState().categories;
+        useCategoryStore.getState().setCategories([
+          restored,
+          ...currentActive.filter((c) => c.uuid !== restored.uuid && c.id !== restored.id),
+        ]);
+      }
+      const currentTrashed = useCategoryStore.getState().trashedCategories;
+      useCategoryStore.getState().setTrashedCategories(
+        currentTrashed.filter((c) => c.uuid !== variables.idOrUuid && c.id !== variables.idOrUuid)
+      );
+
+      queryClient.invalidateQueries({ queryKey: queryKeys.categories.lists() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.categories.trash() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.categories.all });
+    },
+  });
+}
+
+/**
+ * Hook to permanently purge a soft-deleted category from database and storage
+ */
+export function useForceDeleteCategoryMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    TrashedCategoryForceDeleteResponse,
+    Error,
+    { idOrUuid: string | number; businessUuid?: string }
+  >({
+    mutationFn: async ({ idOrUuid, businessUuid }) => {
+      return await categoriesApi.forceDeleteCategory(idOrUuid, businessUuid);
+    },
+    onSuccess: (_, variables) => {
+      const currentTrashed = useCategoryStore.getState().trashedCategories;
+      useCategoryStore.getState().setTrashedCategories(
+        currentTrashed.filter((c) => c.uuid !== variables.idOrUuid && c.id !== variables.idOrUuid)
+      );
+      queryClient.invalidateQueries({ queryKey: queryKeys.categories.trash() });
       queryClient.invalidateQueries({ queryKey: queryKeys.categories.all });
     },
   });

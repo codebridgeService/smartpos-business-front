@@ -197,7 +197,7 @@ export function HorizontalNav() {
         { label: "Category", href: "/businesses/category", icon: <FolderTree className="h-3.5 w-3.5" /> },
         { label: "Sub Category", href: "/businesses/category", icon: <GitFork className="h-3.5 w-3.5" /> },
         { label: "Brands", href: "/businesses/brands", icon: <Award className="h-3.5 w-3.5" /> },
-        { label: "Units & Scaling", href: "/coming-soon?feature=units", icon: <Scale className="h-3.5 w-3.5" /> },
+        { label: "Units & Scaling", href: "/businesses/units", icon: <Scale className="h-3.5 w-3.5" /> },
       ],
     },
     {

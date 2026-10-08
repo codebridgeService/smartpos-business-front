@@ -1,9 +1,11 @@
 import { create } from "zustand";
 import {
   type Category,
+  type CategoryMeta,
   type CreateCategoryInput,
   type UpdateCategoryInput,
   type GetCategoriesParams,
+  type GetTrashedCategoriesParams,
   categoriesApi,
 } from "@/lib/api/categories";
 import {
@@ -18,10 +20,15 @@ export interface CategoryState {
   // Data
   categories: Category[];
   treeData: Category[];
+  trashedCategories: Category[];
+  trashedMeta: CategoryMeta;
   selectedCategory: Category | null;
   activeBusinessUuid: string;
   isLoading: boolean;
   isSaving: boolean;
+  isTrashLoading: boolean;
+  isRestoring: boolean;
+  isForceDeleting: boolean;
   error: string | null;
 
   // View & Filter
@@ -34,10 +41,12 @@ export interface CategoryState {
   isEditModalOpen: boolean;
   isDeleteModalOpen: boolean;
   isDetailModalOpen: boolean;
+  isTrashModalOpen: boolean;
 
   // State setters
   setCategories: (categories: Category[]) => void;
   setTreeData: (treeData: Category[]) => void;
+  setTrashedCategories: (categories: Category[], meta?: CategoryMeta) => void;
   setSelectedCategory: (category: Category | null) => void;
   setActiveBusinessUuid: (businessUuid: string) => void;
   setViewMode: (mode: CategoryViewMode) => void;
@@ -55,26 +64,36 @@ export interface CategoryState {
   closeDeleteModal: () => void;
   openDetailModal: (category: Category) => void;
   closeDetailModal: () => void;
+  openTrashModal: () => void;
+  closeTrashModal: () => void;
 
   // Async Actions
   fetchCategories: (params?: GetCategoriesParams) => Promise<Category[]>;
   fetchTree: (businessUuid?: string) => Promise<Category[]>;
+  fetchTrashedCategories: (params?: GetTrashedCategoriesParams) => Promise<Category[]>;
   createCategory: (input: CreateCategoryInput | FormData) => Promise<Category>;
   updateCategory: (
     idOrUuid: string | number,
     data: UpdateCategoryInput | Partial<Category> | FormData
   ) => Promise<Category>;
   deleteCategory: (idOrUuid: string | number) => Promise<void>;
+  restoreCategory: (idOrUuid: string | number, businessUuid?: string) => Promise<Category>;
+  forceDeleteCategory: (idOrUuid: string | number, businessUuid?: string) => Promise<void>;
   toggleCategoryStatus: (category: Category) => Promise<Category>;
 }
 
 export const useCategoryStore = create<CategoryState>((set, get) => ({
   categories: [],
   treeData: [],
+  trashedCategories: [],
+  trashedMeta: { current_page: 1, last_page: 1, per_page: 20, total: 0 },
   selectedCategory: null,
   activeBusinessUuid: "",
   isLoading: false,
   isSaving: false,
+  isTrashLoading: false,
+  isRestoring: false,
+  isForceDeleting: false,
   error: null,
 
   viewMode: "table",
@@ -85,9 +104,15 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
   isEditModalOpen: false,
   isDeleteModalOpen: false,
   isDetailModalOpen: false,
+  isTrashModalOpen: false,
 
   setCategories: (categories) => set({ categories }),
   setTreeData: (treeData) => set({ treeData }),
+  setTrashedCategories: (trashedCategories, meta) =>
+    set({
+      trashedCategories,
+      ...(meta ? { trashedMeta: meta } : {}),
+    }),
   setSelectedCategory: (selectedCategory) => set({ selectedCategory }),
   setActiveBusinessUuid: (activeBusinessUuid) => set({ activeBusinessUuid }),
   setViewMode: (viewMode) => set({ viewMode }),
@@ -111,6 +136,9 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
 
   openDetailModal: (category) => set({ isDetailModalOpen: true, selectedCategory: category }),
   closeDetailModal: () => set({ isDetailModalOpen: false, selectedCategory: null }),
+
+  openTrashModal: () => set({ isTrashModalOpen: true }),
+  closeTrashModal: () => set({ isTrashModalOpen: false }),
 
   fetchCategories: async (params?: GetCategoriesParams) => {
     const targetBusiness = params?.business_uuid || get().activeBusinessUuid;
@@ -221,6 +249,73 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
     } catch (err: any) {
       const msg = err.response?.data?.message || err.message || "Failed to delete category";
       set({ error: msg, isSaving: false });
+      throw err;
+    }
+  },
+
+  fetchTrashedCategories: async (params?: GetTrashedCategoriesParams) => {
+    const targetBusiness = params?.business_uuid || get().activeBusinessUuid;
+    set({ isTrashLoading: true, error: null });
+    try {
+      const response = await categoriesApi.getTrashedCategories({
+        business_uuid: targetBusiness,
+        ...params,
+      });
+      set({
+        trashedCategories: response.data,
+        trashedMeta: response.meta,
+        isTrashLoading: false,
+      });
+      return response.data;
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message || "Failed to load trashed categories";
+      set({ error: msg, isTrashLoading: false });
+      return [];
+    }
+  },
+
+  restoreCategory: async (idOrUuid: string | number, businessUuid?: string) => {
+    const targetBusiness = businessUuid || get().activeBusinessUuid;
+    set({ isRestoring: true, error: null });
+    try {
+      const res = await categoriesApi.restoreCategory(idOrUuid, targetBusiness);
+      const restored = res.data;
+      set((state) => ({
+        trashedCategories: state.trashedCategories.filter(
+          (c) => c.uuid !== idOrUuid && c.id !== idOrUuid
+        ),
+        categories: [
+          restored,
+          ...state.categories.filter((c) => c.uuid !== restored.uuid && c.id !== restored.id),
+        ],
+        isRestoring: false,
+      }));
+      if (restored) {
+        saveCategoriesToIndexedDb([restored]).catch(() => {});
+      }
+      return restored;
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message || "Failed to restore category";
+      set({ error: msg, isRestoring: false });
+      throw err;
+    }
+  },
+
+  forceDeleteCategory: async (idOrUuid: string | number, businessUuid?: string) => {
+    const targetBusiness = businessUuid || get().activeBusinessUuid;
+    set({ isForceDeleting: true, error: null });
+    try {
+      await categoriesApi.forceDeleteCategory(idOrUuid, targetBusiness);
+      set((state) => ({
+        trashedCategories: state.trashedCategories.filter(
+          (c) => c.uuid !== idOrUuid && c.id !== idOrUuid
+        ),
+        isForceDeleting: false,
+      }));
+    } catch (err: any) {
+      const msg =
+        err.response?.data?.message || err.message || "Failed to permanently purge category";
+      set({ error: msg, isForceDeleting: false });
       throw err;
     }
   },

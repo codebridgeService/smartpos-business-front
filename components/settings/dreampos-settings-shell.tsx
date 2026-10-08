@@ -27,6 +27,7 @@ import {
   Printer,
   Cpu,
   Tags,
+  Tag,
   Mail,
   MessageSquare,
   ShieldAlert,
@@ -53,6 +54,7 @@ import { CompanySettingsView } from "./company-settings-view";
 import { LocalizationSettingsView } from "./localization-settings-view";
 import { AppearanceSettingsView } from "./appearance-settings-view";
 import { InvoiceSettingsView } from "./invoice-settings-view";
+import { LabelTemplatesView } from "./label-templates-view";
 
 interface SubItem {
   id: string;
@@ -209,6 +211,7 @@ const SETTINGS_GROUPS: SettingsGroup[] = [
     items: [
       { id: "pos-pin", label: "POS Fast-Access PIN", icon: <KeyRound className="h-3.5 w-3.5 shrink-0" /> },
       { id: "invoice-settings", label: "Invoice Formats", icon: <Receipt className="h-3.5 w-3.5 shrink-0" /> },
+      { id: "label-templates", label: "Barcode & Labels", icon: <Tag className="h-3.5 w-3.5 shrink-0" /> },
       { id: "printers", label: "Printers & Hardware", icon: <Printer className="h-3.5 w-3.5 shrink-0" /> },
       { id: "pos-settings", label: "POS Terminal Engine", icon: <Cpu className="h-3.5 w-3.5 shrink-0" /> },
       { id: "custom-fields", label: "Custom Attributes", icon: <Tags className="h-3.5 w-3.5 shrink-0" /> },
@@ -645,6 +648,8 @@ export function DreamPosSettingsShell({
 
         {activeTab === "invoice-settings" && <InvoiceSettingsView />}
 
+        {activeTab === "label-templates" && <LabelTemplatesView />}
+
         {/* Other Settings Placeholder Views */}
         {activeTab !== "profile" &&
           activeTab !== "security" &&
@@ -654,7 +659,8 @@ export function DreamPosSettingsShell({
           activeTab !== "company-settings" &&
           activeTab !== "localization" &&
           activeTab !== "appearance" &&
-          activeTab !== "invoice-settings" && (
+          activeTab !== "invoice-settings" &&
+          activeTab !== "label-templates" && (
             <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 p-8 shadow-xs text-center">
               <div className="max-w-md mx-auto py-8">
                 <div className="h-12 w-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center mx-auto mb-3 shadow-md shadow-indigo-500/20">

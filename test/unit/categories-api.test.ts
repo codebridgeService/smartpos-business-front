@@ -148,4 +148,102 @@ describe("Categories API Client", () => {
     });
     expect(res.success).toBe(true);
   });
+
+  it("calls GET /categories/trash with parameters and X-Business-Uuid header", async () => {
+    const mockTrashResponse = {
+      success: true,
+      data: [
+        {
+          id: 5,
+          uuid: "cat-del-005",
+          name: "Old Bakery",
+          code: "O-BAK",
+          deleted_at: "2026-02-01T10:00:00Z",
+        },
+      ],
+      meta: {
+        current_page: 1,
+        last_page: 1,
+        per_page: 10,
+        total: 1,
+      },
+    };
+
+    (apiClient.get as any).mockResolvedValueOnce(mockTrashResponse);
+
+    const result = await categoriesApi.getTrashedCategories({
+      search: "old",
+      business_uuid: "biz-001",
+      page: 1,
+      per_page: 10,
+    });
+
+    expect(apiClient.get).toHaveBeenCalledWith("/categories/trash", {
+      params: {
+        search: "old",
+        business_uuid: "biz-001",
+        page: 1,
+        per_page: 10,
+      },
+      headers: {
+        "X-Business-Uuid": "biz-001",
+      },
+    });
+
+    expect(result.data).toHaveLength(1);
+    expect(result.data[0].name).toBe("Old Bakery");
+  });
+
+  it("calls POST /categories/{id}/restore with X-Business-Uuid header", async () => {
+    const mockRestoreResponse = {
+      success: true,
+      message: "Category restored successfully.",
+      data: {
+        id: 5,
+        uuid: "cat-del-005",
+        name: "Old Bakery",
+        deleted_at: null,
+      },
+    };
+
+    (apiClient.post as any).mockResolvedValueOnce(mockRestoreResponse);
+
+    const result = await categoriesApi.restoreCategory("cat-del-005", "biz-001");
+
+    expect(apiClient.post).toHaveBeenCalledWith(
+      "/categories/cat-del-005/restore",
+      {},
+      {
+        headers: {
+          "X-Business-Uuid": "biz-001",
+        },
+      }
+    );
+
+    expect(result.success).toBe(true);
+    expect(result.data.deleted_at).toBeNull();
+  });
+
+  it("calls DELETE /categories/{id}/force with X-Business-Uuid header", async () => {
+    const mockForceResponse = {
+      success: true,
+      message: "Category permanently deleted.",
+    };
+
+    (apiClient.delete as any).mockResolvedValueOnce(mockForceResponse);
+
+    const result = await categoriesApi.forceDeleteCategory("cat-del-005", "biz-001");
+
+    expect(apiClient.delete).toHaveBeenCalledWith(
+      "/categories/cat-del-005/force",
+      {
+        headers: {
+          "X-Business-Uuid": "biz-001",
+        },
+      }
+    );
+
+    expect(result.success).toBe(true);
+    expect(result.message).toBe("Category permanently deleted.");
+  });
 });

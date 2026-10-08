@@ -327,7 +327,7 @@ export const categoriesApi = {
   },
 
   /**
-   * Delete category
+   * Delete category (soft delete, moves to trash)
    * Endpoint: DELETE /categories/{category}
    */
   async deleteCategory(idOrUuid: string | number, businessUuid?: string): Promise<CategoryDeleteResponse> {
@@ -335,9 +335,120 @@ export const categoriesApi = {
     if (businessUuid && businessUuid.trim()) {
       headers["X-Business-Uuid"] = businessUuid.trim();
     }
-    const res = await apiClient.delete<CategoryDeleteResponse>(`/categories/${idOrUuid}`, {
+    const res = await apiClient.delete<CategoryDeleteResponse>(`/categories/${encodeURIComponent(String(idOrUuid))}`, {
       headers,
     });
     return res;
   },
+
+  /**
+   * Display a listing of soft-deleted categories
+   * Endpoint: GET /categories/trash
+   */
+  async getTrashedCategories(params?: GetTrashedCategoriesParams): Promise<CategoryListResponse> {
+    const queryParams: Record<string, string | number | undefined> = {};
+
+    if (params?.search && params.search.trim()) {
+      queryParams.search = params.search.trim();
+    }
+    if (params?.page) {
+      queryParams.page = params.page;
+    }
+    if (params?.per_page) {
+      queryParams.per_page = params.per_page;
+    }
+    if (params?.business_uuid && params.business_uuid.trim()) {
+      queryParams.business_uuid = params.business_uuid.trim();
+    }
+
+    const headers: Record<string, string> = {};
+    if (params?.business_uuid && params.business_uuid.trim()) {
+      headers["X-Business-Uuid"] = params.business_uuid.trim();
+    }
+
+    const response = await apiClient.get<CategoryListResponse>("/categories/trash", {
+      params: queryParams,
+      headers,
+    });
+
+    if (response && Array.isArray(response.data) && response.meta) {
+      return response;
+    }
+
+    const items = Array.isArray(response)
+      ? (response as Category[])
+      : Array.isArray((response as any)?.data)
+      ? (response as any).data
+      : [];
+
+    return {
+      success: true,
+      data: items,
+      meta: (response as any)?.meta || {
+        current_page: params?.page || 1,
+        last_page: 1,
+        per_page: params?.per_page || items.length || 20,
+        total: items.length,
+      },
+    };
+  },
+
+  /**
+   * Restore a soft-deleted category
+   * Endpoint: POST /categories/{id}/restore
+   */
+  async restoreCategory(
+    idOrUuid: string | number,
+    businessUuid?: string
+  ): Promise<TrashedCategoryRestoreResponse> {
+    const headers: Record<string, string> = {};
+    if (businessUuid && businessUuid.trim()) {
+      headers["X-Business-Uuid"] = businessUuid.trim();
+    }
+
+    const res = await apiClient.post<TrashedCategoryRestoreResponse>(
+      `/categories/${encodeURIComponent(String(idOrUuid))}/restore`,
+      {},
+      { headers }
+    );
+    return res;
+  },
+
+  /**
+   * Permanently purge a soft-deleted category from storage
+   * Endpoint: DELETE /categories/{id}/force
+   */
+  async forceDeleteCategory(
+    idOrUuid: string | number,
+    businessUuid?: string
+  ): Promise<TrashedCategoryForceDeleteResponse> {
+    const headers: Record<string, string> = {};
+    if (businessUuid && businessUuid.trim()) {
+      headers["X-Business-Uuid"] = businessUuid.trim();
+    }
+
+    const res = await apiClient.delete<TrashedCategoryForceDeleteResponse>(
+      `/categories/${encodeURIComponent(String(idOrUuid))}/force`,
+      { headers }
+    );
+    return res;
+  },
 };
+
+export interface GetTrashedCategoriesParams {
+  business_uuid?: string;
+  search?: string;
+  page?: number;
+  per_page?: number;
+}
+
+export interface TrashedCategoryRestoreResponse {
+  success: boolean;
+  message: string;
+  data: Category;
+}
+
+export interface TrashedCategoryForceDeleteResponse {
+  success: boolean;
+  message: string;
+}

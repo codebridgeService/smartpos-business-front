@@ -13,6 +13,8 @@ import {
   DollarSign,
   ShoppingBag,
   Sparkles,
+  Tag,
+  ArrowRight,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import { useTheme } from "@/context/theme-context";
@@ -250,6 +252,30 @@ export function InvoiceSettingsView() {
       </div>
 
       <div className="p-6 space-y-6">
+        {/* Quick Shortcut to Barcode & Labels */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200/60 dark:border-purple-900/40 text-xs">
+          <div className="flex items-center gap-2.5">
+            <span className="p-1.5 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 shrink-0">
+              <Tag className="h-4 w-4" />
+            </span>
+            <div>
+              <span className="font-semibold text-slate-800 dark:text-zinc-200">
+                Looking for shelf price stickers & barcode labels?
+              </span>
+              <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">
+                Configure sticky product tags and thermal barcode sizes in the Barcode & Labels tab.
+              </p>
+            </div>
+          </div>
+          <a
+            href="/settings?tab=label-templates"
+            className="inline-flex items-center gap-1 font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 text-xs shrink-0 self-start sm:self-auto"
+          >
+            <span>Label Templates</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </a>
+        </div>
+
         {/* ROW 1: Invoice Logo */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-100 dark:border-zinc-800">
           <div className="lg:w-1/3">
